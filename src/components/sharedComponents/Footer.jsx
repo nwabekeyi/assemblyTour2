@@ -172,7 +172,7 @@ const Footer = () => {
             <p className="text-gray-300 mb-6">
               Subscribe for exclusive Umrah & Hajj offers, spiritual tips, and important announcements.
             </p>
-            <form className="flex flex-col sm:flex-row gap-3">
+            <form className="flex flex-col gap-3">
               <input
                 type="email"
                 placeholder="Your email address"

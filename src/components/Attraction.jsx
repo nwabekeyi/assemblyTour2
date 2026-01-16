@@ -1,8 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import kabba from "../../public/kabba.jpg";
-import arafat from "../../public/mount-arafat.jpg";
-import majid from "../../public/al-masid.jpg"
+import kabba from "../public/kabba.jpg";
+import arafat from "../public/mount-arafat.jpg";
+import majid from "../public/al-masid.jpg"
 
 
 function Attraction() {

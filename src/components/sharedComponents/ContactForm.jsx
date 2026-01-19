@@ -48,34 +48,6 @@ const ContactForm = () => {
           />
         </div>
       </div>
-
-      {/* Contact Info Section */}
-      <div className="flex flex-wrap justify-center mt-12 space-x-8 space-y-4 text-sm text-center md:text-left animate-fade-in-up">
-        <div className="flex items-center space-x-2">
-          <span className="text-lg text-blue-600">
-            <i className="fas fa-map-marker-alt"></i>
-          </span>
-          <p>Arbaminch Sikela</p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <span className="text-lg text-blue-600">
-            <i className="fas fa-phone-alt"></i>
-          </span>
-          <p>+251964945647</p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <span className="text-lg text-blue-600">
-            <i className="fas fa-envelope"></i>
-          </span>
-          <p>Surafelwondu47@gmail.com</p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <span className="text-lg text-blue-600">
-            <i className="fas fa-globe"></i>
-          </span>
-          <p>Let us build something amazing</p>
-        </div>
-      </div>
     </div>
   );
 };

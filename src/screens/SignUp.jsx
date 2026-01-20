@@ -19,7 +19,7 @@ function SignUp() {
 
   // Navigate after successful signup
   useEffect(() => {
-    if (redirect) navigate("/");
+    if (redirect) navigate("/login");
   }, [redirect, navigate]);
 
   // Dynamically load Cloudflare Turnstile script
@@ -51,15 +51,15 @@ function SignUp() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // if (!turnstileToken) {
-    //   alert("Please complete the Turnstile challenge.");
-    //   return;
-    // }
+    if (!turnstileToken) {
+      alert("Please complete the Turnstile challenge.");
+      return;
+    }
 
     setLoading(true);
 
     try {
-      const response = await fetch(`${API_URL}/auth`, {
+      const response = await fetch(`${API_URL}/auth/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

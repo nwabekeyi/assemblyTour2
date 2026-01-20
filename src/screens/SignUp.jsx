@@ -15,7 +15,7 @@ function SignUp() {
 
   // Environment variables from Vite
   const API_URL = import.meta.env.VITE_API_URL;
-  const CLOUDFLARE_SITE = import.meta.env.VITE_CLOUDFLARE_SITE_KEY;
+  const CLOUDFLARE_SITE_KEY = import.meta.env.VITE_CLOUDFLARE_SITE_KEY;
 
   // Navigate after successful signup
   useEffect(() => {

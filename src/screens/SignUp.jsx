@@ -78,7 +78,7 @@ function SignUp() {
       }
 
       // Registration successful
-      alert("Registration successful! Your temp password: " + data.data.temp_password);
+      alert("Registration successful");
       setRedirect(true);
     } catch (error) {
       console.error("Signup error:", error);

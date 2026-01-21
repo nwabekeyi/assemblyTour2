@@ -22,14 +22,13 @@ function homepage() {
     <div className="flex flex-col w-full">
       <Hero/>
       <AboutUs />
-      <FeaturedBlogs />
       <TourPackages />
+      <FeaturedBlogs />
       <TopReviewedDestinations />
       <Attraction />
       <Cta />
        <Customer />
       <Faq />
-     
     </div>
   );
 }

@@ -1,275 +1,197 @@
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 
 function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [activeSubmenu, setActiveSubmenu] = useState(null);
   const location = useLocation();
+  const currentYear = new Date().getFullYear(); // dynamic year
 
   const menuItems = [
     {
-      id: 'dashboard',
-      label: 'Dashboard',
-      path: '/dashboard',
-      icon: '📊',
+      id: "dashboard",
+      label: "Dashboard",
+      path: "/dashboard",
+      icon: "🕋",
       submenu: [
-        { label: 'Overview', path: '/dashboard' },
-        { label: 'Analytics', path: '/dashboard/analytics' },
-        { label: 'Reports', path: '/dashboard/reports' },
-      ]
+        { label: "Overview", path: "/dashboard" },
+        { label: "Registration Progress", path: "/dashboard/progress" },
+      ],
     },
     {
-      id: 'events',
-      label: 'Events & Tours',
-      path: '/dashboard/events',
-      icon: '🎯',
+      id: "journey",
+      label: "Journey Details",
+      path: "/dashboard/journey",
+      icon: "✈️",
       submenu: [
-        { label: 'All Events', path: '/dashboard/events' },
-        { label: 'Create Event', path: '/dashboard/events/create' },
-        { label: 'Calendar', path: '/dashboard/events/calendar' },
-      ]
+        { label: "Hajj / Umrah Info", path: "/dashboard/journey/details" },
+        { label: "Travel Itinerary", path: "/dashboard/journey/itinerary" },
+        { label: "Accommodation", path: "/dashboard/journey/accommodation" },
+      ],
     },
     {
-      id: 'packages',
-      label: 'Travel Packages',
-      path: '/dashboard/packages',
-      icon: '🎒',
+      id: "bookings",
+      label: "All Bookings",
+      path: "/dashboard/bookings",
+      icon: "📅",
       submenu: [
-        { label: 'All Packages', path: '/dashboard/packages' },
-        { label: 'Create Package', path: '/dashboard/packages/create' },
-        { label: 'Categories', path: '/dashboard/packages/categories' },
-      ]
+        { label: "Flights", path: "/dashboard/bookings/flights" },
+        { label: "Hotels", path: "/dashboard/bookings/hotels" },
+        { label: "Transport", path: "/dashboard/bookings/transport" },
+      ],
     },
     {
-      id: 'users',
-      label: 'Users',
-      path: '/dashboard/users',
-      icon: '👥',
+      id: "guidance",
+      label: "Manāsik Guidance",
+      path: "/dashboard/guidance",
+      icon: "📖",
       submenu: [
-        { label: 'All Users', path: '/dashboard/users' },
-        { label: 'Add User', path: '/dashboard/users/create' },
-        { label: 'User Roles', path: '/dashboard/users/roles' },
-      ]
+        { label: "Ihram Guide", path: "/dashboard/guidance/ihram" },
+        { label: "Tawaf & Sa’i", path: "/dashboard/guidance/tawaf" },
+        { label: "Dua & Prayers", path: "/dashboard/guidance/dua" },
+      ],
     },
     {
-      id: 'bookings',
-      label: 'Bookings',
-      path: '/dashboard/bookings',
-      icon: '📅',
+      id: "documents",
+      label: "Documents",
+      path: "/dashboard/documents",
+      icon: "📂",
       submenu: [
-        { label: 'All Bookings', path: '/dashboard/bookings' },
-        { label: 'Pending', path: '/dashboard/bookings/pending' },
-        { label: 'Confirmed', path: '/dashboard/bookings/confirmed' },
-      ]
+        { label: "Visa", path: "/dashboard/documents/visa" },
+        { label: "Passport", path: "/dashboard/documents/passport" },
+        { label: "Vaccination", path: "/dashboard/documents/vaccination" },
+      ],
     },
     {
-      id: 'destinations',
-      label: 'Destinations',
-      path: '/dashboard/destinations',
-      icon: '🌍',
+      id: "support",
+      label: "Support",
+      path: "/dashboard/support",
+      icon: "☎️",
       submenu: [
-        { label: 'All Destinations', path: '/dashboard/destinations' },
-        { label: 'Popular', path: '/dashboard/destinations/popular' },
-        { label: 'Add New', path: '/dashboard/destinations/create' },
-      ]
-    }
+        { label: "Contact Agent", path: "/dashboard/support/contact" },
+        { label: "Emergency Help", path: "/dashboard/support/emergency" },
+      ],
+    },
   ];
 
-  const toggleSubmenu = (menuId) => {
-    setActiveSubmenu(activeSubmenu === menuId ? null : menuId);
+  const toggleSubmenu = (id) => {
+    setActiveSubmenu(activeSubmenu === id ? null : id);
   };
 
-  const isActivePath = (path) => {
-    return location.pathname === path || location.pathname.startsWith(path + '/');
-  };
-
-  const sidebarVariants = {
-    expanded: { width: "256px" },
-    collapsed: { width: "80px" }
-  };
-
-  const itemVariants = {
-    expanded: { opacity: 1, x: 0 },
-    collapsed: { opacity: 0, x: -20 }
-  };
-
-  const submenuVariants = {
-    open: { 
-      opacity: 1, 
-      height: "auto",
-      transition: { 
-        staggerChildren: 0.1
-      }
-    },
-    closed: { 
-      opacity: 0, 
-      height: 0 
-    }
-  };
-
-  const subItemVariants = {
-    open: { opacity: 1, x: 0 },
-    closed: { opacity: 0, x: -10 }
-  };
+  const isActivePath = (path) =>
+    location.pathname === path || location.pathname.startsWith(path + "/");
 
   return (
     <motion.div
-      className="fixed top-0 left-0 min-h-screen text-white shadow-xl bg-gradient-to-b from-gray-900 to-gray-800"
-      variants={sidebarVariants}
-      initial="expanded"
-      animate={isCollapsed ? "collapsed" : "expanded"}
+      className="fixed top-0 left-0 min-h-screen text-white bg-gradient-to-b from-gray-900 to-gray-800 shadow-xl"
+      animate={{ width: isCollapsed ? 80 : 256 }}
       transition={{ type: "spring", damping: 25 }}
     >
-      {/* Toggle Button */}
-      <motion.button
-        className="absolute z-10 p-2 text-white bg-blue-500 rounded-full shadow-lg -right-3 top-6 hover:bg-blue-600"
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
+      {/* Toggle */}
+      <button
         onClick={() => setIsCollapsed(!isCollapsed)}
+        className="absolute z-10 p-2 text-white bg-green-600 rounded-full -right-3 top-6"
       >
-        {isCollapsed ? '→' : '←'}
-      </motion.button>
+        {isCollapsed ? "→" : "←"}
+      </button>
 
-      {/* Logo Section */}
+      {/* Logo */}
       <div className="p-6 border-b border-gray-700">
-        <motion.div 
-          className="flex items-center space-x-3"
-          animate={isCollapsed ? { justifyContent: "center" } : { justifyContent: "flex-start" }}
-        >
-          <div className="flex items-center justify-center w-10 h-10 text-lg font-bold text-white rounded-lg bg-gradient-to-r from-blue-500 to-purple-600">
-            ✈️
+        <div className="flex items-center gap-3">
+          <div className="flex items-center justify-center w-10 h-10 font-bold rounded-lg bg-gradient-to-r from-green-500 to-emerald-600">
+            🕋
           </div>
-          <AnimatePresence>
-            {!isCollapsed && (
-              <motion.div
-                initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: "auto" }}
-                exit={{ opacity: 0, width: 0 }}
-                transition={{ duration: 0.2 }}
-              >
-                <h1 className="text-xl font-bold text-transparent bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text">
-                  TravelEase
-                </h1>
-                <p className="text-xs text-gray-400">Admin Panel</p>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
+          {!isCollapsed && (
+            <div>
+              <h1 className="text-lg font-bold text-green-400">
+                Assembly Travels & Tours
+              </h1>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Navigation Menu */}
+      {/* Menu */}
       <nav className="p-4">
-        <ul className="space-y-4">
+        <ul className="space-y-3">
           {menuItems.map((item) => (
             <li key={item.id}>
-              <motion.div
-                className={`rounded-lg transition-all duration-200 ${
-                  isActivePath(item.path) 
-                    ? 'bg-blue-500/20 border-l-4 border-blue-400' 
-                    : 'hover:bg-gray-700/50'
+              <div
+                className={`rounded-lg ${
+                  isActivePath(item.path)
+                    ? "bg-green-500/20 border-l-4 border-green-400"
+                    : "hover:bg-gray-700/40"
                 }`}
-                whileHover={{ x: 4 }}
               >
-                <div className="flex items-center justify-between p-3 cursor-pointer">
-                  <Link 
-                    to={item.path} 
-                    className="flex items-center flex-1 space-x-3"
-                    onClick={(e) => {
-                      if (item.submenu) {
-                        e.preventDefault();
-                        toggleSubmenu(item.id);
-                      }
-                    }}
-                  >
-                    <span className="text-xl">{item.icon}</span>
-                    <AnimatePresence>
-                      {!isCollapsed && (
-                        <motion.span
-                          variants={itemVariants}
-                          initial="expanded"
-                          animate={isCollapsed ? "collapsed" : "expanded"}
-                          className="font-medium"
-                        >
-                          {item.label}
-                        </motion.span>
-                      )}
-                    </AnimatePresence>
-                  </Link>
-                  
-                  {item.submenu && !isCollapsed && (
-                    <motion.span
-                      animate={{ rotate: activeSubmenu === item.id ? 180 : 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="text-gray-400"
-                    >
-                      ▼
-                    </motion.span>
+                <Link
+                  to={item.path}
+                  onClick={(e) => {
+                    if (item.submenu) {
+                      e.preventDefault();
+                      toggleSubmenu(item.id);
+                    }
+                  }}
+                  className="flex items-center gap-3 p-3"
+                >
+                  <span className="text-xl">{item.icon}</span>
+                  {!isCollapsed && (
+                    <span className="flex-1">{item.label}</span>
                   )}
-                </div>
+                  {!isCollapsed && item.submenu && (
+                    <span className="text-xs">
+                      {activeSubmenu === item.id ? "▲" : "▼"}
+                    </span>
+                  )}
+                </Link>
 
-                {/* Submenu */}
-                {item.submenu && !isCollapsed && (
+                {!isCollapsed && item.submenu && (
                   <AnimatePresence>
                     {activeSubmenu === item.id && (
                       <motion.ul
-                        variants={submenuVariants}
-                        initial="closed"
-                        animate="open"
-                        exit="closed"
-                        className="ml-8 space-y-1 overflow-hidden"
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="ml-8 space-y-1"
                       >
-                        {item.submenu.map((subItem, index) => (
-                          <motion.li
-                            key={subItem.path}
-                            variants={subItemVariants}
-                          >
+                        {item.submenu.map((sub) => (
+                          <li key={sub.path}>
                             <Link
-                              to={subItem.path}
-                              className={`block py-2 px-3 rounded text-sm transition-colors ${
-                                location.pathname === subItem.path
-                                  ? 'text-blue-400 bg-blue-500/10'
-                                  : 'text-gray-300 hover:text-white hover:bg-gray-600/30'
+                              to={sub.path}
+                              className={`block px-3 py-2 text-sm rounded ${
+                                location.pathname === sub.path
+                                  ? "text-green-400 bg-green-500/10"
+                                  : "text-gray-300 hover:bg-gray-600/30"
                               }`}
                             >
-                              {subItem.label}
+                              {sub.label}
                             </Link>
-                          </motion.li>
+                          </li>
                         ))}
                       </motion.ul>
                     )}
                   </AnimatePresence>
                 )}
-              </motion.div>
+              </div>
             </li>
           ))}
         </ul>
       </nav>
 
-      {/* User Profile Section */}
-      <AnimatePresence>
-        {!isCollapsed && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-700 bg-gray-800/50"
-          >
-            <div className="flex items-center space-x-3">
-              <div className="flex items-center justify-center w-10 h-10 font-bold text-white rounded-full bg-gradient-to-r from-green-500 to-blue-500">
-                JD
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">John Doe</p>
-                <p className="text-xs text-gray-400 truncate">Admin</p>
-              </div>
-              <button className="text-gray-400 transition-colors hover:text-white">
-                ⚙️
-              </button>
+      {/* User */}
+      {!isCollapsed && (
+        <div className="absolute bottom-0 w-full p-4 border-t border-gray-700">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r from-green-500 to-emerald-600">
+              🧕
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <div>
+              <p className="text-sm font-medium">Pilgrim Name</p>
+              <p className="text-xs text-gray-400">Hajj {currentYear}</p>
+            </div>
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 }

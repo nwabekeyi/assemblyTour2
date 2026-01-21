@@ -25,7 +25,6 @@ function CustomerCard(props) {
           <IoMdHappy className="text-4xl text-white bg-gradient-to-r from-[#34D399] to-[#3B82F6] rounded-full p-2" />
         </div>
       </div>
-      
       <div className="relative px-4 py-6 bg-white">
         <div className="absolute w-4 h-4 transform rotate-45 -translate-x-1/2 bg-white -top-2 left-1/2"></div>
         <h4 className="text-2xl font-bold bg-gradient-to-r from-[#34D399] to-[#3B82F6] bg-clip-text text-transparent capitalize mb-3">

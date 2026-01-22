@@ -127,7 +127,7 @@ const Cta = () => {
                     <Phone size={20} className="text-green-300" />
                   </div>
                   <div className="font-semibold text-white">Call Us Now</div>
-                  <div className="text-sm text-white/60">+234 913 895 6599</div>
+                  <div className="text-sm text-white/60">+234 802 303 2496</div>
                 </Link>
               </div>
             </div>

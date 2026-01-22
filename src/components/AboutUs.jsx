@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { MdOutlineAutoStories } from "react-icons/md";
 import { FaMosque, FaHandsPraying, FaBookQuran, FaStar, FaAward, FaKaaba } from "react-icons/fa6";
 
-function AboutUs() {
+function AboutUs({ experienceSection }) {
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -87,6 +87,11 @@ function AboutUs() {
     }
   ];
 
+  // Fallback content if API doesn't provide images/text
+  const mainImage = experienceSection?.image_one || "https://www.islamic-relief.org.uk/wp-content/uploads/2024/04/How-to-perform-Umrah-feature.jpg";
+  const secondaryImage = experienceSection?.image_two || "https://zamzam-blog.s3.eu-west-1.amazonaws.com/wp-content/uploads/2022/06/Green-Dome-Madinah.jpg";
+  const bodyText = experienceSection?.body || "We specialize in transforming your sacred pilgrimage into a profound spiritual experience. With decades of expertise and unwavering dedication to serving pilgrims, we ensure every aspect of your Umrah or Hajj is handled with care, authenticity, and devotion.";
+
   return (
     <section className="relative min-h-screen py-20 overflow-hidden">
       {/* Background Decorative Elements */}
@@ -141,13 +146,12 @@ function AboutUs() {
               </span>
             </motion.h2>
 
+            {/* Body */}
             <motion.p
               variants={itemVariants}
               className="mb-10 text-lg leading-relaxed text-gray-600 lg:text-xl"
             >
-              We specialize in transforming your sacred pilgrimage into a profound spiritual experience. 
-              With decades of expertise and unwavering dedication to serving pilgrims, we ensure every aspect 
-              of your Umrah or Hajj is handled with care, authenticity, and devotion.
+              {bodyText}
             </motion.p>
 
             {/* Feature List */}
@@ -192,34 +196,21 @@ function AboutUs() {
             viewport={{ once: true, margin: "-100px" }}
             className="relative w-full h-[600px]"
           >
-            {/* Main Image - Kaaba with Pilgrims */}
+            {/* Main Image */}
             <motion.div
               variants={imageVariants}
               whileHover="hover"
               className="absolute top-0 left-0 z-20 w-3/4 overflow-hidden shadow-2xl rounded-3xl"
             >
               <img
-                src="https://www.islamic-relief.org.uk/wp-content/uploads/2024/04/How-to-perform-Umrah-feature.jpg"
-                alt="Pilgrims performing Tawaf around the Holy Kaaba in Makkah"
+                src={mainImage}
+                alt="Main Pilgrimage"
                 className="w-full h-[400px] object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-              
-              {/* Image Badge */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-                className="absolute px-4 py-2 rounded-full shadow-lg top-6 left-6 bg-white/90 backdrop-blur-sm"
-              >
-                <div className="flex items-center gap-2">
-                  <FaStar className="text-yellow-500" />
-                  <span className="text-sm font-semibold text-gray-800">Trusted by Thousands</span>
-                </div>
-              </motion.div>
             </motion.div>
 
-            {/* Secondary Image - Prophet's Mosque */}
+            {/* Secondary Image */}
             <motion.div
               variants={imageVariants}
               whileHover="hover"
@@ -227,47 +218,11 @@ function AboutUs() {
               className="absolute right-0 z-10 w-2/3 overflow-hidden shadow-xl bottom-10 rounded-2xl"
             >
               <img
-                src="https://zamzam-blog.s3.eu-west-1.amazonaws.com/wp-content/uploads/2022/06/Green-Dome-Madinah.jpg"
-                alt="The serene Prophet's Mosque with its iconic green dome in Madinah"
+                src={secondaryImage}
+                alt="Secondary Pilgrimage"
                 className="w-full h-[300px] object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent" />
-            </motion.div>
-
-            {/* Floating Element 1 */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.8, type: "spring" }}
-              className="absolute z-30 p-4 bg-white shadow-xl top-20 -right-4 rounded-2xl"
-            >
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-emerald-100 rounded-full">
-                  <FaMosque className="text-emerald-600" size={16} />
-                </div>
-                <div>
-                  <div className="font-bold text-gray-800">Makkah & Madinah</div>
-                  <div className="text-xs text-gray-500">Holy Cities</div>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Floating Element 2 */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1, type: "spring" }}
-              className="absolute z-30 p-4 bg-white shadow-xl bottom-32 -left-4 rounded-2xl"
-            >
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-amber-100 rounded-full">
-                  <FaAward className="text-amber-600" size={16} />
-                </div>
-                <div>
-                  <div className="font-bold text-gray-800">Award Winning</div>
-                  <div className="text-xs text-gray-500">Pilgrimage Services</div>
-                </div>
-              </div>
             </motion.div>
           </motion.div>
         </div>

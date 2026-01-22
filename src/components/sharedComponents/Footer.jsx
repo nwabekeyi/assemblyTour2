@@ -83,14 +83,14 @@ const Footer = () => {
   const socialLinks = [
     { icon: FaFacebookF, color: "#1877F2", link: "https://facebook.com/assemblytravels" },
     { icon: FaInstagram, color: "#E4405F", link: "https://instagram.com/assemblytravels" },
-    { icon: FaWhatsapp, color: "#25D366", link: "https://wa.me/2349138956599" },
+    { icon: FaWhatsapp, color: "#25D366", link: "https://wa.me/2348023032496" },
     { icon: FaLinkedinIn, color: "#0077B5", link: "https://linkedin.com/company/assemblytravels" },
   ];
 
   const quickLinks = ["Home", "About Us", "Umrah Packages", "Hajj Packages", "Ziyarah Sites", "Blog", "Contact Us"];
 
   const contactInfo = [
-    { icon: FaPhoneAlt, text: "+234 913 895 6599" },
+    { icon: FaPhoneAlt, text: "+234 802 303 2496" },
     { icon: FaEnvelope, text: "info@assemblytravels.com" },
     { icon: FaMapMarkerAlt, text: "Lagos, Nigeria" },
   ];
@@ -203,7 +203,7 @@ const Footer = () => {
             transition={{ delay: 0.8 }}
             className="text-center text-gray-400"
           >
-            © {new Date().getFullYear()} Assembly Travels. All rights reserved. | Ministry-Approved.
+            © {new Date().getFullYear()} Assembly Travels and Tours Limited. All rights reserved. | Ministry-Approved.
           </motion.p>
         </motion.div>
       </motion.div>

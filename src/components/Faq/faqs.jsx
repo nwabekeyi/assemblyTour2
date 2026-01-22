@@ -45,7 +45,7 @@ function FaqItem({ question, answer, isActive, onToggle }) {
   );
 }
 
-function Faq() {
+function Faq({faqs}) {
   const [activeIndex, setActiveIndex] = useState(null);
 
   const handleToggle = (index) => {

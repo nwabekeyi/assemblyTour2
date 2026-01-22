@@ -1,3 +1,4 @@
+import React from "react";
 import Hero from "../components/Hero";
 import Customer from "../components/Customers/Customer";
 import Faq from "../components/Faq/faqs";
@@ -9,28 +10,43 @@ import FeaturedBlogs from "../components/Blog/FeaturedBlogs";
 import TopReviewedDestinations from "../components/Destination/TopReviewedDestinations";
 import TourPackages from "../components/Destination/TourPackages";
 import Attraction from "../components/Attraction";
-// import  { useContext } from 'react';
-// import ThemeContext from '../components/Theme/ThemeContext';
-function homepage() {
-  // const { theme } = useContext(ThemeContext);
+import Loading from "../components/Spinner/Loading";
+import { useHomeContent } from "../hooks/useHomeContent";
 
-  // const styles = {
-  //   backgroundColor: theme === 'light' ? 'white' : 'black',
-  //   color: theme === 'light' ? 'black' : 'white',
-  // };
+function Homepage() {
+  const { heroSlides, experienceSection, recentBlogs, recentSacredSites, allPackages, faqs, loading, error } = useHomeContent();
+  if (loading) return <Loading />;
+
   return (
     <div className="flex flex-col w-full">
-      <Hero/>
-      <AboutUs />
-      <TourPackages />
-      <FeaturedBlogs />
+      {/* Pass heroSlides to Hero component */}
+      <Hero slides={heroSlides} />
+
+      {/* Pass experienceSection to AboutUs component */}
+      <AboutUs experienceSection={experienceSection} />
+
+      {allPackages && allPackages.length > 0 && (
+        <TourPackages allPackages={allPackages} />
+      )}
+
+      {/* Render FeaturedBlogs only if there are recent blogs */}
+      {recentBlogs && recentBlogs.length > 0 && (
+        <FeaturedBlogs blogs={recentBlogs} />
+      )}
+
       <TopReviewedDestinations />
-      <Attraction />
+
+      {recentSacredSites && recentSacredSites.length > 0 && (
+        <Attraction  recentSacredSites={recentSacredSites} />
+      )}
       <Cta />
-       <Customer />
-      <Faq />
+      <Customer />
+
+      {faqs && faqs.length > 0 && (
+        <Faq  faqs={faqs} />
+      )}
     </div>
   );
 }
 
-export default homepage;
+export default Homepage;

@@ -116,8 +116,7 @@ const Places = () => {
               </p>
               <button className="w-[40%] mx-auto flex justify-center items-center  p-2 bg-orange-500">Read More</button>
             </div>
-           
-          </div> 
+          </div>
           <div className="space-y-2 text-left duration-200 bg-white rounded cursor-pointer drop-shadow-2xl opacity-80 hover:opacity-100">
             <img
               className="object-cover w-full rounded-t-lg h-1/2"

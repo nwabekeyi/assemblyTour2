@@ -8,33 +8,82 @@ const useAuthStore = create((set, get) => ({
   loading: false,
   checkingAuth: true,
 
-  signup: async ({ name, email, password, confirmPassword }) => {
-    if (password !== confirmPassword) {
-      return toast.error("Passwords do not match");
+  /* =======================
+     SIGNUP
+     ======================= */
+  signup: async ({ phone, turnstileToken }) => {
+    if (!turnstileToken) {
+      toast.error("Please complete the Turnstile challenge");
+      return { success: false };
     }
+
     set({ loading: true });
+
     try {
-      const res = await axios.post("/auth/signup", { name, email, password });
-      set({ user: res.data });
+      const res = await axios.post("/auth/", {
+        action: "register",
+        phone,
+        turnstileToken,
+      });
+
+      if (!res.data?.success) {
+        toast.error(res.data?.message || "Registration failed");
+        return { success: false };
+      }
+
+      toast.success(res.data?.message || "Registration successful");
+      return { success: true };
     } catch (error) {
-      toast.error(error.response?.data?.message || "Signup failed");
+      toast.error(
+        error.response?.data?.message || "An error occurred during signup"
+      );
+      return { success: false };
     } finally {
       set({ loading: false });
     }
   },
 
-  login: async ({ email, password }) => {
+  /* =======================
+     LOGIN (username + password)
+     ======================= */
+  login: async ({ username, password }) => {
+    if (!username || !password) {
+      toast.error("Username and password are required");
+      return { success: false };
+    }
+
     set({ loading: true });
+
     try {
-      const res = await axios.post("/auth/login", { email, password });
-      set({ user: res.data });
+      const res = await axios.post("/auth/", {
+        action: "login",
+        username,
+        password,
+      });
+
+      if (!res.data?.success) {
+        toast.error(res.data?.message || "Login failed");
+        return { success: false };
+      }
+
+      // adjust if backend returns { user, token }
+      set({ user: res.data.user || res.data });
+
+      toast.success(res.data?.message || "Login successful");
+      return { success: true };
     } catch (error) {
-      toast.error(error.response?.data?.message || "Login failed");
+      toast.error(
+        error.response?.data?.message || "An error occurred during login"
+      );
+      return { success: false };
     } finally {
       set({ loading: false });
     }
   },
 
+  /* =======================
+     AUTH CHECK
+     ======================= */
   checkAuth: async () => {
     try {
       const res = await axios.get("/auth/profile");
@@ -46,6 +95,9 @@ const useAuthStore = create((set, get) => ({
     }
   },
 
+  /* =======================
+     GET ALL USERS
+     ======================= */
   getAllUser: async () => {
     try {
       const res = await axios.get("/auth/alluser");
@@ -55,23 +107,32 @@ const useAuthStore = create((set, get) => ({
     }
   },
 
+  /* =======================
+     LOGOUT
+     ======================= */
   logout: async () => {
     try {
       await axios.post("/auth/logout");
       set({ user: null });
+      toast.success("Logged out");
     } catch {
       toast.error("Failed to log out.");
     }
   },
 
+  /* =======================
+     REFRESH TOKEN
+     ======================= */
   refreshToken: async () => {
     if (get().checkingAuth) return;
+
     set({ checkingAuth: true });
+
     try {
       const res = await axios.post("/auth/refresh-token");
       set({ user: res.data });
       return res.data;
-    } catch (error) {
+    } catch {
       toast.error("Session expired. Please log in again.");
       set({ user: null });
     } finally {
@@ -79,31 +140,5 @@ const useAuthStore = create((set, get) => ({
     }
   },
 }));
-
-let refreshPromise = null;
-
-axios.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-      try {
-        if (!refreshPromise) {
-          const authStore = useAuthStore.getState();
-          refreshPromise = authStore.refreshToken();
-        }
-        await refreshPromise;
-        refreshPromise = null;
-        return axios(originalRequest);
-      } catch (refreshError) {
-        refreshPromise = null;
-        useAuthStore.getState().logout();
-        return Promise.reject(refreshError);
-      }
-    }
-    return Promise.reject(error);
-  }
-);
 
 export default useAuthStore;

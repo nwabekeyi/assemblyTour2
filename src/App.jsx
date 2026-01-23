@@ -67,7 +67,7 @@ function App() {
           </Route>
           <Route element={<DashBoardLayout />}>
                <Route
-              path="/admin/dashboard"
+              path="/dashboard"
               element={<TravelDashboard />}
               // element={
               //   <ProtectedRoute

@@ -84,8 +84,7 @@ const useBlogStore = create((set, get) => ({
         } catch (error) {
             set({ error: error.message });
         }
-    }    
-    
+    }
 }));
 
 export default useBlogStore;

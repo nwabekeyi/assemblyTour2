@@ -96,7 +96,7 @@ const Cta = () => {
                     <p className="text-white/80">Receive personalized Umrah & Hajj guidance from our expert advisors.</p>
                   </div>
                 </div>
-                
+
                 <Link 
                   to="/contact" 
                   className="inline-flex items-center justify-center w-full px-8 py-4 font-semibold text-white transition-all duration-300 transform shadow-lg bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 rounded-xl group-hover:scale-105 hover:shadow-emerald-500/25"

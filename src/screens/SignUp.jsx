@@ -2,24 +2,17 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { UserPlus, Loader, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
-import axiosInstance from "../lib/axios"; // adjust path if needed
+import useAuthStore from "../store/store";
 
 function SignUp() {
   const navigate = useNavigate();
+  const { signup, loading } = useAuthStore();
 
-  const [redirect, setRedirect] = useState(false);
   const [phone, setPhone] = useState("");
   const [turnstileToken, setTurnstileToken] = useState("");
-  const [loading, setLoading] = useState(false);
 
   const turnstileRef = useRef(null);
-
   const CLOUDFLARE_SITE_KEY = import.meta.env.VITE_CLOUDFLARE_SITE_KEY;
-
-  // Navigate after successful signup
-  useEffect(() => {
-    if (redirect) navigate("/admin/dashboard");
-  }, [redirect, navigate]);
 
   // Load Cloudflare Turnstile
   useEffect(() => {
@@ -43,49 +36,26 @@ function SignUp() {
     return () => document.body.removeChild(script);
   }, [CLOUDFLARE_SITE_KEY]);
 
-  // Submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!turnstileToken) {
-      alert("Please complete the Turnstile challenge.");
-      return;
-    }
+    const result = await signup({ phone, turnstileToken });
 
-    setLoading(true);
-
-    try {
-      const res = await axiosInstance.post("/auth/", {
-        action: "register",
-        phone,
-        turnstileToken,
-      });
-
-      if (!res.success) {
-        alert(res.message || "Registration failed");
-        return;
-      }
-
-      alert(res.message || "Registration successful");
-      setRedirect(true);
-    } catch (err) {
-      console.error("Signup error:", err);
-      alert(err.message || "An error occurred. Please try again.");
-    } finally {
-      setLoading(false);
+    if (result?.success) {
+      navigate("/dashboard");
     }
   };
 
   return (
-    <div className="flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="flex flex-col w-full justify-center py-12 sm:px-6 lg:px-8">
       <motion.div
         className="sm:mx-auto sm:w-full sm:max-w-md"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
       >
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-emerald-400">
-          Sign Up
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-emerald-700">
+          Start your journey
         </h2>
       </motion.div>
 
@@ -99,11 +69,10 @@ function SignUp() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Phone */}
             <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-300">
+              <label className="block text-sm font-medium text-gray-300">
                 Phone Number
               </label>
               <input
-                id="phone"
                 type="tel"
                 required
                 value={phone}
@@ -116,7 +85,6 @@ function SignUp() {
             {/* Turnstile */}
             <div ref={turnstileRef} className="mt-4" />
 
-            {/* Submit */}
             <button
               type="submit"
               disabled={loading}

@@ -61,15 +61,15 @@ const useAuthStore = create((set, get) => ({
         password,
       });
 
-      if (!res.data?.success) {
+      if (!res.success) {
         toast.error(res.data?.message || "Login failed");
         return { success: false };
       }
 
       // adjust if backend returns { user, token }
-      set({ user: res.data.user || res.data });
+      set({ user: res.data.user});
 
-      toast.success(res.data?.message || "Login successful");
+      toast.success(res.message || "Login successful");
       return { success: true };
     } catch (error) {
       toast.error(

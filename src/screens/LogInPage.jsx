@@ -16,6 +16,10 @@ function LogInPage() {
     e.preventDefault();
 
     const res = await login({ username, password });
+
+	if (res?.success) {
+		navigate("/dashboard");
+	  }
   };
 
   return (

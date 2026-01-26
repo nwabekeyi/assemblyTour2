@@ -22,6 +22,7 @@ import PackagesPage from "./screens/PackagesPage";
 import DestinationDetail from "./components/Destination/DestinationDetail";
 import TravelDashboard from "./components/Dashboard/TravelDashboard";
 import Sidebar from "./screens/AdminScreen/Sidebar";
+import PackageDetail from "./screens/packageDetail";
 
 const ProtectedRoute = ({ element, condition, redirectTo = "/login" }) => {
   if (condition === undefined || condition === null) {
@@ -55,6 +56,7 @@ function App() {
             <Route path="/contact" element={<ContactForm />} />
             <Route path="/service" element={<Service />} />
             <Route path="/packages" element={<PackagesPage />} />
+            <Route path="/packages/:id" element={<PackageDetail />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/event" element={<EventShowPage />} />
             <Route path="/event/detail/:id" element={<EventDetailPage />} />

@@ -13,7 +13,7 @@ const FeaturedBlogs = ({ blogs = [] }) => {
       </h2>
       <div className="grid gap-8 px-5 mx-auto lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1">
         {blogs.map((blog) => (
-          <Link to={`/blog/${blog.slug}`} key={blog.id}>
+          <Link to={`/detail/${blog.slug}`} key={blog.id}>
             <div className="overflow-hidden transition-all duration-300 bg-white rounded-2xl shadow-lg hover:shadow-2xl">
               <div className="flex items-center justify-between px-4 pt-4 text-sm text-gray-500">
                 <span>{new Date(blog.published_at).toLocaleDateString()}</span>

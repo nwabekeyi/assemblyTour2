@@ -14,13 +14,13 @@ import Loading from "../components/Spinner/Loading";
 import { useHomeContent } from "../hooks/useHomeContent";
 
 function Homepage() {
-  const { heroSlides, experienceSection, recentBlogs, recentSacredSites, allPackages, faqs, loading, error } = useHomeContent();
+  const { experienceSection, recentBlogs, recentSacredSites, allPackages, faqs, loading, error } = useHomeContent();
   if (loading) return <Loading />;
 
   return (
     <div className="flex flex-col w-full">
       {/* Pass heroSlides to Hero component */}
-      <Hero slides={heroSlides} />
+      <Hero/>
 
       {/* Pass experienceSection to AboutUs component */}
       <AboutUs experienceSection={experienceSection} />

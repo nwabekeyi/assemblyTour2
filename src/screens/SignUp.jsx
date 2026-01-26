@@ -8,13 +8,17 @@ function SignUp() {
   const navigate = useNavigate();
   const { signup, loading } = useAuthStore();
 
-  const [phone, setPhone] = useState("");
+  // ✅ only the 10 local digits
+  const [phoneDigits, setPhoneDigits] = useState("");
   const [turnstileToken, setTurnstileToken] = useState("");
 
   const turnstileRef = useRef(null);
+  const inputRef = useRef(null);
   const CLOUDFLARE_SITE_KEY = import.meta.env.VITE_CLOUDFLARE_SITE_KEY;
 
-  // Load Cloudflare Turnstile
+  // -----------------------------
+  // Cloudflare Turnstile
+  // -----------------------------
   useEffect(() => {
     const script = document.createElement("script");
     script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
@@ -36,15 +40,42 @@ function SignUp() {
     return () => document.body.removeChild(script);
   }, [CLOUDFLARE_SITE_KEY]);
 
+  // -----------------------------
+  // Phone input logic
+  // -----------------------------
+  const handlePhoneChange = (e) => {
+    let value = e.target.value.replace(/\D/g, ""); // digits only
+
+    // ❌ block leading zero
+    if (value.startsWith("0")) return;
+
+    // ❌ max 10 digits
+    if (value.length > 10) return;
+
+    setPhoneDigits(value);
+  };
+
+  // -----------------------------
+  // Submit
+  // -----------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const result = await signup({ phone, turnstileToken });
+    if (phoneDigits.length !== 10) return;
+
+    const phone = `+234${phoneDigits}`;
+
+    const result = await signup({
+      phone,
+      turnstileToken,
+    });
 
     if (result?.success) {
       navigate("/dashboard");
     }
   };
+
+  const isValidPhone = phoneDigits.length === 10;
 
   return (
     <div className="flex flex-col w-full justify-center py-12 sm:px-6 lg:px-8">
@@ -72,14 +103,31 @@ function SignUp() {
               <label className="block text-sm font-medium text-gray-300">
                 Phone Number
               </label>
-              <input
-                type="tel"
-                required
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md"
-                placeholder="+2348012345678"
-              />
+
+              <div className="mt-1 flex rounded-md shadow-sm">
+                {/* Prefix */}
+                <span
+                  onClick={() => inputRef.current?.focus()}
+                  className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-600 bg-gray-700 text-gray-300 text-sm cursor-text"
+                >
+                  +234
+                </span>
+
+                {/* Input */}
+                <input
+                  ref={inputRef}
+                  type="tel"
+                  required
+                  value={phoneDigits}
+                  onChange={handlePhoneChange}
+                  placeholder="8012345678"
+                  className="block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-r-md focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
+                />
+              </div>
+
+              <p className="mt-1 text-xs text-gray-400">
+                Enter 10-digit Nigerian number (no leading 0)
+              </p>
             </div>
 
             {/* Turnstile */}
@@ -87,7 +135,7 @@ function SignUp() {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || !isValidPhone}
               className="w-full flex justify-center py-2 px-4 rounded-md text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50"
             >
               {loading ? (
@@ -106,7 +154,10 @@ function SignUp() {
 
           <p className="mt-8 text-center text-sm text-gray-400">
             Already have an account?{" "}
-            <Link to="/login" className="text-emerald-400 hover:text-emerald-300">
+            <Link
+              to="/login"
+              className="text-emerald-400 hover:text-emerald-300"
+            >
               Login here <ArrowRight className="inline h-4 w-4" />
             </Link>
           </p>

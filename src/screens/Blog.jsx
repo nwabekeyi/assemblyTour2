@@ -1,159 +1,149 @@
 import { useState, useEffect } from "react";
-import { Menu, Search, Home, BookOpen, Image } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Search, Flame, BookOpen } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import Hero from "../components/Hero";
-import useBlogStore from "../store/blog.store.js";
-import TimeDifference from "../components/sharedComponents/TimeDifference.jsx";
-import useAuthStore from "../store/store.js";
-
 import Loading from "../components/Spinner/Loading.jsx";
+import useBlogStore from "../store/blog.store";
+import Pagination from "../components/Pagination/PaginationComp.jsx";
 
 function Blog() {
-  function getReadTime(content) {
-    // Average reading speed is 200 words per minute
-    const wordsPerMinute = 200;
-    // Count words in the content
-    const wordCount = content.split(/\s+/).length;
-    // Calculate read time in minutes
-    const readTime = Math.ceil(wordCount / wordsPerMinute);
-    return readTime;
-  }
+  const navigate = useNavigate();
+  const [search, setSearch] = useState("");
+  const [activeTab, setActiveTab] = useState("popular");
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const [active, setActive] = useState(0);
+  const { blogs, getAllBlogs, loading, error } = useBlogStore();
 
-  // Example Hajj and Umrah related blogs
-  const blog = [
-    {
-      "_id": "64a7f3f4e4b0c6b1f4e8c9a1",
-      "title": "The Ultimate Guide to Performing Umrah",
-      "subtitle": "Step-by-Step Guide for First-Time Pilgrims",
-      "description": "Umrah is a spiritual journey that every Muslim dreams of. This guide walks you through the rituals, essential tips, and the best time to visit the holy cities.",
-      "image": "https://images.unsplash.com/photo-1612893365260-ccab18f8f0b1",
-      "user": { "name": "Ahmed Al-Farsi", "pic": "https://randomuser.me/api/portraits/men/32.jpg" },
-      "createdAt": "2023-07-01T10:00:00Z"
-    },
-    {
-      "_id": "64a7f3f4e4b0c6b1f4e8c9a2",
-      "title": "Preparing for Hajj: What You Need to Know",
-      "subtitle": "A Comprehensive Hajj Preparation Checklist",
-      "description": "Hajj is a once-in-a-lifetime journey. Here’s your ultimate checklist to ensure you're fully prepared for the pilgrimage, including visa requirements and essential items to pack.",
-      "image": "https://images.unsplash.com/photo-1559644635-e2b585b36d8b",
-      "user": { "name": "Fatimah Al-Mansoor", "pic": "https://randomuser.me/api/portraits/women/44.jpg" },
-      "createdAt": "2023-07-02T11:30:00Z"
-    },
-    {
-      "_id": "64a7f3f4e4b0c6b1f4e8c9a3",
-      "title": "The Spiritual Significance of Tawaf",
-      "subtitle": "Understanding the Rituals of Tawaf During Hajj and Umrah",
-      "description": "Tawaf is an integral part of both Hajj and Umrah rituals. This blog explains its significance, step-by-step process, and the spiritual benefits of performing Tawaf.",
-      "image": "https://images.unsplash.com/photo-1612790132629-9ba6d0738e1b",
-      "user": { "name": "Ali Karim", "pic": "https://randomuser.me/api/portraits/men/65.jpg" },
-      "createdAt": "2023-07-03T12:00:00Z"
-    },
-    {
-      "_id": "64a7f3f4e4b0c6b1f4e8c9a4",
-      "title": "What to Expect During Arafat Day",
-      "subtitle": "The Most Sacred Day of Hajj",
-      "description": "Arafat Day is one of the most important days in the Islamic calendar. In this post, we discuss the rituals of Arafat, the significance of the day, and how to make the most out of it spiritually.",
-      "image": "https://images.unsplash.com/photo-1612962263943-d73bdb7a5b4b",
-      "user": { "name": "Samiha Al-Rahman", "pic": "https://randomuser.me/api/portraits/women/12.jpg" },
-      "createdAt": "2023-07-04T14:00:00Z"
-    }
-  ];
+  useEffect(() => {
+    getAllBlogs({
+      page: currentPage,
+      page_size: 12,
+      search,
+      sort: activeTab === "popular" ? "popular" : "latest",
+    });
+  }, [currentPage, search, activeTab]);
+
+  const handleClickBlog = (slug) => {
+    navigate(`/detail/${slug}`);
+  };
 
   return (
-    <div className="min-h-screen ">
+    <div className="min-h-screen bg-gray-50">
       <Hero />
-      {/* Navbar */}
-      <nav className="top-0 z-50 border-b">
-        <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex">
-              <div className="flex items-center flex-shrink-0">
-                <h1 className="text-xl font-bold">Blog</h1>
-              </div>
 
-              <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                <a className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-indigo-500">
-                  <Home className="w-4 h-4 mr-2" />
-                  Popular
-                </a>
-                <a className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:border-gray-300">
-                  <BookOpen className="w-4 h-4 mr-2" />
-                  All Blogs
-                </a>
-                <a className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:border-gray-300">
-                  <Image className="w-4 h-4 mr-2" />
-                  Gallery
-                </a>
-              </div>
-            </div>
+      {/* TOP FILTER BAR */}
+      <section className="sticky top-0 z-40 bg-white border-b">
+        <div className="flex flex-col gap-4 px-4 py-6 mx-auto max-w-7xl sm:flex-row sm:items-center sm:justify-between">
+          
+          {/* Tabs */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setActiveTab("popular")}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition ${
+                activeTab === "popular"
+                  ? "bg-emerald-600 text-white shadow"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              <Flame size={16} />
+              Popular
+            </button>
 
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="items-center hidden md:flex">
-                  <div className="relative rounded-md shadow-sm">
-                    <input
-                      type="text"
-                      className="block w-full py-2 pl-10 pr-3 leading-5 placeholder-gray-500 bg-white border border-gray-300 rounded-md focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                      placeholder="Search"
-                    />
-                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                      <Search className="w-5 h-5 text-gray-400" />
-                    </div>
-                  </div>
-                </div>
-              </div>
+            <button
+              onClick={() => setActiveTab("all")}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition ${
+                activeTab === "all"
+                  ? "bg-emerald-600 text-white shadow"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              <BookOpen size={16} />
+              All Articles
+            </button>
+          </div>
 
-              <div className="flex items-center ml-3 -mr-2 sm:hidden">
-                <button className="inline-flex items-center justify-center p-2 text-gray-400 rounded-md hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
-                  <Menu className="w-6 h-6" />
-                </button>
-              </div>
-            </div>
+          {/* Search */}
+          <div className="relative w-full sm:w-72">
+            <Search className="absolute w-5 h-5 text-gray-400 left-3 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search articles..."
+              className="w-full py-2.5 pl-10 pr-4 text-sm bg-gray-100 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            />
           </div>
         </div>
-      </nav>
+      </section>
 
-      <main className="px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {blog.map((post, index) => (
-            <article
-              className="overflow-hidden rounded-lg shadow-sm"
-              key={index}
-            >
-              <img
-                src={`${post.image}`}
-                alt="Hajj & Umrah"
-                className="object-cover w-full h-48"
-              />
-              <div className="p-3">
-                <Link
-                  to={`/detail/${post._id}`}
-                  className="mb-2 text-xl font-semibold"
+      {/* BLOG GRID */}
+      <main className="px-4 py-12 mx-auto max-w-7xl">
+        {loading ? (
+          <Loading />
+        ) : error ? (
+          <div className="text-center text-red-500">{error}</div>
+        ) : blogs.length === 0 ? (
+          <div className="text-center text-gray-500">No articles found.</div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+              {blogs.map((post) => (
+                <article
+                  key={post.id}
+                  onClick={() => handleClickBlog(post.slug)}
+                  className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition cursor-pointer"
                 >
-                  {post.title}
-                </Link>
-                <p className="mb-4 text-gray-600">{post.subtitle}</p>
-                <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                  <div className="flex items-center">
+                  {/* Image */}
+                  <div className="relative overflow-hidden">
                     <img
-                      src={post.user.pic}
-                      alt="user image"
-                      className="w-8 h-8 mr-3 rounded-full"
+                      src={post.cover_image_url}
+                      alt={post.title}
+                      className="object-cover w-full h-56 transition-transform duration-500 group-hover:scale-110"
                     />
-                    <span className="text-sm text-gray-600">
-                      {post.user.name}
-                    </span>
                   </div>
-                  <span className="text-sm text-gray-500">
-                    {getReadTime(post.description)} min read
-                  </span>
-                </div>
-              </div>
-            </article>
-          ))}
-        </div>
+
+                  {/* Content */}
+                  <div className="p-6">
+                    <h2 className="mb-3 text-xl font-bold text-gray-900 group-hover:text-emerald-600 transition">
+                      {post.title}
+                    </h2>
+
+                    <p className="mb-5 text-gray-600 text-sm line-clamp-2">
+                      {post.excerpt}
+                    </p>
+
+                    <div className="flex items-center justify-between pt-4 border-t">
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={post.author_image_url}
+                          alt={post.author_name}
+                          className="w-9 h-9 rounded-full object-cover"
+                        />
+                        <div className="text-sm">
+                          <p className="font-semibold text-gray-800">
+                            {post.author_name}
+                          </p>
+                          <p className="text-gray-500">
+                            {post.read_time} min read
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            {/* Pagination */}
+            <div className="mt-12">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={Math.ceil(blogs.length / 12)}
+                onPageChange={(page) => setCurrentPage(page)}
+              />
+            </div>
+          </>
+        )}
       </main>
     </div>
   );

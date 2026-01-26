@@ -28,7 +28,7 @@ export const useHomeContent = () => {
 
         // 2️⃣ Fetch 3 most recent blogs
         const blogRes = await axiosInstance.get("/blogs/", {
-          params: { page_size: 3 } // using pagination limit
+          params: { page_size: 3 }
         });
         const blogData = blogRes.data?.data || [];
         setRecentBlogs(blogData);

@@ -71,7 +71,7 @@ function SignUp() {
     });
 
     if (result?.success) {
-      navigate("/dashboard");
+      navigate("/login");
     }
   };
 

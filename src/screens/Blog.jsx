@@ -34,7 +34,7 @@ function Blog() {
       {/* TOP FILTER BAR */}
       <section className="sticky top-0 z-40 bg-white border-b">
         <div className="flex flex-col gap-4 px-4 py-6 mx-auto max-w-7xl sm:flex-row sm:items-center sm:justify-between">
-          
+
           {/* Tabs */}
           <div className="flex items-center gap-3">
             <button

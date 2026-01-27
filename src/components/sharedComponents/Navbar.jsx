@@ -138,7 +138,7 @@ const Navbar = () => {
               {user ? (
                 <>
                   <Link
-                    to="/admin/dashboard"
+                    to="/dashboard"
                     className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-xl font-medium hover:shadow-lg transition"
                   >
                     <User size={18} />

@@ -27,11 +27,11 @@ const useAuthStore = create((set, get) => ({
 
       if (!res.success) {
         toast.error(res.message || "Registration failed");
-        return { success: false };
+        return res;
       }
 
       toast.success(res.message || "Registration successful");
-      return { success: true };
+      return res;
     } catch (error) {
       toast.error(
         error.response.message || "An error occurred during signup"

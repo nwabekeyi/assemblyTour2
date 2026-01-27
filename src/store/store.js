@@ -24,7 +24,7 @@ const useAuthStore = create((set, get) => ({
         phone,
         turnstileToken,
       });
-
+console.log(res);
       if (!res.success) {
         toast.error(res.message || "Registration failed");
         return res;

@@ -10,7 +10,7 @@ function Attraction() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const pageSize = 30; // fixed 30 per page
+  const pageSize = 10; // fixed 30 per page
 
   useEffect(() => {
     const fetchSacredSites = async () => {

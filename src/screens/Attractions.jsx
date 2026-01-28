@@ -1,14 +1,49 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import axiosInstance from "../lib/axios";
+import Pagination from "../components/Pagination/PaginationComp";
 
-function Attraction({ recentSacredSites }) {
-  const navigate = useNavigate(); 
-  // ✅ If no sacred sites, render nothing
-  if (!recentSacredSites || recentSacredSites.length === 0) {
-    return null;
-  }
+function Attraction() {
+  const [sacredSites, setSacredSites] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  const pageSize = 30; // fixed 30 per page
+
+  useEffect(() => {
+    const fetchSacredSites = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await axiosInstance.get("/sacred-sites/", {
+          params: {
+            page: currentPage,
+            page_size: pageSize,
+          },
+        });
+
+        // Assuming your backend returns paginated data like:
+        // { data: [...], total_pages: 5, ... } or similar
+        const sites = response.data?.data || response.data?.results || [];
+        const pages = response.data?.total_pages || response.data?.count / pageSize || 1;
+
+        setSacredSites(sites);
+        setTotalPages(Math.ceil(pages) || 1);
+      } catch (err) {
+        setError(err.message || "Failed to load sacred sites");
+        setSacredSites([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSacredSites();
+  }, [currentPage]); // refetch when page changes
+
+  // Animation variants (kept as-is)
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -25,6 +60,28 @@ function Attraction({ recentSacredSites }) {
       transition: { duration: 0.6 },
     },
   };
+
+  if (loading) {
+    return (
+      <div className="w-full py-16 bg-gradient-to-b from-gray-50 to-white">
+        <div className="container px-4 mx-auto text-center">
+          <p className="text-lg text-gray-600">Loading sacred sites...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || sacredSites.length === 0) {
+    return (
+      <div className="w-full py-16 bg-gradient-to-b from-gray-50 to-white">
+        <div className="container px-4 mx-auto text-center">
+          <p className="text-lg text-red-600">
+            {error || "No sacred sites available at the moment."}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full py-16 bg-gradient-to-b from-gray-50 to-white">
@@ -45,15 +102,15 @@ function Attraction({ recentSacredSites }) {
           </p>
         </motion.div>
 
-        {/* Sacred Sites Grid */}
+        {/* Sacred Sites Grid – Responsive: 1 col mobile, 2 md, 3 lg */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="grid grid-cols-1 gap-8 md:grid-cols-3"
+          className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3"
         >
-          {recentSacredSites.map((site) => (
+          {sacredSites.map((site) => (
             <motion.div
               key={site.id}
               variants={itemVariants}
@@ -82,7 +139,7 @@ function Attraction({ recentSacredSites }) {
                   <h3 className="mb-3 font-serif text-2xl font-bold">
                     {site.name}
                   </h3>
-                  <p className="leading-relaxed text-gray-200">
+                  <p className="leading-relaxed text-gray-200 line-clamp-3">
                     {site.description}
                   </p>
                 </motion.div>
@@ -90,6 +147,13 @@ function Attraction({ recentSacredSites }) {
             </motion.div>
           ))}
         </motion.div>
+
+        {/* Pagination */}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
 
         {/* CTA */}
         <motion.div
@@ -105,7 +169,6 @@ function Attraction({ recentSacredSites }) {
               boxShadow: "0 10px 30px -10px rgba(0,0,0,0.2)",
             }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => navigate("/all-attractions")}
             className="px-8 py-4 font-semibold text-white transition-all duration-300 rounded-full bg-emerald-600 hover:bg-emerald-700"
           >
             Explore All Sacred Sites

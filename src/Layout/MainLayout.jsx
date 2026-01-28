@@ -11,6 +11,13 @@ function MainLayout() {
   const isAuthPage =
     location.pathname === "/login" || location.pathname === "/signup";
 
+  // Scroll to top only on screens smaller than 1024px
+  useEffect(() => {
+    if (windowWidth < 1024) {
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    }
+  }, [location.pathname, windowWidth]);
+
   // Track window width for responsive behavior
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);

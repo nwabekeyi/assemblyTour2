@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
-function Sidebar() {
+function Sidebar({ onClose }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [activeSubmenu, setActiveSubmenu] = useState(null);
   const location = useLocation();
-  const currentYear = new Date().getFullYear(); // dynamic year
+  const currentYear = new Date().getFullYear();
 
   const menuItems = [
     {
@@ -83,38 +83,26 @@ function Sidebar() {
     location.pathname === path || location.pathname.startsWith(path + "/");
 
   return (
-    <motion.div
-      className="fixed top-0 left-0 min-h-screen text-white bg-gradient-to-b from-gray-900 to-gray-800 shadow-xl"
-      animate={{ width: isCollapsed ? 80 : 256 }}
-      transition={{ type: "spring", damping: 25 }}
-    >
-      {/* Toggle */}
-      <button
-        onClick={() => setIsCollapsed(!isCollapsed)}
-        className="absolute z-10 p-2 text-white bg-green-600 rounded-full -right-3 top-6"
-      >
-        {isCollapsed ? "→" : "←"}
-      </button>
+    <div className="h-full flex flex-col bg-gradient-to-b from-gray-900 to-gray-800 text-white">
 
-      {/* Logo */}
+      {/* Header / Logo – now clickable to go to home */}
       <div className="p-6 border-b border-gray-700">
-        <div className="flex items-center gap-3">
+        <Link to="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
           <div className="flex items-center justify-center w-10 h-10 font-bold rounded-lg bg-gradient-to-r from-green-500 to-emerald-600">
             🕋
           </div>
-          {!isCollapsed && (
-            <div>
-              <h1 className="text-lg font-bold text-green-400">
-                Assembly Travels & Tours
-              </h1>
-            </div>
-          )}
-        </div>
+          <div>
+            <h1 className="text-lg font-bold text-green-400">
+              Assembly Travels
+            </h1>
+            <p className="text-xs text-gray-400">Hajj {currentYear}</p>
+          </div>
+        </Link>
       </div>
 
-      {/* Menu */}
-      <nav className="p-4">
-        <ul className="space-y-3">
+      {/* Navigation */}
+      <nav className="flex-1 p-4 overflow-y-auto">
+        <ul className="space-y-2">
           {menuItems.map((item) => (
             <li key={item.id}>
               <div
@@ -135,17 +123,15 @@ function Sidebar() {
                   className="flex items-center gap-3 p-3"
                 >
                   <span className="text-xl">{item.icon}</span>
-                  {!isCollapsed && (
-                    <span className="flex-1">{item.label}</span>
-                  )}
-                  {!isCollapsed && item.submenu && (
+                  <span className="flex-1">{item.label}</span>
+                  {item.submenu && (
                     <span className="text-xs">
                       {activeSubmenu === item.id ? "▲" : "▼"}
                     </span>
                   )}
                 </Link>
 
-                {!isCollapsed && item.submenu && (
+                {item.submenu && (
                   <AnimatePresence>
                     {activeSubmenu === item.id && (
                       <motion.ul
@@ -178,21 +164,19 @@ function Sidebar() {
         </ul>
       </nav>
 
-      {/* User */}
-      {!isCollapsed && (
-        <div className="absolute bottom-0 w-full p-4 border-t border-gray-700">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r from-green-500 to-emerald-600">
-              🧕
-            </div>
-            <div>
-              <p className="text-sm font-medium">Pilgrim Name</p>
-              <p className="text-xs text-gray-400">Hajj {currentYear}</p>
-            </div>
+      {/* User Info – bottom */}
+      <div className="p-4 border-t border-gray-700">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r from-green-500 to-emerald-600">
+            🧕
+          </div>
+          <div>
+            <p className="text-sm font-medium">Pilgrim Name</p>
+            <p className="text-xs text-gray-400">Hajj {currentYear}</p>
           </div>
         </div>
-      )}
-    </motion.div>
+      </div>
+    </div>
   );
 }
 

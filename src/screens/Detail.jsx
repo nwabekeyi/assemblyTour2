@@ -142,7 +142,7 @@ function Detail() {
     if (!editContent.trim()) return toast.error("Cannot save empty content");
     try {
       if (isReply && commentId) {
-        await editReply(id, commentId, editContent);
+        await editReply(id, editContent);          // ← only this line fixed
         getReplies(commentId);
       } else {
         await editComment(id, editContent);

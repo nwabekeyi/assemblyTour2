@@ -72,7 +72,7 @@ const Navbar = () => {
   const mainNavItems = [
     { label: "Home", path: "/", icon: <Home size={18} /> },
     { label: "Packages", dropdown: true, icon: <Package size={18} /> },
-    { label: "Sacred Sites", path: "/sites", icon: <Building2 size={18} /> },
+    { label: "Sacred Sites", path: "/all-attractions", icon: <Building2 size={18} /> },
     { label: "Blog", path: "/blog", icon: <BookOpen size={18} /> },
     { label: "About Us", path: "/about", icon: <Info size={18} /> },
     { label: "Contact Us", path: "/contact", icon: <Phone size={18} /> },

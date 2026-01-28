@@ -139,7 +139,7 @@ function Attraction() {
                   <h3 className="mb-3 font-serif text-2xl font-bold">
                     {site.name}
                   </h3>
-                  <p className="leading-relaxed text-gray-200 line-clamp-3">
+                  <p className="leading-relaxed text-gray-200">
                     {site.description}
                   </p>
                 </motion.div>

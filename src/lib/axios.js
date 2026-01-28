@@ -68,28 +68,25 @@ axiosInstance.interceptors.response.use(
 
       const refreshToken = localStorage.getItem("refresh_token");
 
-      if (!refreshToken) {
-        forceLogout();
-        return Promise.reject(formatError(error));
-      }
+      if (refreshToken) {
+        try {
+          const refreshRes = await axios.post(
+            `${API_URL}/auth/token/refresh/`,
+            { refresh: refreshToken }
+          );
 
-      try {
-        const refreshRes = await axios.post(
-          `${API_URL}/auth/token/refresh/`,
-          { refresh: refreshToken }
-        );
+          const newAccess = refreshRes.data.access;
 
-        const newAccess = refreshRes.data.access;
+          // Save new access token
+          localStorage.setItem("access_token", newAccess);
 
-        // Save new access token
-        localStorage.setItem("access_token", newAccess);
-
-        // Retry original request with new token
-        originalRequest.headers.Authorization = `Bearer ${newAccess}`;
-        return axiosInstance(originalRequest);
-      } catch (refreshError) {
-        forceLogout();
-        return Promise.reject(formatError(refreshError));
+          // Retry original request with new token
+          originalRequest.headers.Authorization = `Bearer ${newAccess}`;
+          return axiosInstance(originalRequest);
+        } catch (refreshError) {
+          // Just fail silently, don't logout
+          return Promise.reject(formatError(refreshError));
+        }
       }
     }
 
@@ -100,15 +97,6 @@ axiosInstance.interceptors.response.use(
 /* =====================================================
    Helpers
 ===================================================== */
-
-function forceLogout() {
-  localStorage.removeItem("access_token");
-  localStorage.removeItem("refresh_token");
-  localStorage.removeItem("user");
-
-  // optional hard redirect
-  window.location.href = "/login";
-}
 
 function formatError(error) {
   if (error.response?.data) {

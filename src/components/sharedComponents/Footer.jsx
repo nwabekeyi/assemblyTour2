@@ -1,7 +1,13 @@
 import { motion } from 'framer-motion';
 import { FaFacebookF, FaLinkedinIn, FaInstagram, FaWhatsapp, FaPhoneAlt, FaEnvelope, FaMapMarkerAlt, FaArrowRight } from 'react-icons/fa';
+import axiosInstance from '../../lib/axios';
+import { toast } from "react-hot-toast";
+import { useState } from 'react';
 
 const Footer = () => {
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -95,6 +101,27 @@ const Footer = () => {
     { icon: FaMapMarkerAlt, text: "Lagos, Nigeria" },
   ];
 
+  const handleSubscribe = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const res = await axiosInstance.post("/newsletter/subscribe/", { email });
+
+      if (res.success) {
+        toast.success(res.message || "Subscribed successfully!");
+        setEmail(""); // reset input
+      } else {
+        toast.error(res.message || "Failed to subscribe. Try again.");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(error.message || "Subscription failed. Try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <footer className="bg-gradient-to-b from-gray-900 to-black text-white">
       <motion.div
@@ -167,24 +194,29 @@ const Footer = () => {
           </motion.div>
 
           {/* Newsletter */}
-          <motion.div variants={itemVariants}>
+          <motion.div>
             <h4 className="text-xl font-semibold mb-6 text-emerald-400">Stay Updated</h4>
             <p className="text-gray-300 mb-6">
               Subscribe for exclusive Umrah & Hajj offers, spiritual tips, and important announcements.
             </p>
-            <form className="flex flex-col gap-3">
+            <form className="flex flex-col gap-3" onSubmit={handleSubscribe}>
               <input
                 type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="Your email address"
                 className="px-5 py-3 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:border-emerald-400"
+                required
               />
               <motion.button
+                type="submit"
                 variants={buttonVariants}
                 whileHover="hover"
                 whileTap="tap"
-                className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-xl font-semibold hover:shadow-lg"
+                className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-xl font-semibold hover:shadow-lg disabled:opacity-50"
+                disabled={loading}
               >
-                Subscribe
+                {loading ? "Subscribing..." : "Subscribe"}
               </motion.button>
             </form>
           </motion.div>

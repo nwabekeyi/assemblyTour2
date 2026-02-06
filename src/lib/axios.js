@@ -12,31 +12,34 @@ const axiosInstance = axios.create({
 
 /* =====================================================
    REQUEST INTERCEPTOR
-   - Always attach access token if available
 ===================================================== */
 axiosInstance.interceptors.request.use(
   (config) => {
-    const accessToken = localStorage.getItem("access_token");
-
-    if (accessToken) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
+    if (config.useAuth === true) {
+      const accessToken = localStorage.getItem("access_token");
+      if (accessToken) {
+        config.headers = config.headers || {};
+        config.headers.Authorization = `Bearer ${accessToken}`;
+      }
     }
-
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.resolve(formatError(error))
 );
 
 /* =====================================================
    RESPONSE INTERCEPTOR
-   - Normalize backend responses
-   - Handle 401 → refresh token → retry once
 ===================================================== */
 axiosInstance.interceptors.response.use(
-  (response) => {
+  async (response) => {
     const res = response.data;
 
-    // Backend already follows api_response format
+    // Backend returned success:false with 200
+    if (res?.success === false) {
+      return formatError({ response });
+    }
+
+    // Standard API shape
     if (
       typeof res === "object" &&
       "success" in res &&
@@ -46,76 +49,116 @@ axiosInstance.interceptors.response.use(
       return res;
     }
 
-    // Fallback normalization
+    // Fallback success wrapper
     return {
       success: true,
       message: "",
       data: res,
       errors: null,
+      status: response.status,
     };
   },
+
   async (error) => {
     const originalRequest = error.config;
 
-    // =========================
-    // 401 → try refresh token
-    // =========================
+    // Handle token refresh globally
     if (
       error.response?.status === 401 &&
+      originalRequest?.useAuth === true &&
       !originalRequest._retry
     ) {
       originalRequest._retry = true;
 
       const refreshToken = localStorage.getItem("refresh_token");
+      if (!refreshToken) {
+        return formatError(error);
+      }
 
-      if (refreshToken) {
-        try {
-          const refreshRes = await axios.post(
-            `${API_URL}/auth/token/refresh/`,
-            { refresh: refreshToken }
-          );
+      try {
+        const refreshRes = await axios.post(`${API_URL}/auth/refresh/`, {
+          refresh: refreshToken,
+        });
 
-          const newAccess = refreshRes.data.access;
-
-          // Save new access token
-          localStorage.setItem("access_token", newAccess);
-
-          // Retry original request with new token
-          originalRequest.headers.Authorization = `Bearer ${newAccess}`;
-          return axiosInstance(originalRequest);
-        } catch (refreshError) {
-          // Just fail silently, don't logout
-          return Promise.reject(formatError(refreshError));
+        const newAccess = refreshRes.data?.data?.access;
+        if (!newAccess) {
+          return formatError(refreshRes);
         }
+
+        localStorage.setItem("access_token", newAccess);
+        originalRequest.headers.Authorization = `Bearer ${newAccess}`;
+
+        return axiosInstance(originalRequest);
+      } catch (refreshError) {
+        return formatError(refreshError);
       }
     }
 
-    return Promise.reject(formatError(error));
+    // Catch EVERYTHING else
+    return formatError(error);
   }
 );
 
 /* =====================================================
-   Helpers
+   Error formatting – Prioritizing errors.detail & validation
 ===================================================== */
-
 function formatError(error) {
-  if (error.response?.data) {
+  if (error?.response?.data) {
     const res = error.response.data;
+    let formattedErrors = [];
+
+    // CASE 1 & 2: errors object
+    if (res.errors && typeof res.errors === "object" && !Array.isArray(res.errors)) {
+      if (res.errors.detail) {
+        formattedErrors.push(res.errors.detail);
+      } else {
+        Object.entries(res.errors).forEach(([field, messages]) => {
+          if (field === "code") return;
+
+          if (Array.isArray(messages)) {
+            messages.forEach((msg) => {
+              const display =
+                typeof msg === "string" ? msg : JSON.stringify(msg);
+              formattedErrors.push(
+                `${field.replace(/_/g, " ")}: ${display}`
+              );
+            });
+          } else if (typeof messages === "string") {
+            formattedErrors.push(
+              `${field.replace(/_/g, " ")}: ${messages}`
+            );
+          }
+        });
+      }
+    }
+
+    // CASE 3: errors already array/string
+    else if (res.errors) {
+      formattedErrors = Array.isArray(res.errors)
+        ? res.errors
+        : [res.errors];
+    }
+
+    const finalErrors =
+      formattedErrors.length > 0
+        ? formattedErrors
+        : [res.message || res.detail || "An unexpected error occurred"];
 
     return {
       success: false,
       message: res.message || "Request failed",
-      data: null,
-      errors: res.errors || res,
+      data: res.data || null,
+      errors: finalErrors,
       status: error.response.status,
     };
   }
 
+  // Network / CORS / server down
   return {
     success: false,
-    message: "Network error",
+    message: "Network error or server unreachable",
     data: null,
-    errors: error.message,
+    errors: [error?.message || "Unknown error"],
     status: 0,
   };
 }

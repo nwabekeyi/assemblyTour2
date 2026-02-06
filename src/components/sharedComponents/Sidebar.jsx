@@ -92,7 +92,7 @@ function Sidebar({ onClose }) {
             🕋
           </div>
           <div>
-            <h1 className="text-lg font-bold text-green-400">
+            <h1 className="text-lg font-bold text-white">
               Assembly Travels
             </h1>
             <p className="text-xs text-gray-400">Hajj {currentYear}</p>
@@ -167,7 +167,7 @@ function Sidebar({ onClose }) {
       {/* User Info – bottom */}
       <div className="p-4 border-t border-gray-700">
         <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r from-green-500 to-emerald-600">
+          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r from-green-500 to-emerald-700">
             🧕
           </div>
           <div>

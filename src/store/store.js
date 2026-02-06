@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import axios from "../lib/axios";
+import axiosInstance from "../lib/axios";
 import { toast } from "react-hot-toast";
 
 const useAuthStore = create((set, get) => ({
@@ -10,7 +10,7 @@ const useAuthStore = create((set, get) => ({
   /* =======================
      SIGNUP
   ======================= */
-  signup: async ({ phone, turnstileToken }) => {
+  signup: async ({ phone, turnstileToken, package_id }) => {
     if (!turnstileToken) {
       toast.error("Please complete the Turnstile challenge");
       return { success: false };
@@ -18,28 +18,26 @@ const useAuthStore = create((set, get) => ({
 
     set({ loading: true });
 
-    try {
-      const res = await axios.post("/auth/", {
+    const res = await axiosInstance.post(
+      "/auth/",
+      {
         action: "register",
         phone,
         turnstileToken,
-      });
+        package_id,
+      },
+      { useAuth: false } // registration does not need access token
+    );
 
-      if (!res.success) {
-        toast.error(res.message || "Registration failed");
-        return res;
-      }
-
-      toast.success(res.message || "Registration successful");
-      return res;
-    } catch (error) {
-      toast.error(
-        error.response.message || "An error occurred during signup"
-      );
-      return { success: false };
-    } finally {
+    if (!res.success) {
+      toast.error(res.message || "Registration failed");
       set({ loading: false });
+      return res;
     }
+
+    toast.success(res.message || "Registration successful");
+    set({ loading: false });
+    return res;
   },
 
   /* =======================
@@ -53,69 +51,55 @@ const useAuthStore = create((set, get) => ({
 
     set({ loading: true });
 
-    try {
-      const res = await axios.post("/auth/", {
+    const res =  await axiosInstance.post(
+      "/auth/",
+      {
         action: "login",
         username,
         password,
-      });
+      },
+      { useAuth: false }
+    );
 
-      if (!res.success) {
-        toast.error(res.message || "Login failed");
-        return { success: false };
-      }
 
-      const { tokens } = res.data;
-
-      // store tokens
-      localStorage.setItem("access_token", tokens.access);
-      localStorage.setItem("refresh_token", tokens.refresh);
-
-      // fetch authenticated user profile
-      const profileRes = await axios.get("/user/profile/");
-      const userProfile = profileRes.data;
-
-      set({ user: userProfile });
-
-      toast.success(res.message || "Login successful");
-      return { success: true };
-    } catch (error) {
-      toast.error(
-        error.message || "An error occurred during login"
-      );
-      return { success: false };
-    } finally {
+    if (!res.success) {
+      toast.error(res.message || "Login failed");
       set({ loading: false });
+      return { success: false };
     }
+
+    const { tokens } = res.data;
+
+    // store tokens
+    localStorage.setItem("access_token", tokens.access);
+    localStorage.setItem("refresh_token", tokens.refresh);
+
+    // fetch authenticated user profile
+    const profileRes = await axiosInstance.get("/user/profile/", { useAuth: true });
+    set({ user: profileRes.data });
+
+    toast.success(res.message || "Login successful");
+    set({ loading: false });
+    return { success: true };
   },
 
   /* =======================
      AUTH CHECK
   ======================= */
   checkAuth: async () => {
-    try {
-      const res = await axios.get("/user/profile/");
-      set({ user: res.data });
-    } catch {
-      set({ user: null });
-    } finally {
-      set({ checkingAuth: false });
-    }
+    const res = await axiosInstance.get("/user/profile/", { useAuth: true });
+    set({ user: res.data, checkingAuth: false });
   },
 
   /* =======================
      LOGOUT
   ======================= */
   logout: async () => {
-    try {
-      await axios.post("/auth/logout");
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("refresh_token");
-      set({ user: null });
-      toast.success("Logged out");
-    } catch {
-      toast.error("Failed to log out.");
-    }
+    await axiosInstance.post("/auth/logout/", {}, { useAuth: true });
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    set({ user: null });
+    toast.success("Logged out");
   },
 
   /* =======================
@@ -126,24 +110,19 @@ const useAuthStore = create((set, get) => ({
 
     set({ checkingAuth: true });
 
-    try {
-      const res = await axios.post("/auth/refresh-token", {
-        refresh: localStorage.getItem("refresh_token"),
-      });
+    const res = await axiosInstance.post(
+      "/auth/refresh/",
+      { refresh: localStorage.getItem("refresh_token") },
+      { useAuth: false }
+    );
 
-      localStorage.setItem("access_token", res.access);
+    localStorage.setItem("access_token", res.data.access);
 
-      // fetch updated authenticated user profile
-      const profileRes = await axios.get("/auth/profile");
-      set({ user: profileRes.data });
+    // fetch updated authenticated user profile
+    const profileRes = await axiosInstance.get("/user/profile/", { useAuth: true });
+    set({ user: profileRes.data, checkingAuth: false });
 
-      return profileRes.data;
-    } catch {
-      toast.error("Session expired. Please log in again.");
-      set({ user: null });
-    } finally {
-      set({ checkingAuth: false });
-    }
+    return profileRes.data;
   },
 }));
 

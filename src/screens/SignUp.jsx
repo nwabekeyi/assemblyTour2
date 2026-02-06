@@ -3,14 +3,18 @@ import { Link, useNavigate } from "react-router-dom";
 import { UserPlus, Loader, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import useAuthStore from "../store/store";
+import usePackageStore from "../store/package.store";
+import Modal from "../components/sharedComponents/Modal";
 
 function SignUp() {
   const navigate = useNavigate();
   const { signup, loading } = useAuthStore();
+  const { packageDetail, setPackageDetail } = usePackageStore();
 
-  // ✅ only the 10 local digits
+  // Phone input state
   const [phoneDigits, setPhoneDigits] = useState("");
   const [turnstileToken, setTurnstileToken] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(true);
 
   const turnstileRef = useRef(null);
   const inputRef = useRef(null);
@@ -45,37 +49,108 @@ function SignUp() {
   // -----------------------------
   const handlePhoneChange = (e) => {
     let value = e.target.value.replace(/\D/g, ""); // digits only
-
-    // ❌ block leading zero
-    if (value.startsWith("0")) return;
-
-    // ❌ max 10 digits
-    if (value.length > 10) return;
-
+    if (value.startsWith("0") || value.length > 10) return;
     setPhoneDigits(value);
   };
 
+  const isValidPhone = phoneDigits.length === 10;
+
   // -----------------------------
-  // Submit
+  // Handle registration submit
   // -----------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (phoneDigits.length !== 10) return;
+    if (!packageDetail) return; // Shouldn't happen because modal forces user to select
 
     const phone = `+234${phoneDigits}`;
 
     const result = await signup({
       phone,
       turnstileToken,
+      package_id: packageDetail.id,
+      location: packageDetail.location,
+      individuals: `${packageDetail.group_size_min}-${packageDetail.group_size_max}`,
     });
 
     if (result?.success) {
+      setPackageDetail(null);
       navigate("/login");
     }
   };
 
-  const isValidPhone = phoneDigits.length === 10;
+  // -----------------------------
+  // Modal content
+  // -----------------------------
+  const renderPackageModalContent = () => {
+    if (!packageDetail) {
+      return (
+        <div className="flex flex-col gap-4 text-center">
+          <h2 className="text-2xl font-bold text-gray-900">No Package Selected</h2>
+          <p className="text-gray-600">
+            You haven’t selected a package yet. Please choose a travel package to continue.
+          </p>
+          <button
+            onClick={() => navigate("/packages")}
+            className="mt-4 px-6 py-3 font-semibold text-white bg-emerald-700 rounded-lg hover:bg-emerald-800 transition-all"
+          >
+            Select a Package
+          </button>
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex flex-col gap-4">
+        <h2 className="text-2xl font-bold text-gray-900 text-center">
+          You are registering for this package
+        </h2>
+
+        <img
+          src={packageDetail.cover_image_url || packageDetail.cover_image}
+          alt={packageDetail.name}
+          className="w-full h-48 object-cover rounded-lg"
+        />
+
+        <p className="text-gray-700">
+          <span className="font-semibold">Package:</span> {packageDetail.name}
+        </p>
+        <p className="text-gray-700">
+          <span className="font-semibold">Location:</span> {packageDetail.location}
+        </p>
+        <p className="text-gray-700">
+          <span className="font-semibold">Number of Individuals:</span> {packageDetail.group_size_min}-{packageDetail.group_size_max}
+        </p>
+        <p className="text-gray-700">
+          <span className="font-semibold">Price:</span>{" "}
+          <span className="text-emerald-700">
+            ₦{parseFloat(packageDetail.price_current).toLocaleString("en-NG")}
+          </span>
+          {packageDetail.price_original && (
+            <span className="ml-2 text-gray-400 line-through">
+              ₦{parseFloat(packageDetail.price_original).toLocaleString("en-NG")}
+            </span>
+          )}
+        </p>
+
+        <div className="flex justify-between mt-4">
+          <button
+            onClick={() => setIsModalOpen(false)}
+            className="px-6 py-2 font-semibold text-white bg-emerald-700 rounded-lg hover:bg-emerald-800 transition-all"
+          >
+            Proceed
+          </button>
+
+          <button
+            onClick={() => navigate("/packages")}
+            className="px-6 py-2 font-semibold text-emerald-700 border border-emerald-700 rounded-lg hover:bg-emerald-50 transition-all"
+          >
+            Change Package
+          </button>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="flex flex-col w-full justify-center py-12 sm:px-6 lg:px-8">
@@ -89,6 +164,10 @@ function SignUp() {
           Start your journey
         </h2>
       </motion.div>
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        {renderPackageModalContent()}
+      </Modal>
 
       <motion.div
         className="mt-8 sm:mx-auto sm:w-full sm:max-w-md"
@@ -105,7 +184,6 @@ function SignUp() {
               </label>
 
               <div className="mt-1 flex rounded-md shadow-sm">
-                {/* Prefix */}
                 <span
                   onClick={() => inputRef.current?.focus()}
                   className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-600 bg-gray-700 text-gray-300 text-sm cursor-text"
@@ -113,7 +191,6 @@ function SignUp() {
                   +234
                 </span>
 
-                {/* Input */}
                 <input
                   ref={inputRef}
                   type="tel"

@@ -1,18 +1,31 @@
 import { useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import usePackageStore from "../store/package.store";
 import Loading from "../components/Spinner/Loading";
 import { MapPin, Clock, Users, Star } from "lucide-react";
+import useAuthStore from "../store/store";
 
 function PackageDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { packageDetail, fetchPackageById, loading } = usePackageStore();
+  const { user } = useAuthStore();
+
+  const handleBookPackage = () => {
+    if (!user) {
+      // If user is not authenticated, go to signup page
+      navigate("/signup");
+      return;
+    }
+  }
 
   useEffect(() => {
     fetchPackageById(id);
   }, [id, fetchPackageById]);
 
   if (loading || !packageDetail) return <Loading />;
+
+  
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
@@ -175,7 +188,7 @@ function PackageDetail() {
 
               {/* CTA */}
               <button
-                onClick={() => alert(`Booking ${packageDetail.name}...`)}
+                onClick={handleBookPackage} 
                 className="w-full py-4 mt-8 text-lg font-semibold text-white transition-all duration-300 rounded-xl bg-emerald-700 hover:bg-emerald-800 hover:shadow-xl"
               >
                 Book This Package

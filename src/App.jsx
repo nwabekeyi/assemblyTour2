@@ -69,27 +69,32 @@ function App() {
             {/* Admin Routes (commented auth checks) */}
             {/* Admin Route */}
           </Route>
-          <Route element={<DashBoardLayout />}>
-               <Route
-              path="/dashboard"
-              element={<TravelDashboard />}
-              // element={
-              //   <ProtectedRoute
-              //     element={<AdminDashboard />}
-              //     condition={user?.role === "admin"}
-              //   />
-              // }
-            />
-            <Route
-              path="/dashboard/users"
-              element={<Alluser />}
-              // element={
-              //   <ProtectedRoute
-              //     element={<Alluser />}
-              //     condition={user?.role === "admin"}
-              //   />
-              // }
-            />
+<Route element={<DashBoardLayout />}>
+            {/* Dashboard Main */}
+            <Route path="/dashboard" element={<TravelDashboard />} />
+            <Route path="/dashboard/progress" element={<TravelDashboard />} />
+            <Route path="/dashboard/history" element={<TravelDashboard />} />
+            
+            {/* Journey Details */}
+            <Route path="/dashboard/journey" element={<TravelDashboard />} />
+            <Route path="/dashboard/journey/details" element={<TravelDashboard />} />
+            <Route path="/dashboard/journey/itinerary" element={<TravelDashboard />} />
+            <Route path="/dashboard/journey/documents" element={<TravelDashboard />} />
+            <Route path="/dashboard/journey/accommodation" element={<TravelDashboard />} />
+            
+            {/* Manasik Guidance */}
+            <Route path="/dashboard/guidance" element={<TravelDashboard />} />
+            <Route path="/dashboard/guidance/ihram" element={<TravelDashboard />} />
+            <Route path="/dashboard/guidance/tawaf" element={<TravelDashboard />} />
+            <Route path="/dashboard/guidance/dua" element={<TravelDashboard />} />
+            
+            {/* Support */}
+            <Route path="/dashboard/support" element={<TravelDashboard />} />
+            <Route path="/dashboard/support/contact" element={<TravelDashboard />} />
+            <Route path="/dashboard/support/emergency" element={<TravelDashboard />} />
+            
+            {/* Admin */}
+            <Route path="/dashboard/users" element={<Alluser />} />
           </Route>
         </Routes>
       </div>

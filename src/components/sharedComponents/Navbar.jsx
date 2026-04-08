@@ -326,19 +326,36 @@ const Navbar = () => {
             {/* Mobile Auth */}
             <div className="border-t border-gray-800 px-6 py-6 bg-black/90">
               {user ? (
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 flex items-center justify-center">
-                      <User size={24} className="text-white" />
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      {user.user?.profile_picture ? (
+                        <img 
+                          src={user.user.profile_picture} 
+                          alt="Profile" 
+                          className="w-12 h-12 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 flex items-center justify-center">
+                          <User size={24} className="text-white" />
+                        </div>
+                      )}
+                      <div>
+                        <div className="font-semibold text-white">{user.user?.name}</div>
+                        <div className="text-sm text-gray-400">Welcome back!</div>
+                      </div>
                     </div>
-                    <div>
-                      <div className="font-semibold text-white">{user.user?.name}</div>
-                      <div className="text-sm text-gray-400">Welcome back!</div>
-                    </div>
+                    <button onClick={handleLogout} className="text-red-400 font-medium">
+                      Logout
+                    </button>
                   </div>
-                  <button onClick={handleLogout} className="text-red-400 font-medium">
-                    Logout
-                  </button>
+                  <Link
+                    to="/dashboard"
+                    className="w-full py-3 text-center font-semibold bg-emerald-600 rounded-xl text-white hover:bg-emerald-700 transition"
+                    onClick={closeAll}
+                  >
+                    Go to Dashboard
+                  </Link>
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-4">

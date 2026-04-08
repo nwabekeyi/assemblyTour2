@@ -155,13 +155,15 @@ const Hero = () => {
             </p>
 
             <div className="flex flex-col gap-4 mb-12 sm:flex-row">
-              <button
-                onClick={() => navigate("/packages")}
-                className="flex items-center justify-center px-10 py-5 text-lg font-bold text-white transition-all duration-500 transform rounded-xl shadow-2xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 hover:scale-105 hover:shadow-emerald-500/40"
-              >
-                <Compass size={20} className="mr-2" />
-                Explore Packages
-              </button>
+              {!location.pathname.includes("/packages") && (
+                <button
+                  onClick={() => navigate("/packages")}
+                  className="flex items-center justify-center px-10 py-5 text-lg font-bold text-white transition-all duration-500 transform rounded-xl shadow-2xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 hover:scale-105 hover:shadow-emerald-500/40"
+                >
+                  <Compass size={20} className="mr-2" />
+                  Explore Packages
+                </button>
+              )}
             </div>
 
             <div className="flex flex-wrap gap-8">

@@ -138,32 +138,32 @@ const PackagesPage = () => {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <div className="shadow-sm">
-        <div className="px-4 py-8 mx-auto max-w-7xl">
-          <motion.h1
-            initial={{ y: -20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            className="text-3xl font-bold text-center text-gray-900"
-          >
-            Travel Packages
-          </motion.h1>
-          <motion.p
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="mt-2 text-center text-gray-600"
-          >
-            Discover our carefully curated travel experiences
-          </motion.p>
-        </div>
-      </div>
+<div className="shadow-sm">
+         <div className="px-4 py-8 mx-auto max-w-7xl">
+           <motion.h1
+             initial={{ y: -20, opacity: 0 }}
+             animate={{ y: 0, opacity: 1 }}
+             className="text-3xl font-bold text-center text-gray-900"
+           >
+             Travel Packages
+           </motion.h1>
+           <motion.p
+             initial={{ y: 20, opacity: 0 }}
+             animate={{ y: 0, opacity: 1 }}
+             transition={{ delay: 0.2 }}
+             className="mt-2 text-center text-gray-600"
+           >
+             Discover our carefully curated travel experiences
+           </motion.p>
+         </div>
+       </div>
 
-      {/* Umrah */}
-      {umrahPackages.length > 0 && (
-        <div className="max-w-5xl px-4 py-8 mx-auto">
-          <h2 className="mb-6 text-2xl font-bold text-emerald-700">
-            Umrah Packages
-          </h2>
+{/* Umrah */}
+       {umrahPackages.length > 0 && (
+         <div id="packages-section" className="max-w-5xl px-4 py-8 mx-auto">
+           <h2 className="mb-6 text-2xl font-bold text-emerald-700">
+             Umrah Packages
+           </h2>
           <motion.div
             variants={containerVariants}
             initial="hidden"

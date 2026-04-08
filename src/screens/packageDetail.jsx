@@ -1,23 +1,71 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import usePackageStore from "../store/package.store";
 import Loading from "../components/Spinner/Loading";
 import { MapPin, Clock, Users, Star } from "lucide-react";
 import useAuthStore from "../store/store";
+import useDashboardStore from "../store/dashboard.store";
+import { toast } from "react-hot-toast";
 
 function PackageDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { packageDetail, fetchPackageById, loading } = usePackageStore();
   const { user } = useAuthStore();
+  const { startNewRegistration, fetchMyRegistration, registration } = useDashboardStore();
+  const [booking, setBooking] = useState(false);
 
-  const handleBookPackage = () => {
+  const handleBookPackage = async () => {
     if (!user) {
-      // If user is not authenticated, go to signup page
       navigate("/signup");
       return;
     }
-  }
+
+    // Check if user already has an active registration
+    await fetchMyRegistration();
+    const currentReg = useDashboardStore.getState().registration;
+    
+    if (currentReg && currentReg.status === "pending") {
+      toast.error("You already have an active registration. Please complete it first.");
+      navigate("/dashboard");
+      return;
+    }
+
+    if (currentReg && (currentReg.status === "completed" || currentReg.status === "failed")) {
+      // User can start a new registration
+      setBooking(true);
+      try {
+        const result = await startNewRegistration(id);
+        if (result) {
+          toast.success("Registration started successfully!");
+          navigate("/dashboard");
+        }
+      } catch (err) {
+        toast.error(err.message || "Failed to start registration");
+      } finally {
+        setBooking(false);
+      }
+      return;
+    }
+
+    // No existing registration - start new one
+    setBooking(true);
+    try {
+      const result = await startNewRegistration(id);
+      if (result) {
+        toast.success("Registration started successfully!");
+        navigate("/dashboard");
+      }
+    } catch (err) {
+      toast.error(err.message || "Failed to start registration");
+    } finally {
+      setBooking(false);
+    }
+  };
+
+  const handleGoToDashboard = () => {
+    navigate("/dashboard");
+  };
 
   useEffect(() => {
     fetchPackageById(id);
@@ -189,9 +237,10 @@ function PackageDetail() {
               {/* CTA */}
               <button
                 onClick={handleBookPackage} 
-                className="w-full py-4 mt-8 text-lg font-semibold text-white transition-all duration-300 rounded-xl bg-emerald-700 hover:bg-emerald-800 hover:shadow-xl"
+                disabled={booking}
+                className="w-full py-4 mt-8 text-lg font-semibold text-white transition-all duration-300 rounded-xl bg-emerald-700 hover:bg-emerald-800 hover:shadow-xl disabled:opacity-50"
               >
-                Book This Package
+                {booking ? "Booking..." : "Book This Package"}
               </button>
 
               <p className="mt-4 text-xs text-center text-gray-400">

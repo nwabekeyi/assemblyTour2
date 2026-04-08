@@ -2,8 +2,34 @@ import { create } from "zustand";
 import axiosInstance from "../lib/axios";
 import { toast } from "react-hot-toast";
 
+const USER_STORAGE_KEY = "user_profile";
+
+const getStoredUser = () => {
+  if (typeof window === "undefined") return null;
+  try {
+    const stored = window.localStorage.getItem(USER_STORAGE_KEY);
+    return stored ? JSON.parse(stored) : null;
+  } catch (error) {
+    window.localStorage.removeItem(USER_STORAGE_KEY);
+    return null;
+  }
+};
+
+const persistUser = (user) => {
+  if (typeof window === "undefined") return;
+  try {
+    if (user) {
+      window.localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
+    } else {
+      window.localStorage.removeItem(USER_STORAGE_KEY);
+    }
+  } catch (error) {
+    window.localStorage.removeItem(USER_STORAGE_KEY);
+  }
+};
+
 const useAuthStore = create((set, get) => ({
-  user: null,           // Authenticated user profile
+  user: getStoredUser(),           // Authenticated user profile
   loading: false,
   checkingAuth: true,
 
@@ -76,6 +102,7 @@ const useAuthStore = create((set, get) => ({
 
     // fetch authenticated user profile
     const profileRes = await axiosInstance.get("/user/profile/", { useAuth: true });
+    persistUser(profileRes.data);
     set({ user: profileRes.data });
 
     toast.success(res.message || "Login successful");
@@ -88,6 +115,7 @@ const useAuthStore = create((set, get) => ({
   ======================= */
   checkAuth: async () => {
     const res = await axiosInstance.get("/user/profile/", { useAuth: true });
+    persistUser(res.data);
     set({ user: res.data, checkingAuth: false });
   },
 
@@ -98,6 +126,7 @@ const useAuthStore = create((set, get) => ({
     await axiosInstance.post("/auth/logout/", {}, { useAuth: true });
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
+    persistUser(null);
     set({ user: null });
     toast.success("Logged out");
   },
@@ -120,6 +149,7 @@ const useAuthStore = create((set, get) => ({
 
     // fetch updated authenticated user profile
     const profileRes = await axiosInstance.get("/user/profile/", { useAuth: true });
+    persistUser(profileRes.data);
     set({ user: profileRes.data, checkingAuth: false });
 
     return profileRes.data;

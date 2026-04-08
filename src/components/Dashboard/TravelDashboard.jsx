@@ -1,22 +1,31 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import useDashboardStore from "../../store/dashboard.store";
 import useAuthStore from "../../store/store";
 import { toast } from "react-hot-toast";
-import StepProgress from "./stepProgress";
+import UserActivities from "./UserActivities";
+import TravelHistory from "./TravelHistory";
+import RegistrationProgress from "./RegistrationProgress";
 import {
   DashboardHeader,
   RegistrationForm,
   AccountSetupForm,
   UnderReviewSection,
-  DocumentUploadForm
+  DocumentUploadForm,
+  CurrentJourneyDetailsSection,
+  JourneyItinerarySection,
+  ManasikGuidanceSection,
+  EmergencyContactSection,
 } from "./dashboardComponents";
+import PaymentStepForm from "./PaymentStepForm";
+import SupportTicketForm from "./SupportTicketForm";
 
 // ────────────────────────────────────────────────
 // MAIN DASHBOARD COMPONENT
 // ────────────────────────────────────────────────
 const TravelDashboard = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, checkingAuth, checkAuth } = useAuthStore();
   const {
     registration,
@@ -27,9 +36,17 @@ const TravelDashboard = () => {
     submitAccountSetup,
     submitRegistrationForm,
     submitDocumentUpload,
+    fetchUserStats,
+    userStats,
+    manasikGuidance,
+    emergencyContacts,
+    fetchManasikGuidance,
+    fetchEmergencyContacts,
+    uploadPaymentProof,
+    fetchTickets,
   } = useDashboardStore();
 
-  const [showChangeCredentialsModal, setShowChangeCredentialsModal] = useState(false);
+  const lazyLoadRef = useRef({ manasik: false, support: false });
   const [newUsername, setNewUsername] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -59,9 +76,86 @@ const TravelDashboard = () => {
 
   const currentYear = new Date().getFullYear();
 
+const getActiveTabFromPath = (pathname) => {
+  if (pathname === "/dashboard" || pathname === "/dashboard/") return "status";
+  if (pathname.includes("/dashboard/progress")) return "journey";
+  if (pathname.includes("/dashboard/history")) return "history";
+  if (pathname.includes("/dashboard/journey")) return "journey";
+  if (pathname.includes("/dashboard/guidance")) return "manasik";
+  if (pathname.includes("/dashboard/support")) return "support";
+  return "status";
+};
+
+const getJourneyViewFromPath = (pathname) => {
+  if (pathname.includes("/dashboard/journey/itinerary")) return "itinerary";
+  if (pathname.includes("/dashboard/journey/documents")) return "documents";
+  if (pathname.includes("/dashboard/journey/accommodation")) return "accommodation";
+  return "overview";
+};
+
+  const activeTabFromPath = getActiveTabFromPath(location.pathname);
+  const journeyView = getJourneyViewFromPath(location.pathname);
+  const [activeTab, setActiveTab] = useState(activeTabFromPath);
+
+  useEffect(() => {
+    setActiveTab(activeTabFromPath);
+  }, [activeTabFromPath]);
+
+  const tabs = [
+    { id: "status", label: "Overview", icon: "📋" },
+    { id: "history", label: "History", icon: "📜" },
+    { id: "journey", label: "Current Journey", icon: "✈️" },
+    { id: "manasik", label: "Manasik Guide", icon: "📖" },
+    { id: "support", label: "Support", icon: "💬" },
+  ];
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case "history":
+        return <TravelHistory />;
+      case "journey":
+        if (journeyView === "itinerary") {
+          return <JourneyItinerarySection registration={registration} />;
+        }
+        if (journeyView === "documents") {
+          return <CurrentJourneyDetailsSection registration={registration} />;
+        }
+        return <RegistrationProgress />;
+      case "manasik":
+        return <ManasikGuidanceSection guidance={manasikGuidance} />;
+      case "support":
+        if (location.pathname.includes("/emergency")) {
+          return <EmergencyContactSection contacts={emergencyContacts} />;
+        }
+        return <SupportTicketForm />;
+      default:
+        return null;
+    }
+  };
+
   useEffect(() => { checkAuth(); }, [checkAuth]);
   useEffect(() => { if (!user) navigate("/login"); }, [user, navigate]);
-  useEffect(() => { if (user) fetchMyRegistration(); }, [user, fetchMyRegistration]);
+  useEffect(() => { 
+    if (user) {
+      fetchMyRegistration();
+      fetchUserStats();
+    }
+  }, [user, fetchMyRegistration, fetchUserStats]);
+
+  useEffect(() => {
+    if (!user) return;
+    if (activeTab === "manasik" && !lazyLoadRef.current.manasik) {
+      fetchManasikGuidance();
+      lazyLoadRef.current.manasik = true;
+    }
+    if (activeTab === "support") {
+      fetchEmergencyContacts();
+      if (!location.pathname.includes("/emergency")) {
+        fetchTickets();
+      }
+      lazyLoadRef.current.support = true;
+    }
+  }, [activeTab, user, fetchManasikGuidance, fetchEmergencyContacts, fetchTickets, location.pathname]);
 
   useEffect(() => {
     if (registration?.current_step?.code === "account_setup") {
@@ -173,79 +267,114 @@ const TravelDashboard = () => {
 
   const isRejected = registrationStatus === "failed" && rejectionReason;
   const isUnderReview = !isRejected && (registrationStatus === "pending" ||
-    !["account_setup", "registration_form", "document_upload"].includes(currentStepCode));
+    ["registration_form", "document_upload", "document_review"].includes(currentStepCode));
 
-  const showForm = !isUnderReview || forceShowForm;
+  const canEditStep = (code) => {
+    if (forceShowForm) return true;
+    return currentStepCode === code;
+  };
+
+  const renderStepForms = () => (
+    <>
+      {canEditStep("account_setup") && (
+        <AccountSetupForm
+          onSubmit={handleStep1Submit}
+          newUsername={newUsername}
+          setNewUsername={setNewUsername}
+          newPassword={newPassword}
+          setNewPassword={setNewPassword}
+          confirmPassword={confirmPassword}
+          setConfirmPassword={setConfirmPassword}
+          loading={storeLoading}
+        />
+      )}
+
+      {canEditStep("payment_details") && (
+        <PaymentStepForm
+          onSubmit={uploadPaymentProof}
+          loading={storeLoading}
+        />
+      )}
+
+      {canEditStep("registration_form") && (
+        <RegistrationForm
+          formData={formDataStep2}
+          onChange={handleStep2Change}
+          profilePicture={profilePicture}
+          setProfilePicture={setProfilePicture}
+          onSubmit={handleStep2Submit}
+          loading={storeLoading}
+        />
+      )}
+
+      {canEditStep("document_upload") && (
+        <DocumentUploadForm
+          passportFile={passportFile}
+          setPassportFile={setPassportFile}
+          yellowCardFile={yellowCardFile}
+          setYellowCardFile={setYellowCardFile}
+          onSubmit={handleStep3Submit}
+          loading={storeLoading}
+        />
+      )}
+    </>
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
       <DashboardHeader user={user} currentYear={currentYear} />
 
-      <main className="max-w-4xl mx-auto mt-8 px-4">
-        {storeLoading && !registration ? (
-          <div className="flex flex-col items-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600" />
-            <p className="mt-4 text-gray-500">Retrieving application status...</p>
+      <div className="max-w-6xl mx-auto mt-4 px-2">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="border-b overflow-x-auto">
+            <nav className="flex space-x-1 p-2 min-w-max">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition ${
+                    activeTab === tab.id
+                      ? "bg-emerald-600 text-white"
+                      : "text-gray-600 hover:bg-gray-100"
+                  }`}
+                >
+                  <span>{tab.icon}</span>
+                  <span className="hidden sm:inline">{tab.label}</span>
+                </button>
+              ))}
+            </nav>
           </div>
-        ) : (
-          <>
-            {registration && (
-              <div ref={progressRef}>
-                <StepProgress
-                  allSteps={registration.all_steps || []}
-                  completedSteps={registration.completed_steps || []}
-                  currentStep={registration.current_step}
-                  registrationStatus={registrationStatus}
-                  currentStepRejectionReason={rejectionReason}
-                  onStartOver={handleStartOver}
-                />
+
+          <div className="p-4 sm:p-6">
+            {storeLoading && !registration ? (
+              <div className="flex flex-col items-center py-20">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600" />
+                <p className="mt-4 text-gray-500">Retrieving application status...</p>
               </div>
+            ) : activeTab === "status" ? (
+              <div ref={progressRef}>
+                {/* Show User Activities/Overview */}
+                <div className="mb-8">
+                  <UserActivities 
+                    user={user} 
+                    registration={registration}
+                    userStats={userStats} 
+                  />
+                </div>
+                
+                {isUnderReview && (
+                  <UnderReviewSection
+                    title={registration?.current_step?.title || "Application Under Review"}
+                    onCheckUpdates={handleCheckForUpdates}
+                  />
+                )}
+              </div>
+            ) : (
+              renderTabContent()
             )}
-
-            {currentStepCode === "account_setup" && showForm && (
-              <AccountSetupForm
-                onSubmit={handleStep1Submit}
-                newUsername={newUsername}
-                setNewUsername={setNewUsername}
-                newPassword={newPassword}
-                setNewPassword={setNewPassword}
-                confirmPassword={confirmPassword}
-                setConfirmPassword={setConfirmPassword}
-                loading={storeLoading}
-              />
-            )}
-
-            {currentStepCode === "registration_form" && showForm && (
-              <RegistrationForm
-                formData={formDataStep2}
-                onChange={handleStep2Change}
-                profilePicture={profilePicture}
-                setProfilePicture={setProfilePicture}
-                onSubmit={handleStep2Submit}
-                loading={storeLoading}
-              />
-            )}
-
-            {currentStepCode === "document_upload" && showForm && (
-              <DocumentUploadForm
-                passportFile={passportFile}
-                setPassportFile={setPassportFile}
-                yellowCardFile={yellowCardFile}
-                setYellowCardFile={setYellowCardFile}
-                onSubmit={handleStep3Submit}
-                loading={storeLoading}
-              />
-            )}
-
-            {isUnderReview && (
-              <UnderReviewSection
-                title={registration?.current_step?.title || "Application Under Review"}
-                onCheckUpdates={handleCheckForUpdates}
-              />
-            )}
-          </>
-        )}
-      </main>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

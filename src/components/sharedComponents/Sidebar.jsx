@@ -1,12 +1,22 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import useDashboardStore from "../../store/dashboard.store";
+import useAuthStore from "../../store/store";
 
 function Sidebar({ onClose }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [activeSubmenu, setActiveSubmenu] = useState(null);
   const location = useLocation();
-  const currentYear = new Date().getFullYear();
+  const { user } = useAuthStore();
+  const { userStats, fetchUserStats } = useDashboardStore();
+
+  useEffect(() => {
+    fetchUserStats();
+  }, [fetchUserStats]);
+
+  const hasActiveJourney = Boolean(userStats?.current_journey);
+  const totalTravels = userStats?.stats?.total_travels || 0;
 
   const menuItems = [
     {
@@ -16,29 +26,21 @@ function Sidebar({ onClose }) {
       icon: "🕋",
       submenu: [
         { label: "Overview", path: "/dashboard" },
-        { label: "Registration Progress", path: "/dashboard/progress" },
+        { label: "Travel History", path: "/dashboard/history" },
       ],
+      badge: totalTravels > 0 ? totalTravels : null,
     },
     {
       id: "journey",
-      label: "Journey Details",
+      label: "Current Journey",
       path: "/dashboard/journey",
       icon: "✈️",
-      submenu: [
-        { label: "Hajj / Umrah Info", path: "/dashboard/journey/details" },
-        { label: "Travel Itinerary", path: "/dashboard/journey/itinerary" },
-        { label: "Accommodation", path: "/dashboard/journey/accommodation" },
-      ],
-    },
-    {
-      id: "bookings",
-      label: "All Bookings",
-      path: "/dashboard/bookings",
-      icon: "📅",
-      submenu: [
-        { label: "Flights", path: "/dashboard/bookings/flights" },
-        { label: "Hotels", path: "/dashboard/bookings/hotels" },
-        { label: "Transport", path: "/dashboard/bookings/transport" },
+      submenu: hasActiveJourney ? [
+        { label: "Journey Progress", path: "/dashboard/journey" },
+        { label: "Flight & Hotel", path: "/dashboard/journey/itinerary" },
+        { label: "Documents", path: "/dashboard/journey/documents" },
+      ] : [
+        { label: "No Active Journey", path: "/dashboard/journey", disabled: true },
       ],
     },
     {
@@ -48,19 +50,8 @@ function Sidebar({ onClose }) {
       icon: "📖",
       submenu: [
         { label: "Ihram Guide", path: "/dashboard/guidance/ihram" },
-        { label: "Tawaf & Sa’i", path: "/dashboard/guidance/tawaf" },
+        { label: "Tawaf & Sa'i", path: "/dashboard/guidance/tawaf" },
         { label: "Dua & Prayers", path: "/dashboard/guidance/dua" },
-      ],
-    },
-    {
-      id: "documents",
-      label: "Documents",
-      path: "/dashboard/documents",
-      icon: "📂",
-      submenu: [
-        { label: "Visa", path: "/dashboard/documents/visa" },
-        { label: "Passport", path: "/dashboard/documents/passport" },
-        { label: "Vaccination", path: "/dashboard/documents/vaccination" },
       ],
     },
     {
@@ -95,7 +86,6 @@ function Sidebar({ onClose }) {
             <h1 className="text-lg font-bold text-white">
               Assembly Travels
             </h1>
-            <p className="text-xs text-gray-400">Hajj {currentYear}</p>
           </div>
         </Link>
       </div>
@@ -118,12 +108,19 @@ function Sidebar({ onClose }) {
                     if (item.submenu) {
                       e.preventDefault();
                       toggleSubmenu(item.id);
+                    } else if (onClose) {
+                      onClose();
                     }
                   }}
                   className="flex items-center gap-3 p-3"
                 >
                   <span className="text-xl">{item.icon}</span>
                   <span className="flex-1">{item.label}</span>
+                  {item.badge && (
+                    <span className="px-2 py-0.5 text-xs bg-green-500 text-white rounded-full">
+                      {item.badge}
+                    </span>
+                  )}
                   {item.submenu && (
                     <span className="text-xs">
                       {activeSubmenu === item.id ? "▲" : "▼"}
@@ -142,16 +139,23 @@ function Sidebar({ onClose }) {
                       >
                         {item.submenu.map((sub) => (
                           <li key={sub.path}>
-                            <Link
-                              to={sub.path}
-                              className={`block px-3 py-2 text-sm rounded ${
-                                location.pathname === sub.path
-                                  ? "text-green-400 bg-green-500/10"
-                                  : "text-gray-300 hover:bg-gray-600/30"
-                              }`}
-                            >
-                              {sub.label}
-                            </Link>
+                            {sub.disabled ? (
+                              <span className="block px-3 py-2 text-sm rounded text-gray-500 cursor-not-allowed">
+                                {sub.label}
+                              </span>
+                            ) : (
+                              <Link
+                                to={sub.path}
+                                onClick={sub.disabled ? undefined : () => onClose && onClose()}
+                                className={`block px-3 py-2 text-sm rounded ${
+                                  location.pathname === sub.path
+                                    ? "text-green-400 bg-green-500/10"
+                                    : "text-gray-300 hover:bg-gray-600/30"
+                                }`}
+                              >
+                                {sub.label}
+                              </Link>
+                            )}
                           </li>
                         ))}
                       </motion.ul>
@@ -167,12 +171,24 @@ function Sidebar({ onClose }) {
       {/* User Info – bottom */}
       <div className="p-4 border-t border-gray-700">
         <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r from-green-500 to-emerald-700">
-            🧕
-          </div>
+          {user?.user?.profile_picture ? (
+            <img 
+              src={user.user.profile_picture} 
+              alt="Profile" 
+              className="w-10 h-10 rounded-full object-cover"
+            />
+          ) : (
+            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r from-green-500 to-emerald-700">
+              <span className="text-lg">🧕</span>
+            </div>
+          )}
           <div>
-            <p className="text-sm font-medium">Pilgrim Name</p>
-            <p className="text-xs text-gray-400">Hajj {currentYear}</p>
+            <p className="text-sm font-medium">
+              {user?.user?.name || user?.user?.username || "Pilgrim"}
+            </p>
+            <p className="text-xs text-gray-400">
+              {user?.user?.phone || ""}
+            </p>
           </div>
         </div>
       </div>

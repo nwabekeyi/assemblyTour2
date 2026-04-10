@@ -11,6 +11,8 @@ function MainLayout() {
   const isAuthPage =
     location.pathname === "/login" || location.pathname === "/signup";
 
+  const isHomePage = location.pathname === "/" || location.pathname === "";
+
   // Scroll to top only on screens smaller than 1024px
   useEffect(() => {
     if (windowWidth < 1024) {
@@ -29,12 +31,17 @@ function MainLayout() {
   let paddingTop = "pt-0";
 
   if (!isAuthPage) {
-    if (windowWidth >= 1024 || location.pathname === "/" || location.pathname === "") {
-      // Hero is visible → always 90vh
-      paddingTop = "pt-[95vh]";
-    } else if (location.pathname !== "/" && location.pathname !== "") {
-      // Small screen, not homepage → 10vh
-      paddingTop = "pt-[10vh]";
+    if (isHomePage) {
+      // Home page - add padding on lg screens where hero is absolute
+      // On mobile/tablet, hero is relative so no extra padding
+      paddingTop = "lg:pt-[95vh]";
+    } else {
+      // Other pages - standard top padding
+      if (windowWidth >= 1024) {
+        paddingTop = "pt-24";
+      } else {
+        paddingTop = "pt-20";
+      }
     }
   }
 
@@ -42,8 +49,8 @@ function MainLayout() {
     <div className="min-h-screen flex flex-col">
       <Navbar />
 
-      {/* Hero only on large screens */}
-      {!isAuthPage && windowWidth >= 1024 && <Hero />}
+      {/* Hero only on home page */}
+      {!isAuthPage && isHomePage && <Hero />}
 
       {/* Main Content */}
       <div

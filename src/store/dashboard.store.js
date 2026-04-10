@@ -228,6 +228,19 @@ const useDashboardStore = create((set, get) => ({
     }
   },
 
+  fetchRegistrationFormData: async () => {
+    try {
+      const res = await axios.get("/hajj/step/registration-form/", { useAuth: true });
+      if (res.success && res.data) {
+        return res.data;
+      }
+      return null;
+    } catch (err) {
+      console.error("Failed to fetch registration form data:", err);
+      return null;
+    }
+  },
+
   submitDocumentUpload: async (formData) => {
     set({ loading: true, error: null });
 

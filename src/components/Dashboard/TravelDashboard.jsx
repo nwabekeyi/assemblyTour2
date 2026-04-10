@@ -44,6 +44,7 @@ const TravelDashboard = () => {
     fetchEmergencyContacts,
     uploadPaymentProof,
     fetchTickets,
+    fetchRegistrationFormData,
   } = useDashboardStore();
 
   const lazyLoadRef = useRef({ manasik: false, support: false });
@@ -216,6 +217,21 @@ const getJourneyViewFromPath = (pathname) => {
   const handleStep2Change = (e) => {
     const { name, value } = e.target;
     setFormDataStep2(prev => ({ ...prev, [name]: value }));
+  };
+
+  const loadExistingUserData = async () => {
+    const existingData = await fetchRegistrationFormData();
+    if (existingData) {
+      setFormDataStep2(prev => {
+        const updated = { ...prev };
+        Object.entries(existingData).forEach(([key, value]) => {
+          if (value !== null && value !== undefined && value !== "") {
+            updated[key] = value;
+          }
+        });
+        return updated;
+      });
+    }
   };
 
   const handleStep2Submit = async (e) => {

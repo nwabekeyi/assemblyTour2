@@ -1,12 +1,18 @@
 import { useState, useEffect, useRef } from "react";
 import { IoMdHappy, IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import CustomerCard from "./CustomerCard";
-import customerData from "./data";
+import useTestimonialStore from "../../store/testimonial.store";
 
 function Customer() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [cardsToShow, setCardsToShow] = useState(3);
   const scrollContainerRef = useRef(null);
+  
+  const { testimonials, fetchTestimonials, loading } = useTestimonialStore();
+
+  useEffect(() => {
+    fetchTestimonials();
+  }, [fetchTestimonials]);
 
   // Handle responsive card count
   useEffect(() => {
@@ -27,13 +33,13 @@ function Customer() {
 
   const nextSlide = () => {
     setCurrentIndex((prevIndex) =>
-      prevIndex >= customerData.length - cardsToShow ? 0 : prevIndex + 1
+      prevIndex >= testimonials.length - cardsToShow ? 0 : prevIndex + 1
     );
   };
 
   const prevSlide = () => {
     setCurrentIndex((prevIndex) =>
-      prevIndex <= 0 ? customerData.length - cardsToShow : prevIndex - 1
+      prevIndex <= 0 ? testimonials.length - cardsToShow : prevIndex - 1
     );
   };
 
@@ -41,7 +47,19 @@ function Customer() {
     setCurrentIndex(index);
   };
 
-  const visibleCards = customerData.slice(currentIndex, currentIndex + cardsToShow);
+  // Show loading state
+  if (loading && testimonials.length === 0) {
+    return (
+      <div className="container px-4 py-16 mx-auto bg-gradient-to-b from-gray-50 to-white">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading testimonials...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const visibleCards = testimonials.slice(currentIndex, currentIndex + cardsToShow);
 
   return (
     <div className="container px-4 py-16 mx-auto bg-gradient-to-b from-gray-50 to-white">
@@ -86,27 +104,29 @@ function Customer() {
           {visibleCards.map((item) => (
             <CustomerCard
               key={item.id}
-              url={item.imageurl}
-              name={item.name}
-              description={item.description}
+              url={item.author_image}
+              name={item.author_name}
+              description={item.content}
             />
           ))}
         </div>
 
         {/* Dots Indicator */}
-        <div className="flex items-center justify-center mt-8 space-x-3">
-          {Array.from({ length: customerData.length - cardsToShow + 1 }).map((_, index) => (
-            <button
-              key={index}
-              onClick={() => goToSlide(index)}
-              className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                index === currentIndex
-                  ? "bg-gradient-to-r from-emerald-500 to-teal-600 w-8"
-                  : "bg-gray-300 hover:bg-gray-400"
-              }`}
-            />
-          ))}
-        </div>
+        {testimonials.length > cardsToShow && (
+          <div className="flex items-center justify-center mt-8 space-x-3">
+            {Array.from({ length: testimonials.length - cardsToShow + 1 }).map((_, index) => (
+              <button
+                key={index}
+                onClick={() => goToSlide(index)}
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  index === currentIndex
+                    ? "bg-gradient-to-r from-emerald-500 to-teal-600 w-8"
+                    : "bg-gray-300 hover:bg-gray-400"
+                }`}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

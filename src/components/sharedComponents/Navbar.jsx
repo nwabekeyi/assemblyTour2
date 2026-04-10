@@ -28,6 +28,7 @@ const Navbar = () => {
   const [mobileVisible, setMobileVisible] = useState(true);
 
   const location = useLocation();
+  const isHomePage = location.pathname === "/" || location.pathname === "";
   const changedBackground = location.pathname === "/login" || location.pathname === "/signup";
 
   // Fetch packages on mount
@@ -35,7 +36,7 @@ const Navbar = () => {
     fetchNavbarPackages();
   }, []);
 
-  // Desktop scroll effect
+  // Desktop scroll effect - only on home page
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
@@ -54,6 +55,26 @@ const Navbar = () => {
     window.addEventListener("scroll", handleMobileScroll);
     return () => window.removeEventListener("scroll", handleMobileScroll);
   }, [prevScrollY]);
+
+  // Click outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      const dropdownContainer = document.getElementById("packages-dropdown");
+      const dropdownButton = document.getElementById("packages-dropdown-btn");
+      
+      // Don't close if clicking on the button that toggles dropdown
+      if (dropdownButton && dropdownButton.contains(e.target)) {
+        return;
+      }
+      
+      // Close if clicking outside the dropdown
+      if (dropdownContainer && !dropdownContainer.contains(e.target)) {
+        setActiveDropdown(null);
+      }
+    };
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -83,9 +104,13 @@ const Navbar = () => {
       {/* Desktop Navbar */}
       <header
         className={`hidden lg:block sticky top-0 z-50 transition-all duration-500 font-serif ${
-          isScrolled || changedBackground
+          changedBackground
             ? "bg-black/90 backdrop-blur-md shadow-lg"
-            : "bg-transparent"
+            : isHomePage
+              ? isScrolled
+                ? "bg-black/90 backdrop-blur-md shadow-lg"
+                : "bg-transparent"
+              : "bg-black/90 backdrop-blur-md shadow-lg"
         }`}
       >
         <div className="container mx-auto px-6">
@@ -118,6 +143,7 @@ const Navbar = () => {
                     </Link>
                   ) : (
                     <button
+                      id="packages-dropdown-btn"
                       onClick={() => toggleDropdown("packages")}
                       className="flex items-center gap-2 px-5 py-3 text-white font-medium hover:text-emerald-400 transition-colors"
                     >
@@ -139,7 +165,7 @@ const Navbar = () => {
                 <>
                   <Link
                     to="/dashboard"
-                    className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-xl font-medium hover:shadow-lg transition"
+                    className="flex text-white items-center gap-2 px-5 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-xl font-medium hover:shadow-lg transition"
                   >
                     <User size={18} />
                     {user.user?.name?.split(" ")[0] || "Profile"}
@@ -167,7 +193,7 @@ const Navbar = () => {
 
         {/* Desktop Packages Dropdown */}
         {activeDropdown === "packages" && (
-          <div className="absolute left-0 w-full bg-white shadow-2xl border-t border-gray-100">
+          <div id="packages-dropdown" className="absolute left-0 w-full bg-white shadow-2xl border-t border-gray-100">
             <div className="container mx-auto px-6 py-10">
               {loading ? (
                 <div className="text-center text-gray-500">Loading packages...</div>
@@ -225,7 +251,13 @@ const Navbar = () => {
         >
           <div
             className={`w-full px-5 py-4 transition-all duration-500 ${
-              isScrolled || changedBackground ? "bg-emerald-700 shadow-lg" : "bg-emerald-700"
+              changedBackground
+                ? "bg-gray-700 shadow-lg"
+                : isHomePage
+                  ? isScrolled
+                    ? "bg-gray-700 shadow-lg"
+                    : "bg-emerald-700"
+                  : "bg-gray-700 shadow-lg"
             }`}
           >
             <div className="flex items-center justify-between">

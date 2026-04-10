@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight, Play, Pause, Compass } from "lucide-react";
+import { ChevronLeft, ChevronRight, Compass } from "lucide-react";
 import axiosInstance from "../lib/axios.js";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -7,11 +7,17 @@ const Hero = () => {
   const [heroSlides, setHeroSlides] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
 
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const fallbackSlides = [
     {
@@ -97,19 +103,12 @@ const Hero = () => {
     setTimeout(() => setIsTransitioning(false), 1000);
   };
 
-  // Auto-play
-  useEffect(() => {
-    if (!heroSlides.length) return;
-    const interval = isAutoPlaying ? setInterval(nextSlide, 5000) : null;
-    return () => interval && clearInterval(interval);
-  }, [isAutoPlaying, currentIndex, heroSlides.length]);
-
   if (!showHero || loading) return null;
 
   const currentSlide = heroSlides[currentIndex];
 
   return (
-    <section className="absolute top-0 left-0 w-full h-screen min-h-[600px] max-h-[800px] overflow-hidden">
+    <section className="relative w-full overflow-hidden h-[100vh] md:h-[70vh] md:min-h-[500px] lg:absolute lg:top-0 lg:left-0 lg:h-screen lg:min-h-[600px] lg:max-h-[800px]">
       {/* Carousel Images */}
       <div className="relative w-full h-full">
         {heroSlides.map((slide, index) => (
@@ -192,13 +191,6 @@ const Hero = () => {
         className="absolute flex items-center justify-center w-12 h-12 text-white transition-all duration-300 transform -translate-y-1/2 border rounded-full right-0 top-1/2 bg-white/1 hover:bg-white/20 hover:backdrop-blur-sm border-white/20 hover:scale-110"
       >
         <ChevronRight size={24} />
-      </button>
-
-      <button
-        onClick={() => setIsAutoPlaying(!isAutoPlaying)}
-        className="absolute flex items-center justify-center w-10 h-10 text-white transition-all duration-300 border rounded-full top-8 right-8 bg-white/10 hover:bg-white/20 backdrop-blur-sm border-white/20"
-      >
-        {isAutoPlaying ? <Pause size={18} /> : <Play size={18} />}
       </button>
 
       {/* Indicators */}

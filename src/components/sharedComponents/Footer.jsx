@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { FaFacebookF, FaLinkedinIn, FaInstagram, FaWhatsapp, FaPhoneAlt, FaEnvelope, FaMapMarkerAlt, FaArrowRight } from 'react-icons/fa';
 import axiosInstance from '../../lib/axios';
 import { toast } from "react-hot-toast";
@@ -93,7 +94,15 @@ const Footer = () => {
     { icon: FaLinkedinIn, color: "#0077B5", link: "https://linkedin.com/company/assemblytravels" },
   ];
 
-  const quickLinks = ["Home", "About Us", "Umrah Packages", "Hajj Packages", "Ziyarah Sites", "Blog", "Contact Us"];
+  const quickLinks = [
+    { text: "Home", path: "/" },
+    { text: "About Us", path: "/about" },
+    { text: "Umrah Packages", path: "/packages" },
+    { text: "Hajj Packages", path: "/packages" },
+    { text: "Sacred Sites", path: "/all-attractions" },
+    { text: "Blog", path: "/blog" },
+    { text: "Contact Us", path: "/contact" },
+  ];
 
   const contactInfo = [
     { icon: FaPhoneAlt, text: "+234 802 303 2496" },
@@ -170,7 +179,7 @@ const Footer = () => {
                   className="flex items-center text-gray-300 hover:text-emerald-400 cursor-pointer transition-colors"
                 >
                   <FaArrowRight size={12} className="mr-3" />
-                  {link}
+                  <Link to={link.path}>{link.text}</Link>
                 </motion.li>
               ))}
             </ul>

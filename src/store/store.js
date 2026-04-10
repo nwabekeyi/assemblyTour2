@@ -33,12 +33,17 @@ const useAuthStore = create((set, get) => ({
   loading: false,
   checkingAuth: true,
 
-  /* =======================
+/* =======================
      SIGNUP
-  ======================= */
-  signup: async ({ phone, turnstileToken, package_id }) => {
+   ======================= */
+  signup: async ({ email, turnstileToken, package_id }) => {
     if (!turnstileToken) {
       toast.error("Please complete the Turnstile challenge");
+      return { success: false };
+    }
+
+    if (!email) {
+      toast.error("Email is required");
       return { success: false };
     }
 
@@ -48,7 +53,7 @@ const useAuthStore = create((set, get) => ({
       "/auth/",
       {
         action: "register",
-        phone,
+        email,
         turnstileToken,
         package_id,
       },
@@ -61,7 +66,7 @@ const useAuthStore = create((set, get) => ({
       return res;
     }
 
-    toast.success(res.message || "Registration successful");
+    toast.success("Registration successful! Check your email for login credentials.");
     set({ loading: false });
     return res;
   },

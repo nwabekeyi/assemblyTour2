@@ -11,8 +11,8 @@ function SignUp() {
   const { signup, loading } = useAuthStore();
   const { packageDetail, setPackageDetail } = usePackageStore();
 
-  // Phone input state
-  const [phoneDigits, setPhoneDigits] = useState("");
+  // Email input state
+  const [email, setEmail] = useState("");
   const [turnstileToken, setTurnstileToken] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(true);
 
@@ -45,15 +45,13 @@ function SignUp() {
   }, [CLOUDFLARE_SITE_KEY]);
 
   // -----------------------------
-  // Phone input logic
+  // Email validation
   // -----------------------------
-  const handlePhoneChange = (e) => {
-    let value = e.target.value.replace(/\D/g, ""); // digits only
-    if (value.startsWith("0") || value.length > 10) return;
-    setPhoneDigits(value);
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
   };
 
-  const isValidPhone = phoneDigits.length === 10;
+  const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   // -----------------------------
   // Handle registration submit
@@ -63,10 +61,8 @@ function SignUp() {
 
     if (!packageDetail) return; // Shouldn't happen because modal forces user to select
 
-    const phone = `+234${phoneDigits}`;
-
     const result = await signup({
-      phone,
+      email,
       turnstileToken,
       package_id: packageDetail.id,
       location: packageDetail.location,
@@ -177,33 +173,26 @@ function SignUp() {
       >
         <div className="bg-gray-800 py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Phone */}
+            {/* Email */}
             <div>
               <label className="block text-sm font-medium text-gray-300">
-                Phone Number
+                Email Address
               </label>
 
-              <div className="mt-1 flex rounded-md shadow-sm">
-                <span
-                  onClick={() => inputRef.current?.focus()}
-                  className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-600 bg-gray-700 text-gray-300 text-sm cursor-text"
-                >
-                  +234
-                </span>
-
+              <div className="mt-1">
                 <input
                   ref={inputRef}
-                  type="tel"
+                  type="email"
                   required
-                  value={phoneDigits}
-                  onChange={handlePhoneChange}
-                  placeholder="8012345678"
-                  className="block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-r-md focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
+                  value={email}
+                  onChange={handleEmailChange}
+                  placeholder="you@example.com"
+                  className="block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
                 />
               </div>
 
               <p className="mt-1 text-xs text-gray-400">
-                Enter 10-digit Nigerian number (no leading 0)
+                Your login credentials will be sent to this email
               </p>
             </div>
 
@@ -212,7 +201,7 @@ function SignUp() {
 
             <button
               type="submit"
-              disabled={loading || !isValidPhone}
+              disabled={loading || !isValidEmail}
               className="w-full flex justify-center py-2 px-4 rounded-md text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50"
             >
               {loading ? (

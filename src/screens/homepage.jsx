@@ -1,5 +1,4 @@
 import React from "react";
-import Hero from "../components/Hero";
 import Customer from "../components/Customers/Customer";
 import Faq from "../components/Faq/faqs";
 import OurServices from "../components/OurServices";
@@ -19,9 +18,6 @@ function Homepage() {
 
   return (
     <div className="flex flex-col w-full">
-      {/* Pass heroSlides to Hero component */}
-      <Hero/>
-
       {/* Pass experienceSection to AboutUs component */}
       <AboutUs experienceSection={experienceSection} />
 

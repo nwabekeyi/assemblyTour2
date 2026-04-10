@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Building, Upload, CheckCircle, AlertCircle } from "lucide-react";
+import { Building, CheckCircle } from "lucide-react";
+import FileUploader from "../../common/fileUploader";
 import useDashboardStore from "../../store/dashboard.store";
 
 const PaymentStepForm = ({ onSubmit, loading }) => {
   const { bankAccounts, fetchBankAccounts, registration } = useDashboardStore();
   const [selectedFile, setSelectedFile] = useState(null);
   const [description, setDescription] = useState("");
-  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     fetchBankAccounts();
@@ -17,24 +17,17 @@ const PaymentStepForm = ({ onSubmit, loading }) => {
     e.preventDefault();
     if (!selectedFile) return;
     
-    setUploading(true);
-    
     const formData = new FormData();
     formData.append("file", selectedFile);
     formData.append("title", "Payment Proof");
     formData.append("description", description);
     
-    try {
-      await onSubmit(formData);
-    } finally {
-      setUploading(false);
-    }
+    await onSubmit(formData);
   };
 
   const currentStep = registration?.current_step;
   const isPaymentStep = currentStep?.code === "payment_details" || currentStep?.code === "payment_review";
   
-  // Check if payment already submitted
   const paymentSubmitted = registration?.step_reviews?.some(
     r => r.step_code === "payment_details" && r.status !== "pending"
   );
@@ -45,9 +38,9 @@ const PaymentStepForm = ({ onSubmit, loading }) => {
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white p-6 rounded-xl shadow-sm border border-gray-100"
+      className="bg-white p-6 md:p-10 rounded-2xl shadow-sm border border-gray-100"
     >
-      <h3 className="text-xl font-bold text-gray-800 mb-4">Payment Details</h3>
+      <h3 className="text-2xl font-bold text-gray-800 mb-6">Payment Details</h3>
       
       {paymentSubmitted ? (
         <div className="text-center py-8">
@@ -56,8 +49,8 @@ const PaymentStepForm = ({ onSubmit, loading }) => {
         </div>
       ) : (
         <>
-          <div className="mb-6">
-            <h4 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+          <div className="mb-8">
+            <h4 className="font-semibold text-gray-700 mb-4 flex items-center gap-2">
               <Building className="w-5 h-5" />
               Bank Accounts for Payment
             </h4>
@@ -79,19 +72,13 @@ const PaymentStepForm = ({ onSubmit, loading }) => {
             )}
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Upload Payment Proof (Bank Transfer Receipt)
-              </label>
-              <input
-                type="file"
-                accept="image/*,.pdf"
-                onChange={(e) => setSelectedFile(e.target.files[0])}
-                className="w-full p-3 border rounded-lg"
-                required
-              />
-            </div>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <FileUploader
+              label="Upload Payment Proof (Bank Transfer Receipt) *"
+              selectedFile={selectedFile}
+              onFileSelect={setSelectedFile}
+              accept={{ "image/*": [], "application/pdf": [] }}
+            />
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -108,17 +95,10 @@ const PaymentStepForm = ({ onSubmit, loading }) => {
 
             <button
               type="submit"
-              disabled={!selectedFile || uploading}
-              className="w-full bg-emerald-600 text-white py-3 rounded-lg font-medium hover:bg-emerald-700 disabled:opacity-50 flex items-center justify-center gap-2"
+              disabled={!selectedFile || loading}
+              className="w-full py-4 bg-emerald-600 text-white font-bold rounded-xl shadow-lg hover:bg-emerald-700 disabled:opacity-50 transition"
             >
-              {uploading ? (
-                "Uploading..."
-              ) : (
-                <>
-                  <Upload className="w-5 h-5" />
-                  Upload Payment Proof
-                </>
-              )}
+              {loading ? "Uploading..." : "Upload Payment Proof"}
             </button>
           </form>
         </>

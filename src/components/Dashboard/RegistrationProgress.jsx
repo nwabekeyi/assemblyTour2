@@ -1,10 +1,66 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle, Clock, Circle, Lock } from "lucide-react";
+import { CheckCircle, Clock, Circle, Lock, User, Phone, MapPin, Calendar, FileText, AlertCircle } from "lucide-react";
 import useDashboardStore from "../../store/dashboard.store";
 
+const StepDetails = ({ step, registration }) => {
+  const userData = registration?.user_data || {};
+  const profileImage = userData.profile_picture;
+  
+  const infoFields = [
+    { label: "First Name", value: userData.first_name, icon: User },
+    { label: "Last Name", value: userData.last_name, icon: User },
+    { label: "Phone Number", value: userData.phone_number, icon: Phone },
+    { label: "Date of Birth", value: userData.date_of_birth, icon: Calendar },
+    { label: "Gender", value: userData.gender, icon: User },
+    { label: "Nationality", value: userData.nationality, icon: MapPin },
+    { label: "State of Origin", value: userData.state_of_origin, icon: MapPin },
+    { label: "Passport Number", value: userData.passport_number, icon: FileText },
+    { label: "Passport Expiry", value: userData.passport_expiry, icon: Calendar },
+  ];
+  
+  return (
+    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mt-4">
+      <h3 className="text-lg font-semibold text-gray-800 mb-4">Submitted Details</h3>
+      
+      {profileImage && (
+        <div className="mb-4">
+          <p className="text-sm text-gray-500 mb-2">Profile Picture</p>
+          <a 
+            href={profileImage} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="inline-block"
+          >
+            <img 
+              src={profileImage} 
+              alt="Profile" 
+              className="w-24 h-24 rounded-lg object-cover border border-gray-200 cursor-pointer hover:opacity-80 transition"
+            />
+          </a>
+          <p className="text-xs text-gray-500 mt-1">Click to view full size</p>
+        </div>
+      )}
+      
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        {infoFields.map((field, idx) => (
+          field.value ? (
+            <div key={idx} className="flex items-start gap-2">
+              <field.icon className="w-4 h-4 text-gray-400 mt-0.5" />
+              <div>
+                <p className="text-xs text-gray-500">{field.label}</p>
+                <p className="text-sm font-medium text-gray-800">{field.value}</p>
+              </div>
+            </div>
+          ) : null
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const RegistrationProgress = () => {
-  const { registrationProgress, fetchRegistrationProgress } = useDashboardStore();
+  const { registrationProgress, fetchRegistrationProgress, registration } = useDashboardStore();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -90,6 +146,7 @@ const RegistrationProgress = () => {
         {all_steps.map((step, index) => {
           const isCompleted = completed_step_ids.includes(step.id);
           const isCurrent = step.code === current_step_code;
+          const stepPending = status === "pending" && isCurrent;
           
           return (
             <div 
@@ -97,6 +154,8 @@ const RegistrationProgress = () => {
               className={`flex items-center gap-4 p-4 rounded-lg border ${
                 isCompleted 
                   ? "bg-green-50 border-green-200" 
+                  : stepPending
+                  ? "bg-amber-50 border-amber-200"
                   : isCurrent 
                   ? "bg-blue-50 border-blue-200"
                   : "bg-gray-50 border-gray-200"
@@ -105,12 +164,16 @@ const RegistrationProgress = () => {
               <div className={`${
                 isCompleted 
                   ? "text-green-600" 
+                  : stepPending
+                  ? "text-amber-600"
                   : isCurrent 
                   ? "text-blue-600"
                   : "text-gray-400"
               }`}>
                 {isCompleted ? (
                   <CheckCircle className="w-6 h-6" />
+                ) : stepPending ? (
+                  <AlertCircle className="w-6 h-6" />
                 ) : isCurrent ? (
                   <Clock className="w-6 h-6" />
                 ) : (
@@ -121,13 +184,18 @@ const RegistrationProgress = () => {
                 <p className={`font-medium ${
                   isCompleted 
                     ? "text-green-800" 
+                    : stepPending
+                    ? "text-amber-800"
                     : isCurrent 
                     ? "text-blue-800"
                     : "text-gray-600"
                 }`}>
                   {step.title}
                 </p>
-                {isCurrent && (
+                {stepPending && (
+                  <p className="text-xs text-amber-600">Awaiting admin approval</p>
+                )}
+                {isCurrent && !stepPending && (
                   <p className="text-xs text-blue-600">Current Step</p>
                 )}
               </div>
@@ -138,6 +206,10 @@ const RegistrationProgress = () => {
           );
         })}
       </div>
+
+      {status === "pending" && (
+        <StepDetails step={all_steps.find(s => s.code === current_step_code)} registration={registration} />
+      )}
     </motion.div>
   );
 };

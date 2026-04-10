@@ -53,7 +53,7 @@ const TravelDashboard = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const [formDataStep2, setFormDataStep2] = useState({
-    email: "",
+    phone_number: "",
     first_name: "",
     last_name: "",
     date_of_birth: "",
@@ -174,7 +174,7 @@ const getJourneyViewFromPath = (pathname) => {
 
   const handleStartOver = useCallback(() => {
     setFormDataStep2({
-      email: "",
+      phone_number: "",
       first_name: "",
       last_name: "",
       date_of_birth: "",
@@ -240,13 +240,14 @@ const getJourneyViewFromPath = (pathname) => {
     if (!profilePicture) return toast.error("Profile picture is required");
 
     const payload = new FormData();
-    Object.entries(formDataStep2).forEach(([k, v]) => payload.append(k, v));
+    Object.entries(formDataStep2).forEach(([k, v]) => {
+      if (v) payload.append(k, v);
+    });
     payload.append("profile_picture", profilePicture);
 
     const success = await submitRegistrationForm(payload);
     if (success) {
       setProfilePicture(null);
-      setForceShowForm(false);
       await refreshRegistration();
     }
   };
@@ -263,7 +264,6 @@ const getJourneyViewFromPath = (pathname) => {
     if (success) {
       setPassportFile(null);
       setYellowCardFile(null);
-      setForceShowForm(false);
       await refreshRegistration();
     }
   };
@@ -282,18 +282,36 @@ const getJourneyViewFromPath = (pathname) => {
   const currentStepCode = registration?.current_step?.code;
   const rejectionReason = registration?.current_step_rejection_reason || "";
 
+  const isStepUnderReview = (stepCode) => {
+    if (!registration?.step_reviews) return false;
+    const review = registration.step_reviews.find(r => r.step_code === stepCode);
+    return review && review.status === "pending";
+  };
+
   const isRejected = registrationStatus === "failed" && rejectionReason;
-  const isUnderReview = !isRejected && (registrationStatus === "pending" ||
-    ["registration_form", "document_upload", "document_review"].includes(currentStepCode));
+  const isUnderReview = isStepUnderReview(currentStepCode);
 
   const canEditStep = (code) => {
     if (forceShowForm) return true;
+    if (isStepUnderReview(code)) return false;
     return currentStepCode === code;
   };
 
+  const isStepPending = (code) => {
+    return isStepUnderReview(code);
+  };
+
+  const renderStepStatus = (code, label) => (
+    <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-6 text-center">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto mb-3"></div>
+      <h3 className="text-lg font-semibold text-gray-800 mb-1">{label} Submitted</h3>
+      <p className="text-gray-600 text-sm">Awaiting admin approval. You will be notified once reviewed.</p>
+    </div>
+  );
+
   const renderStepForms = () => (
     <>
-      {canEditStep("account_setup") && (
+      {canEditStep("account_setup") ? (
         <AccountSetupForm
           onSubmit={handleStep1Submit}
           newUsername={newUsername}
@@ -304,16 +322,16 @@ const getJourneyViewFromPath = (pathname) => {
           setConfirmPassword={setConfirmPassword}
           loading={storeLoading}
         />
-      )}
+      ) : isStepPending("account_setup") && renderStepStatus("account_setup", "Account Setup")}
 
-      {canEditStep("payment_details") && (
+      {canEditStep("payment_details") ? (
         <PaymentStepForm
           onSubmit={uploadPaymentProof}
           loading={storeLoading}
         />
-      )}
+      ) : isStepPending("payment_details") && renderStepStatus("payment_details", "Payment Details")}
 
-      {canEditStep("registration_form") && (
+      {canEditStep("registration_form") ? (
         <RegistrationForm
           formData={formDataStep2}
           onChange={handleStep2Change}
@@ -322,9 +340,9 @@ const getJourneyViewFromPath = (pathname) => {
           onSubmit={handleStep2Submit}
           loading={storeLoading}
         />
-      )}
+      ) : isStepPending("registration_form") && renderStepStatus("registration_form", "Bio-Data")}
 
-      {canEditStep("document_upload") && (
+      {canEditStep("document_upload") ? (
         <DocumentUploadForm
           passportFile={passportFile}
           setPassportFile={setPassportFile}
@@ -333,12 +351,31 @@ const getJourneyViewFromPath = (pathname) => {
           onSubmit={handleStep3Submit}
           loading={storeLoading}
         />
-      )}
+      ) : isStepPending("document_upload") && renderStepStatus("document_upload", "Documents")}
     </>
   );
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
+      {showChangeCredentialsModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+            <h2 className="text-xl font-semibold mb-4">Complete Your Account Setup</h2>
+            <p className="text-sm text-gray-600 mb-4">Please set your username and password to continue.</p>
+            <AccountSetupForm
+              onSubmit={handleStep1Submit}
+              newUsername={newUsername}
+              setNewUsername={setNewUsername}
+              newPassword={newPassword}
+              setNewPassword={setNewPassword}
+              confirmPassword={confirmPassword}
+              setConfirmPassword={setConfirmPassword}
+              loading={storeLoading}
+            />
+          </div>
+        </div>
+      )}
+
       <DashboardHeader user={user} currentYear={currentYear} />
 
       <div className="max-w-6xl mx-auto mt-4 px-2">
@@ -370,6 +407,12 @@ const getJourneyViewFromPath = (pathname) => {
               </div>
             ) : activeTab === "status" ? (
               <div ref={progressRef}>
+                {!showChangeCredentialsModal && !isUnderReview && (canEditStep("account_setup") || canEditStep("payment_details") || canEditStep("registration_form") || canEditStep("document_upload")) && (
+                  <div className="mb-8 bg-white rounded-lg border border-gray-200 p-4">
+                    {renderStepForms()}
+                  </div>
+                )}
+
                 {/* Show User Activities/Overview */}
                 <div className="mb-8">
                   <UserActivities 

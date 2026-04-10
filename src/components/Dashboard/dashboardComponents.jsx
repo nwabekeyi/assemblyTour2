@@ -88,7 +88,7 @@ export const RegistrationForm = ({ formData, onChange, profilePicture, setProfil
     animate={{ opacity: 1, y: 0 }}
     className="bg-white p-6 md:p-10 rounded-2xl shadow-sm border border-gray-100"
   >
-    <h2 className="text-2xl font-bold text-gray-800 mb-6">Complete Registrations</h2>
+    <h2 className="text-2xl font-bold text-gray-800 mb-6">Complete Registration</h2>
     <form onSubmit={onSubmit} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {Object.entries(formData).map(([key, value]) => (
@@ -96,7 +96,7 @@ export const RegistrationForm = ({ formData, onChange, profilePicture, setProfil
             key={key}
             label={key.replace(/_/g, " ")}
             name={key}
-            type={key.includes("date") || key.includes("expiry") ? "date" : "text"}
+            type={key.includes("date") || key.includes("expiry") ? "date" : key === "phone_number" ? "tel" : "text"}
             value={value}
             onChange={onChange}
             required
@@ -106,11 +106,11 @@ export const RegistrationForm = ({ formData, onChange, profilePicture, setProfil
             {key === "gender" && (
               <>
                 <option value="">Select Gender</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-              </>
-            )}
-          </InputField>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                </>
+              )}
+            </InputField>
         ))}
       </div>
       <FileUploader

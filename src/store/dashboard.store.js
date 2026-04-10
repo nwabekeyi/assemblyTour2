@@ -282,7 +282,7 @@ const useDashboardStore = create((set, get) => ({
   bankAccounts: [],
   fetchBankAccounts: async () => {
     try {
-      const response = await axios.get("/payments/accounts/", { useAuth: true });
+      const response = await axios.get("/accounts/", { useAuth: true });
       const accounts = response.data?.bank_accounts || response.data?.data || [];
       set({ bankAccounts: accounts });
       return accounts;

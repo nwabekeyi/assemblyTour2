@@ -187,7 +187,7 @@ function SignUp() {
                   value={email}
                   onChange={handleEmailChange}
                   placeholder="you@example.com"
-                  className="block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
+                  className="block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 text-white"
                 />
               </div>
 

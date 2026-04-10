@@ -304,27 +304,26 @@ const getJourneyViewFromPath = (pathname) => {
 
   const isRejected = registrationStatus === "failed" && rejectionReason;
   
-  // Only under review if current step has been submitted and is pending (not approved)
-  const isUnderReview = () => {
-    if (!currentStepCode) return false;
-    const stepApproved = registration?.completed_step_codes?.includes(currentStepCode);
-    // Check step_reviews for pending status only if approved is false
-    if (stepApproved) return false;
-    const review = registration?.step_reviews?.find(r => r.step_code === currentStepCode);
-    return review && review.status === "pending";
-  };
+  // Use current_step_status from backend
+  // "pending" = can fill, "awaiting_approval" = waiting for admin, "approved" = done
+  const stepStatus = registration?.current_step_status;
+  const canFill = stepStatus === "pending";
+  const isUnderReview = stepStatus === "awaiting_approval";
 
   const canEditStep = (code) => {
     if (forceShowForm) return true;
     if (isRejected) return false;
-    // Only show form for the exact current step - follow backend orchestration
+    // Only show form for current step and when can fill
     if (!currentStepCode) return true;
-    return currentStepCode === code;
+    return currentStepCode === code && canFill;
   };
 
   const isStepPending = (code) => {
-    // Show pending status if submitted but not approved
-    return hasStepBeenSubmitted(code) && !isStepApproved(code);
+    // For specific steps, check step_reviews
+    if (!registration?.step_reviews?.length) return false;
+    const review = registration.step_reviews.find(r => r.step_code === code);
+    const isCompleted = registration?.completed_step_codes?.includes(code);
+    return review && review.status === "pending" && !isCompleted;
   };
 
   const renderStepStatus = (code, label) => (
@@ -462,7 +461,7 @@ const getJourneyViewFromPath = (pathname) => {
                   />
                 </div>
                 
-                {isUnderReview() && (
+                {isUnderReview && (
                   <UnderReviewSection
                     title={registration?.current_step?.title || "Application Under Review"}
                     onCheckUpdates={handleCheckForUpdates}

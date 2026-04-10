@@ -283,22 +283,48 @@ const getJourneyViewFromPath = (pathname) => {
   const rejectionReason = registration?.current_step_rejection_reason || "";
 
   const isStepUnderReview = (stepCode) => {
+    // Check if step is pending in reviews AND has been completed
     if (!registration?.step_reviews) return false;
     const review = registration.step_reviews.find(r => r.step_code === stepCode);
-    return review && review.status === "pending";
+    const isCompleted = registration?.completed_step_codes?.includes(stepCode);
+    return review && review.status === "pending" && isCompleted;
+  };
+
+  const hasStepBeenSubmitted = (stepCode) => {
+    // Check step_reviews to see if step was submitted
+    if (!registration?.step_reviews?.length) return false;
+    const review = registration.step_reviews.find(r => r.step_code === stepCode);
+    return !!review;
+  };
+
+  const isStepApproved = (stepCode) => {
+    // Check if step is in completed_step_codes
+    return registration?.completed_step_codes?.includes(stepCode);
   };
 
   const isRejected = registrationStatus === "failed" && rejectionReason;
-  const isUnderReview = isStepUnderReview(currentStepCode);
+  
+  // Only under review if current step has been submitted and is pending (not approved)
+  const isUnderReview = () => {
+    if (!currentStepCode) return false;
+    const stepApproved = registration?.completed_step_codes?.includes(currentStepCode);
+    // Check step_reviews for pending status only if approved is false
+    if (stepApproved) return false;
+    const review = registration?.step_reviews?.find(r => r.step_code === currentStepCode);
+    return review && review.status === "pending";
+  };
 
   const canEditStep = (code) => {
     if (forceShowForm) return true;
-    if (isStepUnderReview(code)) return false;
+    if (isRejected) return false;
+    // Only show form for the exact current step - follow backend orchestration
+    if (!currentStepCode) return true;
     return currentStepCode === code;
   };
 
   const isStepPending = (code) => {
-    return isStepUnderReview(code);
+    // Show pending status if submitted but not approved
+    return hasStepBeenSubmitted(code) && !isStepApproved(code);
   };
 
   const renderStepStatus = (code, label) => (
@@ -400,6 +426,20 @@ const getJourneyViewFromPath = (pathname) => {
           </div>
 
           <div className="p-4 sm:p-6">
+            {/* No registration yet - show start option */}
+            {!storeLoading && !registration && (
+              <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
+                <h3 className="text-xl font-bold text-gray-800 mb-4">Start Your Hajj Registration</h3>
+                <p className="text-gray-600 mb-6">You haven't started a registration yet.</p>
+                <button
+                  onClick={handleStartRegistration}
+                  className="bg-emerald-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-emerald-700"
+                >
+                  Start Registration
+                </button>
+              </div>
+            )}
+
             {storeLoading && !registration ? (
               <div className="flex flex-col items-center py-20">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600" />
@@ -407,7 +447,7 @@ const getJourneyViewFromPath = (pathname) => {
               </div>
             ) : activeTab === "status" ? (
               <div ref={progressRef}>
-                {!showChangeCredentialsModal && !isUnderReview && (canEditStep("account_setup") || canEditStep("payment_details") || canEditStep("registration_form") || canEditStep("document_upload")) && (
+                {!showChangeCredentialsModal && !isRejected && registration && (canEditStep("account_setup") || canEditStep("payment_details") || canEditStep("registration_form") || canEditStep("document_upload")) && (
                   <div className="mb-8 bg-white rounded-lg border border-gray-200 p-4">
                     {renderStepForms()}
                   </div>
@@ -422,7 +462,7 @@ const getJourneyViewFromPath = (pathname) => {
                   />
                 </div>
                 
-                {isUnderReview && (
+                {isUnderReview() && (
                   <UnderReviewSection
                     title={registration?.current_step?.title || "Application Under Review"}
                     onCheckUpdates={handleCheckForUpdates}

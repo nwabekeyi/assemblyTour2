@@ -31,24 +31,7 @@ function PackageDetail() {
       return;
     }
 
-    if (currentReg && (currentReg.status === "completed" || currentReg.status === "failed")) {
-      // User can start a new registration
-      setBooking(true);
-      try {
-        const result = await startNewRegistration(id);
-        if (result) {
-          toast.success("Registration started successfully!");
-          navigate("/dashboard");
-        }
-      } catch (err) {
-        toast.error(err.message || "Failed to start registration");
-      } finally {
-        setBooking(false);
-      }
-      return;
-    }
-
-    // No existing registration - start new one
+    // Try to start new registration - backend will return error if already active
     setBooking(true);
     try {
       const result = await startNewRegistration(id);

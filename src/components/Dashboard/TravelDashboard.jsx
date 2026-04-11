@@ -45,6 +45,7 @@ const TravelDashboard = () => {
     uploadPaymentProof,
     fetchTickets,
     fetchRegistrationFormData,
+    startNewRegistration,
   } = useDashboardStore();
 
   const lazyLoadRef = useRef({ manasik: false, support: false });
@@ -160,7 +161,9 @@ const getJourneyViewFromPath = (pathname) => {
   }, [activeTab, user, fetchManasikGuidance, fetchEmergencyContacts, fetchTickets, location.pathname]);
 
   useEffect(() => {
-    if (registration?.current_step?.code === "account_setup") {
+    // Auto-show password change modal when at account_setup step
+    const stepStatus = registration?.current_step_status;
+    if (registration?.current_step?.code === "account_setup" && stepStatus === "pending") {
       setShowChangeCredentialsModal(true);
     }
   }, [registration]);
@@ -192,6 +195,26 @@ const getJourneyViewFromPath = (pathname) => {
     setYellowCardFile(null);
     setForceShowForm(true);
   }, []);
+
+  const handleStartRegistration = async () => {
+    // Get first available package directly from API
+    try {
+      const res = await fetch("/packages/?limit=1", { 
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      });
+      const data = await res.json();
+      const packages = data?.data || [];
+      if (packages?.length > 0) {
+        const result = await startNewRegistration(packages[0].id);
+        if (result) {
+          toast.success("Registration started! Redirecting...");
+          navigate("/dashboard");
+        }
+      }
+    } catch (err) {
+      toast.error("Failed to start registration");
+    }
+  };
 
   const handleCheckForUpdates = async () => {
     progressRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -281,6 +304,14 @@ const getJourneyViewFromPath = (pathname) => {
   const registrationStatus = registration?.status;
   const currentStepCode = registration?.current_step?.code;
   const rejectionReason = registration?.current_step_rejection_reason || "";
+  
+  // Use current_step_status from backend
+  // "pending" = can fill, "awaiting_approval" = waiting for admin, "approved" = done, "rejected" = can resubmit
+  const stepStatus = registration?.current_step_status;
+  const canFill = stepStatus === "pending" || stepStatus === "rejected";
+  const isUnderReview = stepStatus === "awaiting_approval";
+  
+  const isRejected = (registrationStatus === "failed" && rejectionReason) || stepStatus === "rejected";
 
   const isStepUnderReview = (stepCode) => {
     // Check if step is pending in reviews AND has been completed
@@ -302,24 +333,19 @@ const getJourneyViewFromPath = (pathname) => {
     return registration?.completed_step_codes?.includes(stepCode);
   };
 
-  const isRejected = registrationStatus === "failed" && rejectionReason;
-  
-  // Use current_step_status from backend
-  // "pending" = can fill, "awaiting_approval" = waiting for admin, "approved" = done
-  const stepStatus = registration?.current_step_status;
-  const canFill = stepStatus === "pending";
-  const isUnderReview = stepStatus === "awaiting_approval";
-
   const canEditStep = (code) => {
     if (forceShowForm) return true;
-    if (isRejected) return false;
+    // Allow editing if step is rejected - user can resubmit
+    if (stepStatus === "rejected" && currentStepCode === code) return true;
+    // Don't allow edit if registration is fully failed
+    if (isRejected && registrationStatus === "failed") return false;
     // Only show form for current step and when can fill
     if (!currentStepCode) return true;
     return currentStepCode === code && canFill;
   };
 
   const isStepPending = (code) => {
-    // For specific steps, check step_reviews
+    // For specific steps, check step_reviews - show pending only if not rejected
     if (!registration?.step_reviews?.length) return false;
     const review = registration.step_reviews.find(r => r.step_code === code);
     const isCompleted = registration?.completed_step_codes?.includes(code);
@@ -336,7 +362,7 @@ const getJourneyViewFromPath = (pathname) => {
 
   const renderStepForms = () => (
     <>
-      {canEditStep("account_setup") ? (
+      {canEditStep("account_setup") && !registration?.completed_step_codes?.includes("account_setup") ? (
         <AccountSetupForm
           onSubmit={handleStep1Submit}
           newUsername={newUsername}
@@ -349,14 +375,14 @@ const getJourneyViewFromPath = (pathname) => {
         />
       ) : isStepPending("account_setup") && renderStepStatus("account_setup", "Account Setup")}
 
-      {canEditStep("payment_details") ? (
+      {canEditStep("payment_details") && !registration?.completed_step_codes?.includes("payment_details") ? (
         <PaymentStepForm
           onSubmit={uploadPaymentProof}
           loading={storeLoading}
         />
       ) : isStepPending("payment_details") && renderStepStatus("payment_details", "Payment Details")}
 
-      {canEditStep("registration_form") ? (
+      {canEditStep("registration_form") && !registration?.completed_step_codes?.includes("registration_form") ? (
         <RegistrationForm
           formData={formDataStep2}
           onChange={handleStep2Change}
@@ -367,7 +393,7 @@ const getJourneyViewFromPath = (pathname) => {
         />
       ) : isStepPending("registration_form") && renderStepStatus("registration_form", "Bio-Data")}
 
-      {canEditStep("document_upload") ? (
+      {canEditStep("document_upload") && !registration?.completed_step_codes?.includes("document_upload") ? (
         <DocumentUploadForm
           passportFile={passportFile}
           setPassportFile={setPassportFile}
@@ -377,6 +403,14 @@ const getJourneyViewFromPath = (pathname) => {
           loading={storeLoading}
         />
       ) : isStepPending("document_upload") && renderStepStatus("document_upload", "Documents")}
+      
+      {stepStatus === "rejected" && !canEditStep("document_upload") && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <h3 className="text-lg font-semibold text-red-800 mb-1">Documents Rejected</h3>
+          <p className="text-red-600 text-sm mb-2">{rejectionReason}</p>
+          <p className="text-gray-600 text-sm">Please upload new documents.</p>
+        </div>
+      )}
     </>
   );
 
@@ -425,17 +459,11 @@ const getJourneyViewFromPath = (pathname) => {
           </div>
 
           <div className="p-4 sm:p-6">
-            {/* No registration yet - show start option */}
+            {/* No registration yet - show message */}
             {!storeLoading && !registration && (
               <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
                 <h3 className="text-xl font-bold text-gray-800 mb-4">Start Your Hajj Registration</h3>
                 <p className="text-gray-600 mb-6">You haven't started a registration yet.</p>
-                <button
-                  onClick={handleStartRegistration}
-                  className="bg-emerald-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-emerald-700"
-                >
-                  Start Registration
-                </button>
               </div>
             )}
 
@@ -446,7 +474,23 @@ const getJourneyViewFromPath = (pathname) => {
               </div>
             ) : activeTab === "status" ? (
               <div ref={progressRef}>
-                {!showChangeCredentialsModal && !isRejected && registration && (canEditStep("account_setup") || canEditStep("payment_details") || canEditStep("registration_form") || canEditStep("document_upload")) && (
+                {isRejected && stepStatus === "rejected" && (
+                  <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <h3 className="text-lg font-semibold text-red-800 mb-2">Documents Rejected</h3>
+                    <p className="text-red-700">{rejectionReason}</p>
+                    <p className="text-red-600 text-sm mt-2">Please upload new documents.</p>
+                  </div>
+                )}
+
+                {isRejected && registrationStatus === "failed" && (
+                  <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <h3 className="text-lg font-semibold text-red-800 mb-2">Application Rejected</h3>
+                    <p className="text-red-700">{rejectionReason}</p>
+                    <p className="text-red-600 text-sm mt-2">Please update your information and resubmit.</p>
+                  </div>
+                )}
+
+                {!showChangeCredentialsModal && registration && (canEditStep("account_setup") || canEditStep("payment_details") || canEditStep("registration_form") || canEditStep("document_upload")) && (
                   <div className="mb-8 bg-white rounded-lg border border-gray-200 p-4">
                     {renderStepForms()}
                   </div>

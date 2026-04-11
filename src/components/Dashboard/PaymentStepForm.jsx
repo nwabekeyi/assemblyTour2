@@ -28,11 +28,16 @@ const PaymentStepForm = ({ onSubmit, loading }) => {
   const currentStep = registration?.current_step;
   const isPaymentStep = currentStep?.code === "payment_details" || currentStep?.code === "payment_review";
   
+  const paymentApproved = registration?.completed_step_codes?.includes("payment_details");
   const paymentSubmitted = registration?.step_reviews?.some(
     r => r.step_code === "payment_details" && r.status !== "pending"
   );
 
+  const packagePrice = registration?.package_price;
+
   if (!isPaymentStep) return null;
+
+  if (paymentApproved) return null;
 
   return (
     <motion.div
@@ -41,6 +46,13 @@ const PaymentStepForm = ({ onSubmit, loading }) => {
       className="bg-white p-6 md:p-10 rounded-2xl shadow-sm border border-gray-100"
     >
       <h3 className="text-2xl font-bold text-gray-800 mb-6">Payment Details</h3>
+      
+      {packagePrice && (
+        <div className="mb-6 p-4 bg-emerald-50 rounded-lg border border-emerald-200">
+          <p className="text-gray-700 mb-1">Total Amount to Pay:</p>
+          <p className="text-3xl font-bold text-emerald-600">₦{parseInt(packagePrice).toLocaleString()}</p>
+        </div>
+      )}
       
       {paymentSubmitted ? (
         <div className="text-center py-8">

@@ -295,14 +295,23 @@ const useDashboardStore = create((set, get) => ({
   uploadPaymentProof: async (formData) => {
     set({ loading: true });
     try {
-      const response = await axios.post("/payments/user/upload/", formData, {
+      const response = await axios.post("/hajj/step/payment-upload/", formData, {
         useAuth: true,
-        headers: { "Content-Type": "multipart/form-data" },
       });
-      toast.success("Payment proof uploaded successfully!");
-      return response.data;
+      if (response.success) {
+        toast.success(response.message || "Payment proof uploaded successfully!");
+        const regRes = await axios.get("/registration/my/", { useAuth: true });
+        if (regRes.success) {
+          set({ registration: regRes.data });
+        }
+        return response.data;
+      } else {
+        toast.error(response.message || "Payment proof upload failed");
+        return null;
+      }
     } catch (err) {
-      toast.error(err.message || "Payment proof upload failed");
+      const errorMsg = err.errors?.join(", ") || err.message || "Payment proof upload failed";
+      toast.error(errorMsg);
       return null;
     } finally {
       set({ loading: false });

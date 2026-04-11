@@ -92,13 +92,13 @@ const RegistrationProgress = () => {
   const {
     package: pkg,
     status,
-    current_step,
     current_step_code,
     all_steps,
     completed_step_ids,
     steps_completed,
     steps_remaining,
-    total_steps
+    total_steps,
+    current_step
   } = registrationProgress;
 
   const progressPercent = total_steps > 0 ? Math.round((steps_completed / total_steps) * 100) : 0;
@@ -193,7 +193,7 @@ const RegistrationProgress = () => {
                   {step.title}
                 </p>
                 {stepPending && (
-                  <p className="text-xs text-amber-600">Awaiting admin approval</p>
+                  <p className="text-xs text-amber-600">{current_step !== "Arrival Status" ?  'Awaiting admin approval' : 'Registration Completed. Awating Arrival from destination'}</p>
                 )}
                 {isCurrent && !stepPending && (
                   <p className="text-xs text-blue-600">Current Step</p>

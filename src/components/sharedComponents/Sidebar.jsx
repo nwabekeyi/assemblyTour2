@@ -171,9 +171,9 @@ function Sidebar({ onClose }) {
       {/* User Info – bottom */}
       <div className="p-4 border-t border-gray-700">
         <div className="flex items-center gap-3">
-          {user?.user?.profile_picture ? (
+          {user?.profile_picture ? (
             <img 
-              src={user.user.profile_picture} 
+              src={user.profile_picture} 
               alt="Profile" 
               className="w-10 h-10 rounded-full object-cover"
             />
@@ -184,7 +184,7 @@ function Sidebar({ onClose }) {
           )}
           <div>
             <p className="text-sm font-medium">
-              {user?.user?.name || user?.user?.username || "Pilgrim"}
+              {user?.name || user?.username || "Pilgrim"}
             </p>
             <p className="text-xs text-gray-400">
               {user?.user?.phone || ""}

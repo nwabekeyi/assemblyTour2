@@ -16,9 +16,7 @@ export const DashboardHeader = ({ user, currentYear }) => (
           <p className="text-sm font-medium text-gray-900">{user.username || "Traveler"}</p>
           <p className="text-xs text-gray-500">{user.phone}</p>
         </div>
-        <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center text-white text-lg">
-          🕋
-        </div>
+        <img src={user.profile_picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username || "Traveler")}&background=10B981&color=fff&size=128`} alt="Profile" className="w-10 h-10 rounded-full object-cover" />
       </div>
     </div>
   </header>
@@ -403,6 +401,55 @@ export const CurrentJourneyDetailsSection = ({ registration }) => {
                 </div>
                 <h3 className="font-semibold text-gray-800 mb-2">{doc.title}</h3>
                 {doc.description && <p className="text-sm text-gray-500 mb-3">{doc.description}</p>}
+                
+                {/* Display visa details */}
+                {doc.doc_type === 'visa' && (
+                  <div className="bg-blue-50 p-3 rounded-lg mb-3 text-sm">
+                    <p className="font-semibold text-blue-800 mb-2">Visa Details</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {doc.visa_number && <p><span className="text-gray-500">Visa No:</span> <span className="font-medium">{doc.visa_number}</span></p>}
+                      {doc.visa_type && <p><span className="text-gray-500">Type:</span> <span className="font-medium">{doc.visa_type}</span></p>}
+                      {doc.visa_country && <p><span className="text-gray-500">Country:</span> <span className="font-medium">{doc.visa_country}</span></p>}
+                      {doc.visa_port_of_entry && <p><span className="text-gray-500">Port of Entry:</span> <span className="font-medium">{doc.visa_port_of_entry}</span></p>}
+                      {doc.visa_issue_date && <p><span className="text-gray-500">Issued:</span> <span className="font-medium">{new Date(doc.visa_issue_date).toLocaleDateString()}</span></p>}
+                      {doc.visa_expiry_date && <p><span className="text-gray-500">Expires:</span> <span className="font-medium">{new Date(doc.visa_expiry_date).toLocaleDateString()}</span></p>}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Display flight/ticket details */}
+                {doc.doc_type === 'ticket' && (
+                  <div className="bg-purple-50 p-3 rounded-lg mb-3 text-sm">
+                    <p className="font-semibold text-purple-800 mb-2">Flight Details</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {doc.airline_name && <p><span className="text-gray-500">Airline:</span> <span className="font-medium">{doc.airline_name}</span></p>}
+                      {doc.flight_number && <p><span className="text-gray-500">Flight No:</span> <span className="font-medium">{doc.flight_number}</span></p>}
+                      {doc.seat_number && <p><span className="text-gray-500">Seat:</span> <span className="font-medium">{doc.seat_number}</span></p>}
+                      {doc.booking_reference && <p><span className="text-gray-500">Booking Ref:</span> <span className="font-medium">{doc.booking_reference}</span></p>}
+                      {doc.departure_airport && <p><span className="text-gray-500">From:</span> <span className="font-medium">{doc.departure_airport}</span></p>}
+                      {doc.arrival_airport && <p><span className="text-gray-500">To:</span> <span className="font-medium">{doc.arrival_airport}</span></p>}
+                      {doc.departure_date && <p><span className="text-gray-500">Departure:</span> <span className="font-medium">{new Date(doc.departure_date).toLocaleDateString()}</span></p>}
+                      {doc.arrival_date && <p><span className="text-gray-500">Arrival:</span> <span className="font-medium">{new Date(doc.arrival_date).toLocaleDateString()}</span></p>}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Display hotel details */}
+                {doc.doc_type === 'hotel_voucher' && (
+                  <div className="bg-amber-50 p-3 rounded-lg mb-3 text-sm">
+                    <p className="font-semibold text-amber-800 mb-2">Hotel Details</p>
+                    <div className="space-y-1">
+                      {doc.hotel_name && <p><span className="text-gray-500">Hotel:</span> <span className="font-medium">{doc.hotel_name}</span></p>}
+                      {doc.hotel_address && <p><span className="text-gray-500">Address:</span> <span className="font-medium">{doc.hotel_address}</span></p>}
+                      {doc.room_type && <p><span className="text-gray-500">Room Type:</span> <span className="font-medium">{doc.room_type}</span></p>}
+                      {doc.room_number && <p><span className="text-gray-500">Room No:</span> <span className="font-medium">{doc.room_number}</span></p>}
+                      {doc.number_of_nights && <p><span className="text-gray-500">Nights:</span> <span className="font-medium">{doc.number_of_nights}</span></p>}
+                      {doc.check_in_date && <p><span className="text-gray-500">Check-in:</span> <span className="font-medium">{new Date(doc.check_in_date).toLocaleDateString()}</span></p>}
+                      {doc.check_out_date && <p><span className="text-gray-500">Check-out:</span> <span className="font-medium">{new Date(doc.check_out_date).toLocaleDateString()}</span></p>}
+                    </div>
+                  </div>
+                )}
+                
                 <a
                   href={doc.file}
                   target="_blank"
@@ -478,8 +525,14 @@ export const CurrentJourneyDetailsSection = ({ registration }) => {
 };
 
 export const JourneyItinerarySection = ({ registration }) => {
-  const ticketInfo = registration?.ticket_info;
-  const hotelInfo = registration?.hotel_info;
+  const travelDocs = registration?.travel_documents || [];
+  const ticketDoc = travelDocs.find(d => d.doc_type === 'ticket');
+  const hotelDoc = travelDocs.find(d => d.doc_type === 'hotel_voucher');
+  
+  const ticket = ticketDoc || {};
+  const hotel = hotelDoc || {};
+  const hasTicket = ticket && (ticket.airline_name || ticket.flight_number);
+  const hasHotel = hotel && (hotel.hotel_name || hotel.room_type);
 
   if (!registration) {
     return (
@@ -507,14 +560,23 @@ export const JourneyItinerarySection = ({ registration }) => {
         </div>
       </div>
 
-      {ticketInfo ? (
+      {hasTicket ? (
         <div className="mb-6">
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-2 mb-3">
             <Plane className="w-4 h-4 text-blue-600" />
             <h3 className="font-semibold text-gray-800">Flight</h3>
           </div>
           <div className="p-4 border rounded-xl bg-blue-50 border-blue-100">
-            <p className="whitespace-pre-line text-sm text-blue-900">{ticketInfo}</p>
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              {ticket.airline_name && <p><span className="text-blue-700">Airline:</span> <span className="font-medium text-blue-900">{ticket.airline_name}</span></p>}
+              {ticket.flight_number && <p><span className="text-blue-700">Flight No:</span> <span className="font-medium text-blue-900">{ticket.flight_number}</span></p>}
+              {ticket.departure_airport && <p><span className="text-blue-700">From:</span> <span className="font-medium text-blue-900">{ticket.departure_airport}</span></p>}
+              {ticket.arrival_airport && <p><span className="text-blue-700">To:</span> <span className="font-medium text-blue-900">{ticket.arrival_airport}</span></p>}
+              {ticket.departure_date && <p><span className="text-blue-700">Departure:</span> <span className="font-medium text-blue-900">{ticket.departure_date}</span></p>}
+              {ticket.arrival_date && <p><span className="text-blue-700">Arrival:</span> <span className="font-medium text-blue-900">{ticket.arrival_date}</span></p>}
+              {ticket.seat_number && <p><span className="text-blue-700">Seat:</span> <span className="font-medium text-blue-900">{ticket.seat_number}</span></p>}
+              {ticket.booking_reference && <p><span className="text-blue-700">Booking Ref:</span> <span className="font-medium text-blue-900">{ticket.booking_reference}</span></p>}
+            </div>
           </div>
         </div>
       ) : (
@@ -523,14 +585,22 @@ export const JourneyItinerarySection = ({ registration }) => {
         </div>
       )}
 
-      {hotelInfo ? (
+      {hasHotel ? (
         <div>
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-2 mb-3">
             <MapPin className="w-4 h-4 text-purple-600" />
             <h3 className="font-semibold text-gray-800">Hotel</h3>
           </div>
           <div className="p-4 border rounded-xl bg-purple-50 border-purple-100">
-            <p className="whitespace-pre-line text-sm text-purple-900">{hotelInfo}</p>
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              {hotel.hotel_name && <p><span className="text-purple-700">Hotel:</span> <span className="font-medium text-purple-900">{hotel.hotel_name}</span></p>}
+              {hotel.room_type && <p><span className="text-purple-700">Room Type:</span> <span className="font-medium text-purple-900">{hotel.room_type}</span></p>}
+              {hotel.room_number && <p><span className="text-purple-700">Room No:</span> <span className="font-medium text-purple-900">{hotel.room_number}</span></p>}
+              {hotel.check_in_date && <p><span className="text-purple-700">Check-in:</span> <span className="font-medium text-purple-900">{hotel.check_in_date}</span></p>}
+              {hotel.check_out_date && <p><span className="text-purple-700">Check-out:</span> <span className="font-medium text-purple-900">{hotel.check_out_date}</span></p>}
+              {hotel.number_of_nights && <p><span className="text-purple-700">Nights:</span> <span className="font-medium text-purple-900">{hotel.number_of_nights}</span></p>}
+              {hotel.hotel_address && <p className="col-span-2"><span className="text-purple-700">Address:</span> <span className="font-medium text-purple-900">{hotel.hotel_address}</span></p>}
+            </div>
           </div>
         </div>
       ) : (

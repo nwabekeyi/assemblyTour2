@@ -1,12 +1,31 @@
 import { useDropzone } from "react-dropzone";
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
+import { toast } from "react-hot-toast";
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 const FileUploader = ({ onFileSelect, selectedFile, label, accept = { "image/*": [] } }) => {
-  const onDrop = useCallback((acceptedFiles) => {
-    if (acceptedFiles.length > 0) onFileSelect(acceptedFiles[0]);
+  const [error, setError] = useState("");
+  
+  const onDrop = useCallback((acceptedFiles, rejectedFiles) => {
+    setError("");
+    if (rejectedFiles.length > 0) {
+      setError("File too large. Maximum size is 5MB");
+      toast.error("File too large. Maximum size is 5MB");
+      return;
+    }
+    
+    if (acceptedFiles.length > 0) {
+      onFileSelect(acceptedFiles[0]);
+    }
   }, [onFileSelect]);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept, multiple: false });
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
+    onDrop, 
+    accept, 
+    multiple: false,
+    maxSize: MAX_FILE_SIZE
+  });
 
   return (
     <div className="space-y-2">
@@ -30,7 +49,8 @@ const FileUploader = ({ onFileSelect, selectedFile, label, accept = { "image/*":
             <p className="text-gray-600 text-sm">
               <span className="font-semibold text-emerald-600">Click to upload</span> or drag and drop
             </p>
-            <p className="text-xs text-gray-400">JPG, PNG, or PDF (max 5MB)</p>
+            {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+            {!error && <p className="text-xs text-gray-400">JPG, PNG (max 5MB)</p>}
           </div>
         )}
       </div>

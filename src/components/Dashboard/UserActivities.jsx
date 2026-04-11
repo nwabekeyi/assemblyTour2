@@ -188,45 +188,74 @@ const UserActivities = ({ user, registration, userStats }) => {
 
           {activeTab === "flight" && (
             <div className="space-y-3">
-              {currentJourney.ticket_info ? (
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Plane className="w-5 h-5 text-blue-600" />
-                    <h4 className="font-medium text-gray-800">Flight Details</h4>
+              {(() => {
+                const travelDocs = registration?.travel_documents || [];
+                const ticketDoc = travelDocs.find(d => d.doc_type === 'ticket');
+                const ticket = ticketDoc || {};
+                const hasData = ticket && (ticket.airline_name || ticket.flight_number || ticket.departure_airport);
+                return hasData ? (
+                  <div className="p-4 bg-gray-50 rounded-lg">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Plane className="w-5 h-5 text-blue-600" />
+                      <h4 className="font-medium text-gray-800">Flight Details</h4>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      {ticket.airline_name && <p><span className="text-gray-500">Airline:</span> <span className="font-medium">{ticket.airline_name}</span></p>}
+                      {ticket.flight_number && <p><span className="text-gray-500">Flight No:</span> <span className="font-medium">{ticket.flight_number}</span></p>}
+                      {ticket.departure_airport && <p><span className="text-gray-500">From:</span> <span className="font-medium">{ticket.departure_airport}</span></p>}
+                      {ticket.arrival_airport && <p><span className="text-gray-500">To:</span> <span className="font-medium">{ticket.arrival_airport}</span></p>}
+                      {ticket.departure_date && <p><span className="text-gray-500">Departure:</span> <span className="font-medium">{ticket.departure_date}</span></p>}
+                      {ticket.arrival_date && <p><span className="text-gray-500">Arrival:</span> <span className="font-medium">{ticket.arrival_date}</span></p>}
+                      {ticket.seat_number && <p><span className="text-gray-500">Seat:</span> <span className="font-medium">{ticket.seat_number}</span></p>}
+                      {ticket.booking_reference && <p><span className="text-gray-500">Booking Ref:</span> <span className="font-medium">{ticket.booking_reference}</span></p>}
+                    </div>
                   </div>
-                  <p className="text-sm text-gray-600 whitespace-pre-line">{currentJourney.ticket_info}</p>
-                </div>
-              ) : (
-                <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
-                  <Plane className="w-6 h-6 text-gray-400" />
-                  <div>
-                    <p className="font-medium text-gray-800">Flight Details</p>
-                    <p className="text-sm text-gray-500">Not yet assigned. We'll notify you soon.</p>
+                ) : (
+                  <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+                    <Plane className="w-6 h-6 text-gray-400" />
+                    <div>
+                      <p className="font-medium text-gray-800">Flight Details</p>
+                      <p className="text-sm text-gray-500">Not yet assigned. We'll notify you soon.</p>
+                    </div>
                   </div>
-                </div>
-              )}
+                );
+              })()}
             </div>
           )}
 
           {activeTab === "hotel" && (
             <div className="space-y-3">
-              {currentJourney.hotel_info ? (
-                <div className="p-4 bg-purple-50 rounded-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Building className="w-5 h-5 text-purple-600" />
-                    <h4 className="font-medium text-gray-800">Accommodation</h4>
+              {(() => {
+                const travelDocs = registration?.travel_documents || [];
+                const hotelDoc = travelDocs.find(d => d.doc_type === 'hotel_voucher');
+                const hotel = hotelDoc || {};
+                const hasData = hotel && (hotel.hotel_name || hotel.room_type || hotel.room_number);
+                return hasData ? (
+                  <div className="p-4 bg-purple-50 rounded-lg">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Building className="w-5 h-5 text-purple-600" />
+                      <h4 className="font-medium text-gray-800">Accommodation</h4>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      {hotel.hotel_name && <p><span className="text-gray-500">Hotel:</span> <span className="font-medium">{hotel.hotel_name}</span></p>}
+                      {hotel.room_type && <p><span className="text-gray-500">Room Type:</span> <span className="font-medium">{hotel.room_type}</span></p>}
+                      {hotel.room_number && <p><span className="text-gray-500">Room No:</span> <span className="font-medium">{hotel.room_number}</span></p>}
+                      {hotel.check_in_date && <p><span className="text-gray-500">Check-in:</span> <span className="font-medium">{hotel.check_in_date}</span></p>}
+                      {hotel.check_out_date && <p><span className="text-gray-500">Check-out:</span> <span className="font-medium">{hotel.check_out_date}</span></p>}
+                      {hotel.number_of_nights && <p><span className="text-gray-500">Nights:</span> <span className="font-medium">{hotel.number_of_nights}</span></p>}
+                      {hotel.hotel_address && <p className="col-span-2"><span className="text-gray-500">Address:</span> <span className="font-medium">{hotel.hotel_address}</span></p>}
+                    </div>
                   </div>
-                  <p className="text-sm text-gray-600 whitespace-pre-line">{currentJourney.hotel_info}</p>
-                </div>
-              ) : (
-                <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
-                  <Building className="w-6 h-6 text-gray-400" />
-                  <div>
-                    <p className="font-medium text-gray-800">Accommodation</p>
-                    <p className="text-sm text-gray-500">Not yet assigned. We'll notify you soon.</p>
+                ) : (
+                  <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+                    <Building className="w-6 h-6 text-gray-400" />
+                    <div>
+                      <p className="font-medium text-gray-800">Accommodation</p>
+                      <p className="text-sm text-gray-500">Not yet assigned. We'll notify you soon.</p>
+                    </div>
                   </div>
-                </div>
-              )}
+                );
+              })()}
             </div>
           )}
         </div>

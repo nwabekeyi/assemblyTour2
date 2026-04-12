@@ -7,7 +7,6 @@ import {
   BookOpen,
   Phone,
   User,
-  Globe,
   ChevronDown,
   Info,
 } from "lucide-react";
@@ -16,6 +15,7 @@ import useAuthStore from "../../store/store";
 import usePackageStore from "../../store/package.store";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
+import logo from "../../public/assTourLogo.png";
 
 const Navbar = () => {
   const { user, logout } = useAuthStore();
@@ -113,18 +113,16 @@ const Navbar = () => {
               : "bg-black/90 backdrop-blur-md shadow-lg"
         }`}
       >
-        <div className="container mx-auto px-6">
-          <div className="flex items-center justify-between py-5">
+        <div className="container mx-auto">
+          <div className="flex items-center justify-between py-4">
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-3 group" onClick={closeAll}>
-              <div className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl group-hover:scale-105 transition-transform">
-                <Globe size={26} className="text-white" />
-              </div>
-              <div>
-                <div className="text-2xl font-black bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-white">
-                  Assembly Travels
-                </div>
-                <div className="text-xs text-emerald-300">Your Journey to Makkah & Madinah</div>
+              <div className="bg-white rounded-lg">
+                <img 
+                  src={logo}
+                  alt="Assembly Travels"
+                  className="h-[60px] w-auto object-contain"
+                />
               </div>
             </Link>
 
@@ -138,7 +136,7 @@ const Navbar = () => {
                       className="flex items-center gap-2 px-5 py-3 text-white font-medium hover:text-emerald-400 transition-colors group"
                     >
                       {item.icon}
-                      <span>{item.label}</span>
+                      <span className="whitespace-nowrap">{item.label}</span>
                       <span className="absolute bottom-1 left-5 w-0 h-0.5 bg-emerald-400 group-hover:w-16 transition-all"></span>
                     </Link>
                   ) : (
@@ -148,7 +146,7 @@ const Navbar = () => {
                       className="flex items-center gap-2 px-5 py-3 text-white font-medium hover:text-emerald-400 transition-colors"
                     >
                       {item.icon}
-                      <span>{item.label}</span>
+                      <span className="whitespace-nowrap">{item.label}</span>
                       <ChevronDown
                         size={16}
                         className={`transition-transform ${activeDropdown === "packages" ? "rotate-180" : ""}`}
@@ -262,11 +260,14 @@ const Navbar = () => {
           >
             <div className="flex items-center justify-between">
               {/* Logo */}
-              <Link to="/" className="flex items-center gap-3" onClick={closeAll}>
-                <div className="w-10 h-10 flex items-center justify-center bg-white rounded-lg">
-                  <Globe size={22} className="text-emerald-600" />
+              <Link to="/" className="flex items-center space-x-3 group" onClick={closeAll}>
+                <div className="bg-white p-0 rounded-lg">
+                  <img 
+                    src={logo}
+                    alt="Assembly Travels"
+                    className="h-10 w-auto object-contain"
+                  />
                 </div>
-                <div className="text-xl font-bold text-white">Assembly Travels</div>
               </Link>
 
               {/* Mobile Menu Toggle */}

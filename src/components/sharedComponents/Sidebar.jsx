@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { LogOut } from "lucide-react";
 import useDashboardStore from "../../store/dashboard.store";
 import useAuthStore from "../../store/store";
 
@@ -8,8 +9,14 @@ function Sidebar({ onClose }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [activeSubmenu, setActiveSubmenu] = useState(null);
   const location = useLocation();
-  const { user } = useAuthStore();
+  const navigate = useNavigate();
+  const { user, logout } = useAuthStore();
   const { userStats, fetchUserStats } = useDashboardStore();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/");
+  };
 
   useEffect(() => {
     fetchUserStats();
@@ -191,6 +198,13 @@ function Sidebar({ onClose }) {
             </p>
           </div>
         </div>
+        <button
+          onClick={handleLogout}
+          className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition-colors"
+        >
+          <LogOut size={16} />
+          <span className="text-sm font-medium">Logout</span>
+        </button>
       </div>
     </div>
   );

@@ -64,7 +64,7 @@ function Faq({faqs}) {
           </p>
         </div>
 
-        <div className="bg-white shadow-lg rounded-2xl overflow-hidden">
+        <div className="bg-white shadow-lg rounded-2xl overflow-hidden px-4 md:px-6">
           <div className="divide-y divide-gray-200">
             {faqs.map((faq, index) => (
               <FaqItem

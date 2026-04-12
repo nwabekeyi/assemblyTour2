@@ -306,53 +306,32 @@ const getJourneyViewFromPath = (pathname) => {
   const rejectionReason = registration?.current_step_rejection_reason || "";
   
   // Use current_step_status from backend
-  // "pending" = can fill, "awaiting_approval" = waiting for admin, "approved" = done, "rejected" = can resubmit
+  // "pending" = can fill (not submitted), "awaiting_approval" = waiting for admin, "approved" = done, "rejected" = can resubmit
   const stepStatus = registration?.current_step_status;
-  const canFill = stepStatus === "pending" || stepStatus === "rejected";
-  const isUnderReview = stepStatus === "awaiting_approval";
   
-  const isRejected = (registrationStatus === "failed" && rejectionReason) || stepStatus === "rejected";
+  // Show form only when status is "pending" or "rejected"
+  const showForm = stepStatus === "pending" || stepStatus === "rejected";
+  
+  // Hide form when "awaiting_approval" or "approved"
+  const hideForm = stepStatus === "awaiting_approval" || stepStatus === "approved";
 
-  const isStepUnderReview = (stepCode) => {
-    // Check if step is pending in reviews AND has been completed
-    if (!registration?.step_reviews) return false;
-    const review = registration.step_reviews.find(r => r.step_code === stepCode);
-    const isCompleted = registration?.completed_step_codes?.includes(stepCode);
-    return review && review.status === "pending" && isCompleted;
-  };
-
-  const hasStepBeenSubmitted = (stepCode) => {
-    // Check step_reviews to see if step was submitted
-    if (!registration?.step_reviews?.length) return false;
-    const review = registration.step_reviews.find(r => r.step_code === stepCode);
-    return !!review;
-  };
-
-  const isStepApproved = (stepCode) => {
-    // Check if step is in completed_step_codes
-    return registration?.completed_step_codes?.includes(stepCode);
-  };
+  const isRejected = stepStatus === "rejected";
 
   const canEditStep = (code) => {
     if (forceShowForm) return true;
-    // Allow editing if step is rejected - user can resubmit
-    if (stepStatus === "rejected" && currentStepCode === code) return true;
+    
+    // Form should be hidden if awaiting approval or already approved
+    if (hideForm) return false;
+    
     // Don't allow edit if registration is fully failed
-    if (isRejected && registrationStatus === "failed") return false;
-    // Only show form for current step and when can fill
+    if (registrationStatus === "failed") return false;
+    
+    // Only show form for current step when can show
     if (!currentStepCode) return true;
-    return currentStepCode === code && canFill;
+    return currentStepCode === code && showForm;
   };
 
-  const isStepPending = (code) => {
-    // For specific steps, check step_reviews - show pending only if not rejected
-    if (!registration?.step_reviews?.length) return false;
-    const review = registration.step_reviews.find(r => r.step_code === code);
-    const isCompleted = registration?.completed_step_codes?.includes(code);
-    return review && review.status === "pending" && !isCompleted;
-  };
-
-  const renderStepStatus = (code, label) => (
+  const renderStepStatusMessage = (label) => (
     <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-6 text-center">
       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto mb-3"></div>
       <h3 className="text-lg font-semibold text-gray-800 mb-1">{label} Submitted</h3>
@@ -362,7 +341,8 @@ const getJourneyViewFromPath = (pathname) => {
 
   const renderStepForms = () => (
     <>
-      {canEditStep("account_setup") && !registration?.completed_step_codes?.includes("account_setup") ? (
+      {/* Show form when stepStatus is "pending" or "rejected", hide when "awaiting_approval" or "approved" */}
+      {showForm && currentStepCode === "account_setup" && !registration?.completed_step_codes?.includes("account_setup") && (
         <AccountSetupForm
           onSubmit={handleStep1Submit}
           newUsername={newUsername}
@@ -373,16 +353,16 @@ const getJourneyViewFromPath = (pathname) => {
           setConfirmPassword={setConfirmPassword}
           loading={storeLoading}
         />
-      ) : isStepPending("account_setup") && renderStepStatus("account_setup", "Account Setup")}
+      )}
 
-      {canEditStep("payment_details") && !registration?.completed_step_codes?.includes("payment_details") ? (
+      {showForm && currentStepCode === "payment_details" && !registration?.completed_step_codes?.includes("payment_details") && (
         <PaymentStepForm
           onSubmit={uploadPaymentProof}
           loading={storeLoading}
         />
-      ) : isStepPending("payment_details") && renderStepStatus("payment_details", "Payment Details")}
+      )}
 
-      {canEditStep("registration_form") && !registration?.completed_step_codes?.includes("registration_form") ? (
+      {showForm && currentStepCode === "registration_form" && !registration?.completed_step_codes?.includes("registration_form") && (
         <RegistrationForm
           formData={formDataStep2}
           onChange={handleStep2Change}
@@ -391,9 +371,9 @@ const getJourneyViewFromPath = (pathname) => {
           onSubmit={handleStep2Submit}
           loading={storeLoading}
         />
-      ) : isStepPending("registration_form") && renderStepStatus("registration_form", "Bio-Data")}
+      )}
 
-      {canEditStep("document_upload") && !registration?.completed_step_codes?.includes("document_upload") ? (
+      {showForm && currentStepCode === "document_upload" && !registration?.completed_step_codes?.includes("document_upload") && (
         <DocumentUploadForm
           passportFile={passportFile}
           setPassportFile={setPassportFile}
@@ -402,18 +382,20 @@ const getJourneyViewFromPath = (pathname) => {
           onSubmit={handleStep3Submit}
           loading={storeLoading}
         />
-      ) : isStepPending("document_upload") && renderStepStatus("document_upload", "Documents")}
-      
-      {stepStatus === "rejected" && !canEditStep("document_upload") && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-          <h3 className="text-lg font-semibold text-red-800 mb-1">Documents Rejected</h3>
-          <p className="text-red-600 text-sm mb-2">{rejectionReason}</p>
-          <p className="text-gray-600 text-sm">Please upload new documents.</p>
+      )}
+
+      {/* Show "awaiting approval" message when status is awaiting_approval */}
+      {hideForm && stepStatus === "awaiting_approval" && (
+        <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-6 text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto mb-3"></div>
+          <h3 className="text-lg font-semibold text-gray-800 mb-1">Form Submitted</h3>
+          <p className="text-gray-600 text-sm">Awaiting admin approval. You will be notified once reviewed.</p>
         </div>
       )}
     </>
   );
-
+  
+  // Main component return
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
       {showChangeCredentialsModal && (
@@ -505,7 +487,7 @@ const getJourneyViewFromPath = (pathname) => {
                   />
                 </div>
                 
-                {isUnderReview && (
+                {stepStatus === "awaiting_approval" && (
                   <UnderReviewSection
                     title={registration?.current_step?.title || "Application Under Review"}
                     onCheckUpdates={handleCheckForUpdates}

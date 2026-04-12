@@ -32,7 +32,7 @@ const useBlogStore = create((set, get) => ({
     const { blog } = get();
     const prevLiked = blog?.is_liked;
 
-    const res = await axiosInstance.post(`/blogs/${postId}/like/`, { useAuth: true });
+    const res = await axiosInstance.post(`/blogs/${postId}/like/`, {}, { useAuth: true });
     set({
       blog: {
         ...blog,
@@ -49,18 +49,24 @@ const useBlogStore = create((set, get) => ({
     if (!user) throw new Error("Login required");
     if (!blog) throw new Error("Blog must be loaded");
 
-    await axiosInstance.post(`/blogs/${blog.id}/comments/post/`, {
-      content,
-      parent,
-      useAuth: true
-    });
+    try {
+      await axiosInstance.post(`/blogs/${blog.id}/comments/post/`, {
+        content,
+        parent,
+      }, { useAuth: true });
 
-    if (parent) {
-      await getReplies(parent);
-      await getSingleBlog(blog.slug);
-    } else {
-      await getSingleBlog(blog.slug);
-      await getComments(blog.slug);
+      toast.success("Comment posted successfully");
+
+      if (parent) {
+        await getReplies(parent);
+        await getSingleBlog(blog.slug);
+      } else {
+        await getSingleBlog(blog.slug);
+        await getComments(blog.slug);
+      }
+    } catch (error) {
+      toast.error(error.errors?.[0] || "Failed to post comment");
+      throw error;
     }
   },
 
@@ -76,9 +82,14 @@ const useBlogStore = create((set, get) => ({
     if (!user) throw new Error("Login required");
     if (!content.trim()) throw new Error("Reply cannot be empty");
 
-    await axiosInstance.post(`/blogs/comments/${commentId}/reply/`, { content, useAuth:true });
-    toast.success("Reply posted");
-    await getReplies(commentId);
+    try {
+      await axiosInstance.post(`/blogs/comments/${commentId}/reply/`, { content }, { useAuth:true });
+      toast.success("Reply posted successfully");
+      await getReplies(commentId);
+    } catch (error) {
+      toast.error(error.errors?.[0] || "Failed to post reply");
+      throw error;
+    }
   },
 
   getReplies: async (commentId) => {
@@ -87,37 +98,55 @@ const useBlogStore = create((set, get) => ({
   },
 
   deleteComment: async (commentId) => {
-    await axiosInstance.delete(`/blogs/comments/${commentId}/delete/`, { useAuth: true });
-    const { comments } = get();
-    set({ comments: comments.filter((c) => c.id !== commentId) });
-    toast.success("Comment deleted successfully");
+    try {
+      await axiosInstance.delete(`/blogs/comments/${commentId}/delete/`, { useAuth: true });
+      const { comments } = get();
+      set({ comments: comments.filter((c) => c.id !== commentId) });
+      toast.success("Comment deleted successfully");
+    } catch (error) {
+      toast.error(error.errors?.[0] || "Failed to delete comment");
+      throw error;
+    }
   },
 
   deleteReply: async (replyId, commentId) => {
-    await axiosInstance.delete(`/blogs/replies/${replyId}/delete/`, { useAuth: true });
-    const { replies } = get();
-    set({ replies: { ...replies, [commentId]: replies[commentId].filter((r) => r.id !== replyId) } });
-    toast.success("Reply deleted successfully");
+    try {
+      await axiosInstance.delete(`/blogs/replies/${replyId}/delete/`, { useAuth: true });
+      const { replies } = get();
+      set({ replies: { ...replies, [commentId]: replies[commentId].filter((r) => r.id !== replyId) } });
+      toast.success("Reply deleted successfully");
+    } catch (error) {
+      toast.error(error.errors?.[0] || "Failed to delete reply");
+      throw error;
+    }
   },
 
   editComment: async (commentId, content) => {
     if (!content.trim()) return toast.error("Cannot save empty content");
 
     const { blog, getComments } = get();
-    await axiosInstance.patch(`/blogs/comments/${commentId}/edit/`, { content, useAuth:true });
-    toast.success("Comment updated");
-
-    if (blog?.slug) getComments(blog.slug);
+    try {
+      await axiosInstance.patch(`/blogs/comments/${commentId}/edit/`, { content }, { useAuth:true });
+      toast.success("Comment updated");
+      if (blog?.slug) getComments(blog.slug);
+    } catch (error) {
+      toast.error(error.errors?.[0] || "Failed to update comment");
+      throw error;
+    }
   },
 
   editReply: async (replyId, commentId, content) => {
     if (!content.trim()) return toast.error("Cannot save empty content");
 
     const { getReplies } = get();
-    await axiosInstance.patch(`/blogs/replies/${replyId}/edit/`, { content, useAuth: true });
-    toast.success("Reply updated");
-
-    await getReplies(commentId);
+    try {
+      await axiosInstance.patch(`/blogs/replies/${replyId}/edit/`, { content }, { useAuth: true });
+      toast.success("Reply updated");
+      await getReplies(commentId);
+    } catch (error) {
+      toast.error(error.errors?.[0] || "Failed to update reply");
+      throw error;
+    }
   },
 
   reset: () => set({ blog: null, blogs: [], comments: [], replies: {}, error: null }),

@@ -15,6 +15,7 @@ function SignUp() {
   const [email, setEmail] = useState("");
   const [turnstileToken, setTurnstileToken] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(true);
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
 
   const turnstileRef = useRef(null);
   const inputRef = useRef(null);
@@ -71,7 +72,7 @@ function SignUp() {
 
     if (result?.success) {
       setPackageDetail(null);
-      navigate("/login");
+      setRegistrationSuccess(true);
     }
   };
 
@@ -147,6 +148,39 @@ function SignUp() {
       </div>
     );
   };
+
+  if (registrationSuccess) {
+    return (
+      <div className="flex flex-col w-full justify-center py-12 sm:px-6 lg:px-8">
+        <motion.div
+          className="sm:mx-auto sm:w-full sm:max-w-md text-center"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          <div className="w-16 h-16 mx-auto bg-emerald-100 rounded-full flex items-center justify-center">
+            <UserPlus className="w-8 h-8 text-emerald-600" />
+          </div>
+          <h2 className="mt-6 text-3xl font-extrabold text-emerald-600">
+            Registration Successful!
+          </h2>
+          <p className="mt-4 text-gray-300">
+            An email has been sent to <span className="font-semibold text-white">{email}</span> with your username and password.
+          </p>
+          <p className="mt-2 text-gray-400">
+            Please check your inbox to login.
+          </p>
+          <button
+            onClick={() => navigate("/login")}
+            className="mt-8 w-full flex justify-center py-3 px-4 rounded-md text-white bg-emerald-600 hover:bg-emerald-700 transition-all"
+          >
+            <ArrowRight className="mr-2 h-5 w-5" />
+            Go to Login
+          </button>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col w-full justify-center py-12 sm:px-6 lg:px-8">

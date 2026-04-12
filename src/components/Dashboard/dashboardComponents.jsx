@@ -651,7 +651,7 @@ export const EmergencyContactSection = ({ contacts = [] }) => {
   const defaultContacts = [
     { id: 1, name: "Customer Support", contact_type: "phone", value: "+234 800 123 4567", description: "Available 24/7 for emergencies" },
     { id: 2, name: "WhatsApp Support", contact_type: "whatsapp", value: "+234 800 123 4567", description: "Fast response via WhatsApp" },
-    { id: 3, name: "Email Support", contact_type: "email", value: "support@assemblytours.com", description: "Non-urgent inquiries" },
+    { id: 3, name: "Email Support", contact_type: "email", value: "support@assemblytravels.com", description: "Non-urgent inquiries" },
     { id: 4, name: "Emergency Hotline", contact_type: "phone", value: "+234 800 999 9999", description: "Life-threatening emergencies only" },
   ];
 

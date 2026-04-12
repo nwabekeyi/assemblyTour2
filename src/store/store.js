@@ -124,11 +124,15 @@ const useAuthStore = create((set, get) => ({
     set({ user: res.data, checkingAuth: false });
   },
 
-  /* =======================
-     LOGOUT
-  ======================= */
+/* =======================
+      LOGOUT
+   ======================= */
   logout: async () => {
-    await axiosInstance.post("/auth/logout/", {}, { useAuth: true });
+    try {
+      await axiosInstance.post("/auth/logout/", {}, { useAuth: true });
+    } catch (error) {
+      // Continue with logout even if API call fails
+    }
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
     persistUser(null);

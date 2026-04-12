@@ -24,7 +24,7 @@ axiosInstance.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.resolve(formatError(error))
+  (error) => Promise.reject(formatError(error))
 );
 
 /* =====================================================
@@ -36,7 +36,7 @@ axiosInstance.interceptors.response.use(
 
     // Backend returned success:false with 200
     if (res?.success === false) {
-      return formatError({ response });
+      return Promise.reject(formatError({ response }));
     }
 
     // Standard API shape
@@ -72,7 +72,7 @@ axiosInstance.interceptors.response.use(
 
       const refreshToken = localStorage.getItem("refresh_token");
       if (!refreshToken) {
-        return formatError(error);
+        return Promise.reject(formatError(error));
       }
 
       try {
@@ -82,7 +82,7 @@ axiosInstance.interceptors.response.use(
 
         const newAccess = refreshRes.data?.data?.access;
         if (!newAccess) {
-          return formatError(refreshRes);
+          return Promise.reject(formatError(refreshRes));
         }
 
         localStorage.setItem("access_token", newAccess);
@@ -90,12 +90,12 @@ axiosInstance.interceptors.response.use(
 
         return axiosInstance(originalRequest);
       } catch (refreshError) {
-        return formatError(refreshError);
+        return Promise.reject(formatError(refreshError));
       }
     }
 
     // Catch EVERYTHING else
-    return formatError(error);
+    return Promise.reject(formatError(error));
   }
 );
 

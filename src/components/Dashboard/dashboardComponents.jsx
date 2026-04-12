@@ -223,13 +223,13 @@ export const CurrentJourneyDetailsSection = ({ registration }) => {
   const arrivalStatusMeta = {
     pre_travel: {
       label: "Awaiting Travel",
-      description: "We’ll update this once you depart for Mecca.",
+      description: "We’ll update this once you depart for your destination.",
       badgeClass: "bg-gray-100 text-gray-700",
       cardClass: "border-gray-200 bg-gray-50",
     },
     in_mecca: {
-      label: "In Mecca",
-      description: "Our field team has confirmed your arrival in Mecca.",
+      label: "In Destination",
+      description: "Our field team has confirmed your arrival in your destination.",
       badgeClass: "bg-blue-100 text-blue-700",
       cardClass: "border-blue-100 bg-blue-50",
     },
@@ -250,7 +250,7 @@ export const CurrentJourneyDetailsSection = ({ registration }) => {
 
   const arrivalStatusLabel = {
     pre_travel: "Awaiting Travel",
-    in_mecca: "In Mecca",
+    in_mecca: "In Destination",
     arrived: "Completed",
     did_not_arrive: "Did Not Arrive",
   }[journeyPresenceStatus] || "Awaiting Travel";

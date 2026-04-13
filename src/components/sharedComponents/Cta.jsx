@@ -109,7 +109,7 @@ const Cta = () => {
               {/* Secondary Options */}
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Link 
-                  to="/consultation" 
+                  to="/contact" 
                   className="p-4 text-center transition-all duration-300 border bg-white/5 backdrop-blur-sm rounded-xl border-white/10 hover:border-white/30 group"
                 >
                   <div className="flex items-center justify-center w-10 h-10 mx-auto mb-2 transition-colors duration-300 rounded-lg bg-emerald-500/20 group-hover:bg-emerald-500/30">

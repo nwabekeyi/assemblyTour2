@@ -16,6 +16,7 @@ function SignUp() {
   const [turnstileToken, setTurnstileToken] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(true);
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
+  const [error, setError] = useState("");
 
   const turnstileRef = useRef(null);
   const inputRef = useRef(null);
@@ -73,6 +74,11 @@ function SignUp() {
     if (result?.success) {
       setPackageDetail(null);
       setRegistrationSuccess(true);
+      setError("");
+    } else if (result?.errors?.existing_registration) {
+      setError(result.message || "You already have an active registration. Please complete or cancel it before starting a new one.");
+    } else {
+      setError("");
     }
   };
 
@@ -232,6 +238,12 @@ function SignUp() {
 
             {/* Turnstile */}
             <div ref={turnstileRef} className="mt-4" />
+
+            {error && (
+              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-600">{error}</p>
+              </div>
+            )}
 
             <button
               type="submit"

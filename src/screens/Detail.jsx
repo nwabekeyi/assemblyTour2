@@ -158,19 +158,14 @@ function Detail() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    try {
-      const success = await login({ username, password });
-      if (success) {
-        setShowLoginModal(false);
-        setUsername("");
-        setPassword("");
-        toast.success("Logged in");
-      } else {
-        toast.error("Login failed");
-      }
-    } catch (err) {
-      toast.error("Login error");
+    const res = await login({ username, password });
+    if (res?.success) {
+      setShowLoginModal(false);
+      setUsername("");
+      setPassword("");
+      toast.success("Logged in");
     }
+    // Error is handled in store, no need to handle here
   };
 
   if (!blog) return <Loading />;

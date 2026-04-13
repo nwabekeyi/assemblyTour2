@@ -8,7 +8,7 @@ export const DashboardHeader = ({ user, currentYear }) => (
   <header className="bg-white border-b px-6 py-4">
     <div className="max-w-7xl mx-auto flex justify-between items-center">
       <div>
-        <h1 className="text-xl font-bold text-emerald-800">Assembly Travels</h1>
+        <h1 className="text-xl font-bold text-emerald-800">Assembly Travel</h1>
         <p className="text-xs text-gray-500">Travel Portal {currentYear}</p>
       </div>
       <div className="flex items-center gap-3">

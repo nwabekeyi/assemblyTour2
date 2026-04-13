@@ -49,26 +49,35 @@ const useAuthStore = create((set, get) => ({
 
     set({ loading: true });
 
-    const res = await axiosInstance.post(
-      "/auth/",
-      {
-        action: "register",
-        email,
-        turnstileToken,
-        package_id,
-      },
-      { useAuth: false } // registration does not need access token
-    );
+    try {
+      const res = await axiosInstance.post(
+        "/auth/",
+        {
+          action: "register",
+          email,
+          turnstileToken,
+          package_id,
+        },
+        { useAuth: false } // registration does not need access token
+      );
 
-    if (!res.success) {
-      toast.error(res.message || "Registration failed");
+      if (!res.success) {
+        set({ loading: false });
+        const errorMsg = res.errors?.detail || res.message || "Registration failed";
+        toast.error(errorMsg);
+        return res;
+      }
+
+      toast.success("Registration successful! Check your email for login credentials.");
       set({ loading: false });
       return res;
+    } catch (err) {
+      set({ loading: false });
+      const errorMsg = err?.errors?.detail || err?.message || "Registration failed";
+      toast.error(errorMsg);
+      console.error("Registration error:", err);
+      return { success: false, error: err };
     }
-
-    toast.success("Registration successful! Check your email for login credentials.");
-    set({ loading: false });
-    return res;
   },
 
   /* =======================
@@ -82,37 +91,47 @@ const useAuthStore = create((set, get) => ({
 
     set({ loading: true });
 
-    const res =  await axiosInstance.post(
-      "/auth/",
-      {
-        action: "login",
-        username,
-        password,
-      },
-      { useAuth: false }
-    );
+    try {
+      const res = await axiosInstance.post(
+        "/auth/",
+        {
+          action: "login",
+          username,
+          password,
+        },
+        { useAuth: false }
+      );
 
+      if (!res.success) {
+        set({ loading: false });
+        // Show the actual error message from backend
+        const errorMsg = res.errors?.detail || res.message || "Login failed";
+        toast.error(errorMsg);
+        return { success: false };
+      }
 
-    if (!res.success) {
-      toast.error(res.message || "Login failed");
+      const { tokens } = res.data;
+
+      // store tokens
+      localStorage.setItem("access_token", tokens.access);
+      localStorage.setItem("refresh_token", tokens.refresh);
+
+      // fetch authenticated user profile
+      const profileRes = await axiosInstance.get("/user/profile/", { useAuth: true });
+      persistUser(profileRes.data);
+      set({ user: profileRes.data });
+
+      toast.success(res.message || "Login successful");
       set({ loading: false });
-      return { success: false };
+      return { success: true };
+    } catch (err) {
+      set({ loading: false });
+      // Show the actual error message from the formatted error
+      const errorMsg = err?.errors?.detail || err?.message || "Login failed";
+      toast.error(errorMsg);
+      console.error("Login error:", err);
+      return { success: false, error: err };
     }
-
-    const { tokens } = res.data;
-
-    // store tokens
-    localStorage.setItem("access_token", tokens.access);
-    localStorage.setItem("refresh_token", tokens.refresh);
-
-    // fetch authenticated user profile
-    const profileRes = await axiosInstance.get("/user/profile/", { useAuth: true });
-    persistUser(profileRes.data);
-    set({ user: profileRes.data });
-
-    toast.success(res.message || "Login successful");
-    set({ loading: false });
-    return { success: true };
   },
 
   /* =======================

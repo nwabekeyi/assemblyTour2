@@ -117,13 +117,26 @@ const Navbar = () => {
           <div className="flex items-center justify-between py-4">
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-3 group" onClick={closeAll}>
-              <div className="bg-white rounded-lg">
+              <div className={`rounded-lg transition-all duration-500 ${
+                isHomePage 
+                  ? isScrolled 
+                    ? "bg-white" 
+                    : "bg-transparent" 
+                  : "bg-white"
+              }`}>
                 <img 
                   src={logo}
-                  alt="Assembly Travels"
+                    alt="Assembly Travel"
                   className="h-[60px] w-auto object-contain"
                 />
               </div>
+              <span className={`font-bold text-xl transition-colors duration-500 ${
+                isHomePage 
+                  ? isScrolled 
+                    ? "text-white" 
+                    : "text-white" 
+                  : "text-white"
+              }`}>Assembly Travels</span>
             </Link>
 
             {/* Desktop Nav Links */}
@@ -264,10 +277,11 @@ const Navbar = () => {
                 <div className="bg-white p-0 rounded-lg">
                   <img 
                     src={logo}
-                    alt="Assembly Travels"
+                  alt="Assembly Travels"
                     className="h-10 w-auto object-contain"
                   />
                 </div>
+                <span className="text-white font-bold text-lg">Assembly Travel</span>
               </Link>
 
               {/* Mobile Menu Toggle */}

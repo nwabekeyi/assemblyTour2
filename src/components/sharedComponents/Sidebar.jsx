@@ -45,7 +45,7 @@ function Sidebar({ onClose }) {
       submenu: hasActiveJourney ? [
         { label: "Journey Progress", path: "/dashboard/journey" },
         { label: "Flight & Hotel", path: "/dashboard/journey/itinerary" },
-        { label: "Documents", path: "/dashboard/journey/documents" },
+        { label: "Journey Detials", path: "/dashboard/journey/documents" },
       ] : [
         { label: "No Active Journey", path: "/dashboard/journey", disabled: true },
       ],
@@ -90,7 +90,7 @@ function Sidebar({ onClose }) {
             🕋
           </div>
           <div>
-            <h1 className="text-lg font-bold text-white">
+              <h1 className="text-lg font-bold text-white">
               Assembly Travels
             </h1>
           </div>

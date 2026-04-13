@@ -244,7 +244,7 @@ const Footer = () => {
             transition={{ delay: 0.8 }}
             className="text-center text-gray-400"
           >
-            © {new Date().getFullYear()} Assembly Travels and Tours Limited. All rights reserved. | Ministry-Approved.
+            © {new Date().getFullYear()} Assembly Travel and Tours Limited. All rights reserved. | Ministry-Approved.
           </motion.p>
         </motion.div>
       </motion.div>

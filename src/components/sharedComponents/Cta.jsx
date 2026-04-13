@@ -119,16 +119,16 @@ const Cta = () => {
                   <div className="text-sm text-white/60">30-min expert session</div>
                 </Link>
 
-                <Link 
-                  to="/contact" 
-                  className="p-4 text-center transition-all duration-300 border bg-white/5 backdrop-blur-sm rounded-xl border-white/10 hover:border-white/30 group"
+                <a 
+                  href="tel:+2348023032496"
+                  className="p-4 text-center transition-all duration-300 border bg-white/5 backdrop-blur-sm rounded-xl border-white/10 hover:border-white/30 group cursor-pointer"
                 >
                   <div className="flex items-center justify-center w-10 h-10 mx-auto mb-2 transition-colors duration-300 rounded-lg bg-green-500/20 group-hover:bg-green-500/30">
                     <Phone size={20} className="text-green-300" />
                   </div>
                   <div className="font-semibold text-white">Call Us Now</div>
                   <div className="text-sm text-white/60">+234 802 303 2496</div>
-                </Link>
+                </a>
               </div>
             </div>
           </div>

@@ -1,3 +1,5 @@
+import photo from '../../public/assets/contact us.jpg';
+
 const ContactForm = () => {
   return (
     <section className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center px-4">
@@ -64,7 +66,7 @@ const ContactForm = () => {
         {/* RIGHT: IMAGE */}
         <div className="relative hidden md:block">
           <img
-            src="assets/contact us.jpg"
+            src={photo}
             alt="Contact"
             className="object-cover w-full h-full"
           />

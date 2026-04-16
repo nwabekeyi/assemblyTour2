@@ -22,8 +22,8 @@ const usePackageStore = create((set, get) => ({
     if (res.success) {
       set({
         packages: {
-          umrah: res.data.umrah || [],
-          hajj: res.data.hajj || [],
+          umrah: Array.isArray(res.data?.umrah) ? res.data.umrah : [],
+          hajj: Array.isArray(res.data?.hajj) ? res.data.hajj : [],
         },
         loading: false,
       });

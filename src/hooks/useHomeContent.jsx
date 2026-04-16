@@ -20,10 +20,10 @@ export const useHomeContent = () => {
     const fetchHomeContent = async () => {
       setLoading(true);
       try {
-        // 1️⃣ Fetch home content (hero + experience)
+// 1️⃣ Fetch home content (hero + experience)
         const homeRes = await axiosInstance.get("/home-content/");
         const homeData = homeRes.data || {};
-        setHeroSlides(homeData.hero_slides || []);
+        setHeroSlides(Array.isArray(homeData.hero_slides) ? homeData.hero_slides : []);
         setExperienceSection(homeData.experience_section || null);
 
         // 2️⃣ Fetch 3 most recent blogs
@@ -31,24 +31,22 @@ export const useHomeContent = () => {
           params: { page_size: 3 }
         });
         const blogData = blogRes.data?.data || [];
-        setRecentBlogs(blogData);
+        setRecentBlogs(Array.isArray(blogData) ? blogData : []);
 
            /**3 3 most recent sacred sites */
            const sacredRes = await axiosInstance.get("/sacred-sites/", {
-            params: { page_size: 3 }
-          });
-  
-          // because backend wraps with api_response + pagination
-          const sacredSites =
-            sacredRes.data?.data || [];
-  
-          setRecentSacredSites(sacredSites);
+             params: { page_size: 3 }
+           });
 
-          const packageRes = await axiosInstance.get("/packages/");
-          setAllPackages(packageRes.data?.data || []);
+           const sacredSites = sacredRes.data?.data || [];
+           setRecentSacredSites(Array.isArray(sacredSites) ? sacredSites : []);
 
-          const faqs = await axiosInstance.get("/faqs/");
-          setFaqs(faqs.data || []);
+           const packageRes = await axiosInstance.get("/packages/");
+           const packages = packageRes.data?.data || [];
+           setAllPackages(Array.isArray(packages) ? packages : []);
+
+          const faqsRes = await axiosInstance.get("/faqs/");
+          setFaqs(Array.isArray(faqsRes.data) ? faqsRes.data : []);
 
         setError(null);
       } catch (err) {
@@ -56,6 +54,9 @@ export const useHomeContent = () => {
         setHeroSlides([]);
         setExperienceSection(null);
         setRecentBlogs([]);
+        setRecentSacredSites([]);
+        setAllPackages([]);
+        setFaqs([]);
       } finally {
         setLoading(false);
       }

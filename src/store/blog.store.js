@@ -21,7 +21,7 @@ const useBlogStore = create((set, get) => ({
   getAllBlogs: async (params = {}) => {
     set({ loading: true });
     const res = await axiosInstance.get("/blogs/", { params, useAuth: false });
-    const blogsData = res.data?.data || [];
+    const blogsData = Array.isArray(res.data?.data) ? res.data.data : [];
     set({ blogs: blogsData, totalCount: res.data?.count || blogsData.length, loading: false });
   },
 

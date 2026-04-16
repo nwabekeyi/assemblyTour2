@@ -34,6 +34,17 @@ axiosInstance.interceptors.response.use(
   async (response) => {
     const res = response.data;
 
+    // If response is not an object (e.g., HTML error page from proxy/gateway)
+    if (typeof res !== 'object' || res === null) {
+      return {
+        success: false,
+        message: "Server returned invalid response",
+        data: null,
+        errors: ["Invalid server response"],
+        status: response.status,
+      };
+    }
+
     // Backend returned success:false with 200
     if (res?.success === false) {
       return Promise.reject(formatError({ response }));

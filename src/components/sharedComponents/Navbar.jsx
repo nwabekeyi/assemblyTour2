@@ -106,14 +106,14 @@ const Navbar = () => {
     <>
       {/* Desktop Navbar */}
       <header
-        className={`hidden lg:block sticky top-0 z-50 transition-all duration-500 font-serif ${
+        className={`hidden lg:block fixed top-0 left-0 right-0 z-50 transition-all duration-500 font-serif ${
           changedBackground
-            ? "bg-black/90 backdrop-blur-md shadow-lg"
+            ? "bg-black/95 backdrop-blur-md shadow-lg"
             : isHomePage
               ? isScrolled
-                ? "bg-black/90 backdrop-blur-md shadow-lg"
+                ? "bg-black/95 backdrop-blur-md shadow-lg"
                 : "bg-transparent"
-              : "bg-black/90 backdrop-blur-md shadow-lg"
+              : "bg-black/95 backdrop-blur-md shadow-lg"
         }`}
       >
         <div className="container mx-auto">

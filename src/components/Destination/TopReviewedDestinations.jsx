@@ -170,13 +170,6 @@ return (
             Trusted and highly reviewed pilgrimage packages to help you focus on your ibadah
           </p>
         </div>
-          <h2 className="mb-4 text-4xl font-bold text-gray-900 md:text-5xl">
-            Top Rated Umrah & Hajj Packages
-          </h2>
-          <p className="max-w-2xl mx-auto text-xl text-gray-600">
-            Trusted and highly reviewed pilgrimage packages to help you focus on your ibadah
-          </p>
-        </div>
 
         {/* Grid remains unchanged */}
       </div>

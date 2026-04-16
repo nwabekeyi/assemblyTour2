@@ -45,6 +45,9 @@ function MainLayout() {
     }
   }
 
+  // Add extra padding for fixed navbar on desktop
+  const extraPadding = !isAuthPage && !isHomePage && windowWidth >= 1024 ? " lg:pt-24" : "";
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -57,7 +60,7 @@ function MainLayout() {
         className={
           isAuthPage
             ? "flex flex-1 flex-col items-center justify-center"
-            : paddingTop
+            : paddingTop + extraPadding
         }
       >
         <Outlet />

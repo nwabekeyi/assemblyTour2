@@ -23,7 +23,7 @@ const Cta = () => {
   }, []);
 
   return (
-    <section className="relative py-20 overflow-hidden lg:py-28">
+    <section className="relative py-16 md:py-20 lg:py-28 overflow-hidden">
       {/* Background with overlay */}
       <div
         className="absolute inset-0 transition-opacity duration-1000 bg-center bg-no-repeat bg-cover"
@@ -37,24 +37,24 @@ const Cta = () => {
 
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute w-48 h-48 rounded-full -top-24 -right-24 bg-emerald-500/20 blur-3xl"></div>
-        <div className="absolute w-48 h-48 rounded-full -bottom-24 -left-24 bg-teal-500/20 blur-3xl"></div>
-        <div className="absolute w-64 h-64 transform -translate-x-1/2 -translate-y-1/2 rounded-full top-1/2 left-1/2 bg-green-500/10 blur-3xl"></div>
+        <div className="absolute w-32 md:w-48 h-32 md:h-48 rounded-full -top-16 md:-top-24 -right-16 md:-right-24 bg-emerald-500/20 blur-3xl"></div>
+        <div className="absolute w-32 md:w-48 h-32 md:h-48 rounded-full -bottom-16 md:-bottom-24 -left-16 md:-left-24 bg-teal-500/20 blur-3xl"></div>
+        <div className="absolute w-48 md:w-64 h-48 md:h-64 transform -translate-x-1/2 -translate-y-1/2 rounded-full top-1/2 left-1/2 bg-green-500/10 blur-3xl"></div>
       </div>
 
       <div className="container relative z-10 px-4 mx-auto">
         <div className="max-w-6xl mx-auto">
-          <div className="grid items-center grid-cols-1 gap-12 lg:grid-cols-2">
+          <div className="grid items-center grid-cols-1 gap-8 md:gap-12 lg:grid-cols-2">
             {/* Text Content */}
             <div className="text-center lg:text-left">
               {/* Badge */}
-              <div className="inline-flex items-center px-4 py-2 mb-6 border rounded-full bg-white/10 backdrop-blur-sm border-white/20">
+              <div className="inline-flex items-center px-3 md:px-4 py-2 mb-4 md:mb-6 border rounded-full bg-white/10 backdrop-blur-sm border-white/20">
                 <MessageCircle size={16} className="mr-2 text-emerald-300" />
                 <span className="text-sm font-semibold text-white">Your Spiritual Journey Awaits</span>
               </div>
 
               {/* Main Heading */}
-              <h2 className="mb-6 text-4xl font-bold leading-tight text-white md:text-5xl lg:text-6xl">
+              <h2 className="mb-4 md:mb-6 text-2xl md:text-4xl lg:text-5xl font-bold leading-tight text-white">
                 Ready to Perform{' '}
                 <span className="text-transparent bg-gradient-to-r from-emerald-300 to-teal-300 bg-clip-text">
                   Umrah or Hajj?
@@ -62,44 +62,44 @@ const Cta = () => {
               </h2>
 
               {/* Description */}
-              <p className="max-w-2xl mb-8 text-xl leading-relaxed md:text-2xl text-white/90">
+              <p className="max-w-2xl mb-6 md:mb-8 text-base md:text-xl lg:text-2xl leading-relaxed text-white/90">
                 Let us help you fulfill this blessed pillar of Islam. Our experienced team will guide you every step of the way for a peaceful and rewarding pilgrimage to Makkah and Madinah.
               </p>
 
               {/* Stats */}
-              <div className="flex flex-wrap justify-center gap-8 mb-8 lg:justify-start">
+              <div className="flex flex-wrap justify-center gap-6 md:gap-8 mb-6 md:mb-8 lg:justify-start">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-emerald-300">50,000+</div>
+                  <div className="text-xl md:text-2xl font-bold text-emerald-300">50,000+</div>
                   <div className="text-sm text-white/70">Pilgrims Served</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-emerald-300">20+</div>
+                  <div className="text-xl md:text-2xl font-bold text-emerald-300">20+</div>
                   <div className="text-sm text-white/70">Years Experience</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-emerald-300">24/7</div>
+                  <div className="text-xl md:text-2xl font-bold text-emerald-300">24/7</div>
                   <div className="text-sm text-white/70">Dedicated Support</div>
                 </div>
               </div>
             </div>
 
             {/* CTA Cards */}
-            <div className="space-y-6">
+            <div className="space-y-4 md:space-y-6">
               {/* Main CTA Card */}
-              <div className="p-8 transition-all duration-500 border bg-white/10 backdrop-blur-lg rounded-2xl border-white/20 hover:border-emerald-300/50 group">
+              <div className="p-6 md:p-8 transition-all duration-500 border bg-white/10 backdrop-blur-lg rounded-2xl border-white/20 hover:border-emerald-300/50 group">
                 <div className="flex items-start mb-4 space-x-4">
-                  <div className="flex items-center justify-center flex-shrink-0 w-12 h-12 transition-transform duration-300 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-xl group-hover:scale-110">
-                    <MessageCircle size={24} className="text-white" />
+                  <div className="flex items-center justify-center flex-shrink-0 w-10 md:w-12 h-10 md:h-12 transition-transform duration-300 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-xl group-hover:scale-110">
+                    <MessageCircle size={20} md:size={24} className="text-white" />
                   </div>
                   <div>
-                    <h3 className="mb-2 text-2xl font-bold text-white">Begin Your Pilgrimage</h3>
-                    <p className="text-white/80">Receive personalized Umrah & Hajj guidance from our expert advisors.</p>
+                    <h3 className="mb-2 text-xl md:text-2xl font-bold text-white">Begin Your Pilgrimage</h3>
+                    <p className="text-white/80 text-sm md:text-base">Receive personalized Umrah & Hajj guidance from our expert advisors.</p>
                   </div>
                 </div>
 
                 <Link 
                   to="/contact" 
-                  className="inline-flex items-center justify-center w-full px-8 py-4 font-semibold text-white transition-all duration-300 transform shadow-lg bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 rounded-xl group-hover:scale-105 hover:shadow-emerald-500/25"
+                  className="inline-flex items-center justify-center w-full px-6 md:px-8 py-3 md:py-4 font-semibold text-white transition-all duration-300 transform shadow-lg bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 rounded-xl group-hover:scale-105 hover:shadow-emerald-500/25"
                 >
                   Plan My Umrah/Hajj
                   <ArrowRight size={20} className="ml-2 transition-transform duration-300 group-hover:translate-x-1" />
@@ -134,8 +134,8 @@ const Cta = () => {
           </div>
 
           {/* Trust Badge */}
-          <div className="mt-12 text-center">
-            <div className="inline-flex items-center space-x-6 text-sm text-white/60">
+          <div className="mt-8 md:mt-12 text-center">
+            <div className="inline-flex flex-wrap items-center justify-center gap-4 md:space-x-6 text-sm text-white/60">
               <div className="flex items-center space-x-2">
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                 <span>No commitment required</span>

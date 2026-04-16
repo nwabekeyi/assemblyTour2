@@ -53,13 +53,13 @@ function Faq({faqs}) {
   };
 
   return (
-    <section className="py-16 bg-gradient-to-b from-gray-50 to-white">
+    <section className="py-12 md:py-16 bg-gradient-to-b from-gray-50 to-white">
       <div className="max-w-4xl px-4 mx-auto">
-        <div className="text-center mb-12">
-          <h2 className="mb-4 text-4xl md:text-5xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+        <div className="text-center mb-8 md:mb-12">
+          <h2 className="mb-3 md:mb-4 text-2xl md:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
             Frequently Asked Questions
           </h2>
-          <p className="text-lg text-gray-600">
+          <p className="text-sm md:text-lg text-gray-600">
             Everything you need to know before embarking on your sacred Umrah or Hajj journey.
           </p>
         </div>

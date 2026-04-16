@@ -27,19 +27,19 @@ function Attraction({ recentSacredSites }) {
   };
 
   return (
-    <div className="w-full py-16 bg-gradient-to-b from-gray-50 to-white">
+    <div className="w-full py-12 md:py-16 bg-gradient-to-b from-gray-50 to-white">
       <div className="container px-4 mx-auto">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="max-w-3xl mx-auto mb-16 text-center"
+          className="max-w-3xl mx-auto mb-10 md:mb-16 text-center"
         >
-          <h1 className="mb-6 font-serif text-4xl font-bold text-gray-800 md:text-5xl">
+          <h1 className="mb-4 md:mb-6 font-serif text-2xl md:text-3xl lg:text-4xl font-bold text-gray-800">
             SACRED SITES & ZIYARAH
           </h1>
-          <p className="text-lg leading-relaxed text-gray-600 md:text-xl">
+          <p className="text-base md:text-lg lg:text-xl leading-relaxed text-gray-600">
             Experience the most blessed and spiritually profound locations during
             your Umrah or Hajj journey.
           </p>
@@ -51,7 +51,7 @@ function Attraction({ recentSacredSites }) {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="grid grid-cols-1 gap-8 md:grid-cols-3"
+          className="grid grid-cols-1 gap-6 md:grid-cols-3"
         >
           {recentSacredSites.map((site) => (
             <motion.div
@@ -65,7 +65,7 @@ function Attraction({ recentSacredSites }) {
                   initial={{ scale: 1 }}
                   whileHover={{ scale: 1.1 }}
                   transition={{ duration: 0.6 }}
-                  className="object-cover w-full h-64"
+                  className="object-cover w-full h-48 md:h-64"
                   src={site.image}
                   alt={site.name}
                 />
@@ -73,16 +73,16 @@ function Attraction({ recentSacredSites }) {
               </div>
 
               {/* Overlay Content */}
-              <div className="absolute inset-0 flex flex-col justify-end p-6 text-white">
+              <div className="absolute inset-0 flex flex-col justify-end p-4 md:p-6 text-white">
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   whileHover={{ opacity: 1, y: 0 }}
-                  className="p-6 transition-all duration-500 transform translate-y-8 bg-black/80 backdrop-blur-sm rounded-xl group-hover:translate-y-0"
+                  className="p-4 md:p-6 transition-all duration-500 transform translate-y-8 bg-black/80 backdrop-blur-sm rounded-xl group-hover:translate-y-0"
                 >
-                  <h3 className="mb-3 font-serif text-2xl font-bold">
+                  <h3 className="mb-2 md:mb-3 font-serif text-lg md:text-2xl font-bold">
                     {site.name}
                   </h3>
-                  <p className="leading-relaxed text-gray-200 max-h-32 overflow-y-auto">
+                  <p className="leading-relaxed text-gray-200 text-sm md:text-base max-h-32 overflow-y-auto">
                     {site.description}
                   </p>
                 </motion.div>
@@ -97,7 +97,7 @@ function Attraction({ recentSacredSites }) {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ delay: 0.6 }}
-          className="mt-16 text-center"
+          className="mt-10 md:mt-16 text-center"
         >
           <motion.button
             whileHover={{
@@ -106,7 +106,7 @@ function Attraction({ recentSacredSites }) {
             }}
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate("/all-attractions")}
-            className="px-8 py-4 font-semibold text-white transition-all duration-300 rounded-full bg-emerald-600 hover:bg-emerald-700"
+            className="px-6 md:px-8 py-3 md:py-4 font-semibold text-white transition-all duration-300 rounded-full bg-emerald-600 hover:bg-emerald-700"
           >
             Explore All Sacred Sites
           </motion.button>

@@ -42,8 +42,8 @@ function App() {
   // if (checkingAuth) return <LoadingSpinner />;
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <div className="bg-[#F3F4F6] ">
+    <div className="flex flex-col min-h-screen overflow-x-hidden">
+      <div className="bg-[#F3F4F6] overflow-x-hidden">
         <Routes>
           {/* Auth Routes (Login, Signup) */}
 

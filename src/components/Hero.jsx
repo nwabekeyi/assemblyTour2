@@ -136,7 +136,7 @@ const Hero = () => {
 
       {/* Content Overlay */}
       <div className="absolute inset-0 flex items-center">
-        <div className="container px-6 mx-auto lg:px-8">
+        <div className="container px-4 mx-auto md:px-6 lg:px-8">
           <div className="max-w-2xl">
             <div className="inline-flex items-center px-4 py-2 mb-6 border rounded-full bg-white/10 backdrop-blur-sm border-white/20">
               <span className="w-2 h-2 mr-2 bg-green-400 rounded-full animate-pulse"></span>
@@ -145,11 +145,11 @@ const Hero = () => {
               </span>
             </div>
 
-            <h1 className="mb-4 text-4xl font-bold leading-tight text-white md:text-6xl lg:text-7xl">
+            <h1 className="mb-3 md:mb-4 text-2xl md:text-4xl lg:text-6xl font-bold leading-tight text-white">
               {currentSlide.title}
             </h1>
 
-            <p className="max-w-lg mb-8 text-xl leading-relaxed md:text-2xl text-white/90">
+            <p className="max-w-lg mb-6 md:mb-8 text-base md:text-xl lg:text-2xl leading-relaxed text-white/90">
               {currentSlide.body || currentSlide.description}
             </p>
 

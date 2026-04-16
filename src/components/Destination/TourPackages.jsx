@@ -18,17 +18,17 @@ const TourPackages = ({ allPackages }) => {
   if (!allPackages || !Array.isArray(allPackages) || allPackages.length === 0) return null;
 
   return (
-    <section className="py-16 bg-[#F3F4F6]">
+    <section className="py-12 md:py-16 bg-[#F3F4F6]">
       <div className="container px-4 mx-auto">
         {/* Header */}
-        <div className="mb-16 text-center">
+        <div className="mb-10 md:mb-16 text-center">
           <div className="inline-flex items-center px-4 py-2 mb-4 text-sm font-semibold text-emerald-600 bg-emerald-100 rounded-full">
             ✨ Featured Packages
           </div>
-          <h1 className="mb-4 text-4xl font-bold text-gray-900 md:text-5xl">
+          <h1 className="mb-3 md:mb-4 text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900">
             Your Sacred Umrah Journey Awaits
           </h1>
-          <p className="max-w-2xl mx-auto text-xl text-gray-600">
+          <p className="max-w-2xl mx-auto text-base md:text-xl text-gray-600">
             Carefully designed Umrah packages to help you perform your pilgrimage
             with ease, comfort, and devotion.
           </p>

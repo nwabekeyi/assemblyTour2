@@ -111,7 +111,7 @@ function AboutUs({ experienceSection }) {
       </div>
 
       <div className="container relative px-4 mx-auto">
-        <div className="grid items-center grid-cols-1 gap-16 lg:gap-24 md:grid-cols-2">
+        <div className="grid items-center grid-cols-1 gap-8 lg:gap-16 md:grid-cols-2">
           
           {/* Left: Text Content */}
           <motion.div
@@ -135,7 +135,7 @@ function AboutUs({ experienceSection }) {
             {/* Title */}
             <motion.h2
               variants={itemVariants}
-              className="mb-6 text-5xl font-bold lg:text-6xl"
+              className="mb-4 text-3xl md:text-4xl font-bold lg:text-5xl"
             >
               <span className="text-transparent bg-gradient-to-r from-gray-900 to-emerald-700 bg-clip-text">
                 Why Choose Us
@@ -164,7 +164,7 @@ function AboutUs({ experienceSection }) {
                   key={index}
                   variants={itemVariants}
                   whileHover={{ x: 10 }}
-                  className="flex items-start gap-6 p-4 transition-all duration-300 rounded-2xl hover:bg-white/50 backdrop-blur-sm group"
+                  className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6 p-4 transition-all duration-300 rounded-2xl hover:bg-white/50 backdrop-blur-sm group"
                 >
                   <motion.div
                     variants={featureIconVariants}
@@ -172,15 +172,15 @@ function AboutUs({ experienceSection }) {
                     whileInView="visible"
                     whileHover="hover"
                     viewport={{ once: true }}
-                    className={`p-4 rounded-2xl bg-gradient-to-r ${feature.color} text-white shadow-lg group-hover:shadow-xl`}
+                    className={`p-3 md:p-4 rounded-2xl bg-gradient-to-r ${feature.color} text-white shadow-lg group-hover:shadow-xl shrink-0`}
                   >
-                    <feature.icon size={24} />
+                    <feature.icon size={20} />
                   </motion.div>
                   <div className="flex-1">
-                    <h4 className="mb-2 text-xl font-bold text-gray-800 transition-colors group-hover:text-gray-900">
+                    <h4 className="mb-2 text-lg md:text-xl font-bold text-gray-800 transition-colors group-hover:text-gray-900">
                       {feature.title}
                     </h4>
-                    <p className="leading-relaxed text-gray-600">
+                    <p className="leading-relaxed text-gray-600 text-sm md:text-base">
                       {feature.description}
                     </p>
                   </div>
@@ -194,7 +194,7 @@ function AboutUs({ experienceSection }) {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
-            className="relative w-full h-[600px]"
+            className="relative w-full h-[400px] md:h-[500px] lg:h-[600px]"
           >
             {/* Main Image */}
             <motion.div
@@ -205,7 +205,7 @@ function AboutUs({ experienceSection }) {
               <img
                 src={mainImage}
                 alt="Main Pilgrimage"
-                className="w-full h-[400px] object-cover"
+                className="w-full h-[250px] md:h-[350px] lg:h-[400px] object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
             </motion.div>
@@ -215,12 +215,12 @@ function AboutUs({ experienceSection }) {
               variants={imageVariants}
               whileHover="hover"
               transition={{ delay: 0.2 }}
-              className="absolute right-0 z-10 w-2/3 overflow-hidden shadow-xl bottom-10 rounded-2xl"
+              className="absolute right-0 z-10 w-2/3 overflow-hidden shadow-xl bottom-4 md:bottom-10 rounded-2xl"
             >
               <img
                 src={secondaryImage}
                 alt="Secondary Pilgrimage"
-                className="w-full h-[300px] object-cover"
+                className="w-full h-[180px] md:h-[250px] lg:h-[300px] object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent" />
             </motion.div>

@@ -7,11 +7,11 @@ const FeaturedBlogs = ({ blogs = [] }) => {
   if (!blogs || blogs.length === 0) return null; // Don't render if no blogs
 
   return (
-    <section className="container py-16 mx-auto">
-      <h2 className="px-5 mb-10 text-3xl font-bold text-gray-800 md:text-4xl">
+    <section className="container py-12 md:py-16 mx-auto px-4">
+      <h2 className="mb-8 md:mb-10 text-2xl md:text-3xl lg:text-4xl font-bold text-gray-800">
         Featured Pilgrimage Insights
       </h2>
-      <div className="grid gap-8 px-5 mx-auto lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1">
+      <div className="grid gap-6 md:gap-8 lg:grid-cols-3 md:grid-cols-2 grid-cols-1">
         {blogs.map((blog) => (
           <Link to={`/detail/${blog.slug}`} key={blog.id}>
             <div className="overflow-hidden transition-all duration-300 bg-white rounded-2xl shadow-lg hover:shadow-2xl">
@@ -38,19 +38,19 @@ const FeaturedBlogs = ({ blogs = [] }) => {
                   transition={{ duration: 0.7 }}
                   src={blog.cover_image_url}
                   alt={blog.title}
-                  className="object-cover w-full h-64"
+                  className="object-cover w-full h-48 md:h-56 lg:h-64"
                 />
                 <span className="absolute px-4 py-2 text-sm font-semibold text-white bg-emerald-600 rounded-full bottom-4 left-4">
                   Pilgrimage
                 </span>
               </div>
 
-              <div className="p-6">
-                <h3 className="mb-2 text-xl font-bold text-gray-800">{blog.title}</h3>
+              <div className="p-4 md:p-6">
+                <h3 className="mb-2 text-lg md:text-xl font-bold text-gray-800">{blog.title}</h3>
                 <p className="mt-1 text-sm font-medium text-gray-500">
                   By {blog.author || "Admin"}
                 </p>
-                <p className="text-gray-600 line-clamp-3 mt-2">{blog.excerpt}</p>
+                <p className="text-gray-600 line-clamp-3 mt-2 text-sm md:text-base">{blog.excerpt}</p>
                 <p className="mt-4 text-emerald-600 font-medium hover:text-emerald-700">
                   Read More →
                 </p>

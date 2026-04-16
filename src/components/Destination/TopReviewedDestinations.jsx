@@ -155,14 +155,21 @@ const TopReviewedDestinations = () => {
     </div>
   );
 
-  return (
+return (
     <section>
       <div className="container px-4 mx-auto">
         {/* Header */}
-        <div className="mb-12 text-center">
+        <div className="mb-8 md:mb-12 text-center">
           <div className="inline-flex items-center px-4 py-2 mb-4 text-sm font-semibold text-green-700 bg-green-100 rounded-full">
-            🕋 Pilgrims’ Choice
+            🕋 Pilgrims' Choice
           </div>
+          <h2 className="mb-3 md:mb-4 text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900">
+            Top Rated Umrah & Hajj Packages
+          </h2>
+          <p className="max-w-2xl mx-auto text-base md:text-xl text-gray-600">
+            Trusted and highly reviewed pilgrimage packages to help you focus on your ibadah
+          </p>
+        </div>
           <h2 className="mb-4 text-4xl font-bold text-gray-900 md:text-5xl">
             Top Rated Umrah & Hajj Packages
           </h2>

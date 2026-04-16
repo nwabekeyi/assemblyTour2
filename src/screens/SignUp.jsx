@@ -11,61 +11,26 @@ function SignUp() {
   const { signup, loading } = useAuthStore();
   const { packageDetail, setPackageDetail } = usePackageStore();
 
-  // Email input state
   const [email, setEmail] = useState("");
-  const [turnstileToken, setTurnstileToken] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(true);
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
   const [error, setError] = useState("");
 
-  const turnstileRef = useRef(null);
   const inputRef = useRef(null);
-  const CLOUDFLARE_SITE_KEY = import.meta.env.VITE_CLOUDFLARE_SITE_KEY;
 
-  // -----------------------------
-  // Cloudflare Turnstile
-  // -----------------------------
-  useEffect(() => {
-    const script = document.createElement("script");
-    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
-    script.async = true;
-    script.defer = true;
-
-    script.onload = () => {
-      if (window.turnstile && turnstileRef.current) {
-        window.turnstile.render(turnstileRef.current, {
-          sitekey: CLOUDFLARE_SITE_KEY,
-          callback: (token) => setTurnstileToken(token),
-          "error-callback": () => setTurnstileToken(""),
-          theme: "dark",
-        });
-      }
-    };
-
-    document.body.appendChild(script);
-    return () => document.body.removeChild(script);
-  }, [CLOUDFLARE_SITE_KEY]);
-
-  // -----------------------------
-  // Email validation
-  // -----------------------------
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
   };
 
   const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  // -----------------------------
-  // Handle registration submit
-  // -----------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!packageDetail) return; // Shouldn't happen because modal forces user to select
+    if (!packageDetail) return;
 
     const result = await signup({
       email,
-      turnstileToken,
       package_id: packageDetail.id,
       location: packageDetail.location,
       individuals: `${packageDetail.group_size_min}-${packageDetail.group_size_max}`,
@@ -82,16 +47,13 @@ function SignUp() {
     }
   };
 
-  // -----------------------------
-  // Modal content
-  // -----------------------------
   const renderPackageModalContent = () => {
     if (!packageDetail) {
       return (
         <div className="flex flex-col gap-4 text-center">
           <h2 className="text-2xl font-bold text-gray-900">No Package Selected</h2>
           <p className="text-gray-600">
-            You haven’t selected a package yet. Please choose a travel package to continue.
+            You haven't selected a package yet. Please choose a travel package to continue.
           </p>
           <button
             onClick={() => navigate("/packages")}
@@ -213,7 +175,6 @@ function SignUp() {
       >
         <div className="bg-gray-800 py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email */}
             <div>
               <label className="block text-sm font-medium text-gray-300">
                 Email Address
@@ -235,9 +196,6 @@ function SignUp() {
                 Your login credentials will be sent to this email
               </p>
             </div>
-
-            {/* Turnstile */}
-            <div ref={turnstileRef} className="mt-4" />
 
             {error && (
               <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">

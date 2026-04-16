@@ -35,8 +35,8 @@ const PackagesPage = () => {
   }
 
   // Filter by category (API already returns all together)
-  const umrahPackages = allPackages.filter((pkg) => pkg.category === "umrah");
-  const hajjPackages = allPackages.filter((pkg) => pkg.category === "hajj");
+  const umrahPackages = Array.isArray(allPackages) ? allPackages.filter((pkg) => pkg.category === "umrah") : [];
+  const hajjPackages = Array.isArray(allPackages) ? allPackages.filter((pkg) => pkg.category === "hajj") : [];
 
   const renderPackageCard = (pkg) => {
     const highlights = pkg.spiritual_highlights

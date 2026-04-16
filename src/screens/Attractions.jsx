@@ -28,9 +28,9 @@ function Attraction() {
         // Assuming your backend returns paginated data like:
         // { data: [...], total_pages: 5, ... } or similar
         const sites = response.data?.data || response.data?.results || [];
-        const pages = response.data?.total_pages || response.data?.count / pageSize || 1;
+        const pages = response.data?.total_pages || Math.ceil((response.data?.count || sites.length) / pageSize) || 1;
 
-        setSacredSites(sites);
+        setSacredSites(Array.isArray(sites) ? sites : []);
         setTotalPages(Math.ceil(pages) || 1);
       } catch (err) {
         setError(err.message || "Failed to load sacred sites");

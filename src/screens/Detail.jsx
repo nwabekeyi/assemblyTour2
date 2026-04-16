@@ -250,7 +250,7 @@ function Detail() {
           </div>
 
           {/* List of comments */}
-          {comments?.length > 0 ? (
+          {Array.isArray(comments) && comments.length > 0 ? (
             <div className="space-y-8">
               {comments.map((c) => (
                 <div key={c.id} className="bg-white p-5 rounded-lg shadow-sm border">
@@ -313,7 +313,7 @@ function Detail() {
                       )}
 
                       {/* Replies */}
-                      {replies[c.id]?.length > 0 && (
+                      {Array.isArray(replies[c.id]) && replies[c.id].length > 0 && (
                         <div className="mt-5 pl-6 border-l-2 border-gray-200 space-y-4">
                           {replies[c.id].map((r) => (
                             <div key={r.id}>

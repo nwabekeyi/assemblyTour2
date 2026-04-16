@@ -21,6 +21,9 @@ const Navbar = () => {
   const { user, logout } = useAuthStore();
   const { packages, loading, fetchNavbarPackages } = usePackageStore();
 
+  const packagesUmrah = Array.isArray(packages?.umrah) ? packages.umrah : [];
+  const packagesHajj = Array.isArray(packages?.hajj) ? packages.hajj : [];
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
@@ -214,7 +217,7 @@ const Navbar = () => {
                   <div>
                     <h3 className="text-2xl font-bold text-emerald-700 mb-6">Umrah Packages</h3>
                     <div className="grid md:grid-cols-2 gap-5">
-                      {packages.umrah.map((pkg) => (
+                      {packagesUmrah.map((pkg) => (
                         <Link
                           key={pkg.id}
                           to={`/packages/${pkg.id}`}  // 👈 Updated to use ID
@@ -232,7 +235,7 @@ const Navbar = () => {
                   <div>
                     <h3 className="text-2xl font-bold text-emerald-700 mb-6">Hajj Packages</h3>
                     <div className="grid gap-5">
-                      {packages.hajj.map((pkg) => (
+                      {packagesHajj.map((pkg) => (
                         <Link
                           key={pkg.id}
                           to={`/packages/${pkg.id}`}  // 👈 Updated to use ID
@@ -334,7 +337,7 @@ const Navbar = () => {
                             <>
                               <div>
                                 <h4 className="text-emerald-400 font-semibold mb-3">Umrah Packages</h4>
-                                {packages.umrah.map((pkg) => (
+                                {packagesUmrah.map((pkg) => (
                                   <Link
                                     key={pkg.id}
                                     to={`/packages/${pkg.id}`}  // 👈 Updated to use ID
@@ -347,7 +350,7 @@ const Navbar = () => {
                               </div>
                               <div>
                                 <h4 className="text-emerald-400 font-semibold mb-3">Hajj Packages</h4>
-                                {packages.hajj.map((pkg) => (
+                                {packagesHajj.map((pkg) => (
                                   <Link
                                     key={pkg.id}
                                     to={`/packages/${pkg.id}`}  // 👈 Updated to use ID

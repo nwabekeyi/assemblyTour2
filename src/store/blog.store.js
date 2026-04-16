@@ -10,8 +10,10 @@ const useBlogStore = create((set, get) => ({
   replies: {},
   loading: false,
   error: null,
+  totalCount: 0,
 
   setBlog: (blog) => set({ blog }),
+  setTotalCount: (count) => set({ totalCount: count }),
 
   // -----------------------------
   // FETCH BLOGS
@@ -19,7 +21,8 @@ const useBlogStore = create((set, get) => ({
   getAllBlogs: async (params = {}) => {
     set({ loading: true });
     const res = await axiosInstance.get("/blogs/", { params, useAuth: false });
-    set({ blogs: res.data?.data || [], loading: false });
+    const blogsData = res.data?.data || [];
+    set({ blogs: blogsData, totalCount: res.data?.count || blogsData.length, loading: false });
   },
 
   getSingleBlog: async (slug) => {
@@ -149,7 +152,7 @@ const useBlogStore = create((set, get) => ({
     }
   },
 
-  reset: () => set({ blog: null, blogs: [], comments: [], replies: {}, error: null }),
+  reset: () => set({ blog: null, blogs: [], comments: [], replies: {}, error: null, totalCount: 0 }),
 }));
 
 export default useBlogStore;

@@ -11,7 +11,7 @@ function Blog() {
   const [activeTab, setActiveTab] = useState("popular");
   const [currentPage, setCurrentPage] = useState(1);
 
-  const { blogs, getAllBlogs, loading, error, totalCount } = useBlogStore();
+  const { blogs, getAllBlogs, loading, error } = useBlogStore();
 
   useEffect(() => {
     getAllBlogs({
@@ -22,10 +22,8 @@ function Blog() {
     });
   }, [currentPage, search, activeTab]);
 
-  const handleClickBlog = (slug) => {
-    navigate(`/detail/${slug}`);
-  };
-
+  const blogsList = Array.isArray(blogs) ? blogs : [];
+  const totalCount = blogsList.length;
   const totalPages = Math.ceil(totalCount / 12);
 
   return (
@@ -91,7 +89,7 @@ function Blog() {
           <Loading />
         ) : error ? (
           <div className="text-center text-red-500">{error}</div>
-        ) : blogs.length === 0 ? (
+        ) : blogsList.length === 0 ? (
           <div className="text-center text-gray-500 py-20">
             <BookOpen size={48} className="mx-auto mb-4 text-gray-300" />
             <p className="text-lg">No articles found.</p>
@@ -99,7 +97,7 @@ function Blog() {
         ) : (
           <>
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {blogs.map((post) => (
+              {blogsList.map((post) => (
                 <article
                   key={post.id}
                   onClick={() => handleClickBlog(post.slug)}

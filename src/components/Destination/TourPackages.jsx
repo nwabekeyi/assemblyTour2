@@ -15,7 +15,7 @@ const TourPackages = ({ allPackages }) => {
     );
   };
 
-  if (!allPackages || allPackages.length === 0) return null;
+  if (!allPackages || !Array.isArray(allPackages) || allPackages.length === 0) return null;
 
   return (
     <section className="py-16 bg-[#F3F4F6]">

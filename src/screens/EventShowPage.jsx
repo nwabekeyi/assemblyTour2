@@ -84,7 +84,7 @@ const upcommingevents=[
           </button>
         </div>
         <div className="grid max-w-6xl grid-cols-1 gap-8 mx-auto md:grid-cols-2">
-          {(activeTab === "current" ? [event] : upcommingEvents || []).map(
+          {(activeTab === "current" ? event : (Array.isArray(upcommingEvents) ? upcommingEvents : [])).map(
             (eventItem, index) => (
               <div
                 key={index}

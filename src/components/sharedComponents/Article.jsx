@@ -17,12 +17,12 @@ function Article() {
       })
       .catch((error) => console.error("Error fetching data:", error)); // Handle errors
   }, []);
-  if (!data) {
+  if (!data || !Array.isArray(data)) {
     return (
       <div>
         <Loading />
       </div>
-    ); // Or some loading indicator
+    );
   }
   return (
     <div className="w-full">

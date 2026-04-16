@@ -72,6 +72,8 @@ const toggleExpand = (id) => {
 
 const isExpanded = (id) => expandedItems.has(id);
 
+  const travelHistoryList = Array.isArray(travelHistory) ? travelHistory : [];
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -90,12 +92,12 @@ const isExpanded = (id) => expandedItems.has(id);
     >
       <h2 className="text-2xl font-bold text-gray-800 mb-6">Travel History</h2>
 
-{travelHistory.length === 0 ? (
+{travelHistoryList.length === 0 ? (
          <p className="text-gray-500 text-center py-8">No travel history found.</p>
        ) : (
          <>
-           <div className="space-y-4">
-             {travelHistory.map((travel) => (
+            <div className="space-y-4">
+              {travelHistoryList.map((travel) => (
                <div key={travel.id} className="border rounded-xl p-4">
                  <div className="flex items-center justify-between">
                    <div className="flex items-center gap-4">

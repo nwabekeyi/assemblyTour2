@@ -9,6 +9,7 @@ function Customer() {
   const scrollContainerRef = useRef(null);
   
   const { testimonials, fetchTestimonials, loading } = useTestimonialStore();
+  const testimonialsList = Array.isArray(testimonials) ? testimonials : [];
 
   useEffect(() => {
     fetchTestimonials();
@@ -33,13 +34,13 @@ function Customer() {
 
   const nextSlide = () => {
     setCurrentIndex((prevIndex) =>
-      prevIndex >= testimonials.length - cardsToShow ? 0 : prevIndex + 1
+      prevIndex >= testimonialsList.length - cardsToShow ? 0 : prevIndex + 1
     );
   };
 
   const prevSlide = () => {
     setCurrentIndex((prevIndex) =>
-      prevIndex <= 0 ? testimonials.length - cardsToShow : prevIndex - 1
+      prevIndex <= 0 ? testimonialsList.length - cardsToShow : prevIndex - 1
     );
   };
 
@@ -48,7 +49,7 @@ function Customer() {
   };
 
   // Show loading state
-  if (loading && testimonials.length === 0) {
+  if (loading && testimonialsList.length === 0) {
     return (
       <div className="container px-4 py-16 mx-auto bg-gradient-to-b from-gray-50 to-white">
         <div className="text-center">
@@ -59,7 +60,7 @@ function Customer() {
     );
   }
 
-  const visibleCards = testimonials.slice(currentIndex, currentIndex + cardsToShow);
+  const visibleCards = testimonialsList.slice(currentIndex, currentIndex + cardsToShow);
 
   return (
     <div className="container px-4 py-16 mx-auto bg-gradient-to-b from-gray-50 to-white">
@@ -112,9 +113,9 @@ function Customer() {
         </div>
 
         {/* Dots Indicator */}
-        {testimonials.length > cardsToShow && (
+        {testimonialsList.length > cardsToShow && (
           <div className="flex items-center justify-center mt-8 space-x-3">
-            {Array.from({ length: testimonials.length - cardsToShow + 1 }).map((_, index) => (
+            {Array.from({ length: testimonialsList.length - cardsToShow + 1 }).map((_, index) => (
               <button
                 key={index}
                 onClick={() => goToSlide(index)}

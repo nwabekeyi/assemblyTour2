@@ -3,7 +3,7 @@ import axios from "../lib/axios";
 import { toast } from "react-hot-toast";
 const eventStore=create((set, get) => ({
     event: [],
-    upcommingEvents:[],
+    upcommingEvents: [],
     loading: false,
     error: null,
     createEvent: async (formdata) => {

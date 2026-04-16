@@ -26,6 +26,10 @@ function Blog() {
   const totalCount = blogsList.length;
   const totalPages = Math.ceil(totalCount / 12);
 
+  const handleClickBlog = (slug) => {
+    navigate(`/detail/${slug}`);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* PAGE HEADER */}

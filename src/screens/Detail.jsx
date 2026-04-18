@@ -295,7 +295,7 @@ function Detail() {
                       )}
 
                       {/* Comment actions */}
-                      {user && c.user_name === user.username && editingId !== c.id && (
+                      {user && c.user_id === user.id && editingId !== c.id && (
                         <div className="mt-2 flex gap-4 text-sm">
                           <button
                             onClick={() => handleStartEdit(c.id, c.content)}
@@ -335,7 +335,7 @@ function Detail() {
                                 <p className="mt-1 text-gray-700 text-sm">{r.content}</p>
                               )}
 
-                              {user && r.user_name === user.username && editingReplyId !== r.id && (
+                              {user && r.user_id === user.id && editingReplyId !== r.id && (
                                 <div className="mt-1 flex gap-4 text-xs">
                                   <button onClick={() => handleStartEdit(r.id, r.content, true)} className="text-indigo-600 hover:underline">Edit</button>
                                   <button onClick={() => handleDeleteReply(r.id, c.id)} className="text-red-600 hover:underline">Delete</button>

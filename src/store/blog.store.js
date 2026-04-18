@@ -11,6 +11,8 @@ const useBlogStore = create((set, get) => ({
   loading: false,
   error: null,
   totalCount: 0,
+  commentsNextUrl: null,
+  commentsLoading: false,
 
   setBlog: (blog) => set({ blog }),
   setTotalCount: (count) => set({ totalCount: count }),
@@ -73,9 +75,21 @@ const useBlogStore = create((set, get) => ({
     }
   },
 
-  getComments: async (slug) => {
-    const res = await axiosInstance.get(`/blogs/${slug}/comments/`, { useAuth: false });
-    set({ comments: res.data || [] });
+  getComments: async (slug, page = 1) => {
+    set({ commentsLoading: true });
+    const res = await axiosInstance.get(`/blogs/${slug}/comments/`, { 
+      params: { page },
+      useAuth: false 
+    });
+    const newComments = res.data?.data || [];
+    const nextUrl = res.data?.pagination?.next;
+    
+    if (page === 1) {
+      set({ comments: newComments, commentsNextUrl: nextUrl, commentsLoading: false });
+    } else {
+      const { comments } = get();
+      set({ comments: [...comments, ...newComments], commentsNextUrl: nextUrl, commentsLoading: false });
+    }
   },
 
   createReply: async (commentId, content) => {

@@ -15,6 +15,8 @@ function Detail() {
     blog,
     comments,
     replies,
+    commentsNextUrl,
+    commentsLoading,
     getSingleBlog,
     likeBlog,
     createComment,
@@ -40,6 +42,7 @@ function Detail() {
   const [editingId, setEditingId] = useState(null);
   const [editContent, setEditContent] = useState("");
   const [editingReplyId, setEditingReplyId] = useState(null);
+  const [commentsPage, setCommentsPage] = useState(1);
 
   const isAuthenticated = !!user;
 
@@ -57,7 +60,7 @@ function Detail() {
   }, [id, getSingleBlog]);
 
   useEffect(() => {
-    if (blog?.slug) getComments(blog.slug);
+    if (blog?.slug) getComments(blog.slug, 1);
   }, [blog?.slug, getComments]);
 
   const handleLike = async () => {
@@ -126,6 +129,7 @@ function Detail() {
   const handleStartEdit = (id, content, isReply = false) => {
     if (isReply) {
       setEditingReplyId(id);
+      setEditContent(content);
     } else {
       setEditingId(id);
       setEditContent(content);
@@ -138,11 +142,18 @@ function Detail() {
     setEditContent("");
   };
 
+  const handleLoadMoreComments = () => {
+    const nextPage = commentsPage + 1;
+    setCommentsPage(nextPage);
+    if (blog?.slug) getComments(blog.slug, nextPage);
+  };
+
   const handleSaveEdit = async (id, isReply = false, commentId = null) => {
     if (!editContent.trim()) return toast.error("Cannot save empty content");
+
     try {
       if (isReply && commentId) {
-        await editReply(id, editContent);          // ← only this line fixed
+        await editReply(id, editContent);
         getReplies(commentId);
       } else {
         await editComment(id, editContent);
@@ -165,7 +176,6 @@ function Detail() {
       setPassword("");
       toast.success("Logged in");
     }
-    // Error is handled in store, no need to handle here
   };
 
   if (!blog) return <Loading />;
@@ -173,21 +183,20 @@ function Detail() {
   return (
     <div className="min-h-screen bg-gray-50 pb-16">
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-
-        {/* Cover */}
+        {/* Cover Image */}
         <img
           src={blog.cover_image_url}
           alt={blog.title}
           className="w-full h-64 md:h-80 object-cover rounded-xl shadow mb-10"
         />
 
-        {/* Title & meta */}
+        {/* Title & Meta */}
         <h1 className="text-3xl md:text-4xl font-bold mb-4">{blog.title}</h1>
         <div className="flex items-center gap-3 text-gray-600 mb-10">
           {blog.author_image_url ? (
             <img
               src={blog.author_image_url}
-              alt=""
+              alt={blog.author_name}
               className="w-10 h-10 rounded-full object-cover"
             />
           ) : (
@@ -198,12 +207,13 @@ function Detail() {
           <div>
             <div className="font-medium">{blog.author_name}</div>
             <div className="text-sm">
-              {blog.read_time || "?"} min read • {blog.published_at ? new Date(blog.published_at).toLocaleDateString() : ""}
+              {blog.read_time || "?"} min read •{" "}
+              {blog.published_at ? new Date(blog.published_at).toLocaleDateString() : ""}
             </div>
           </div>
         </div>
 
-        {/* Like area */}
+        {/* Like Button */}
         <div className="flex items-center gap-6 mb-10">
           <button
             onClick={handleLike}
@@ -213,24 +223,24 @@ function Detail() {
                 : "text-gray-600 hover:text-red-600"
             }`}
           >
-            <Heart
-              className={`w-7 h-7 ${blog.is_liked ? "fill-current" : ""}`}
-            />
+            <Heart className={`w-7 h-7 ${blog.is_liked ? "fill-current" : ""}`} />
             <span className="font-medium text-lg">{blog.likes_count || 0}</span>
           </button>
         </div>
 
-        {/* Content */}
+        {/* Blog Content */}
         <div
           className="prose prose-lg max-w-none mb-16"
           dangerouslySetInnerHTML={{ __html: blog.content }}
         />
 
-        {/* Comments */}
+        {/* Comments Section */}
         <section className="mt-12">
-          <h2 className="text-2xl font-bold mb-6">Comments ({blog.comments_count || comments?.length || 0})</h2>
+          <h2 className="text-2xl font-bold mb-6">
+            Comments ({blog.comments_count || comments?.length || 0})
+          </h2>
 
-          {/* New comment */}
+          {/* New Comment Input */}
           <div className="mb-10">
             <textarea
               value={newComment}
@@ -241,24 +251,32 @@ function Detail() {
             <div className="mt-3">
               <button
                 onClick={handlePostComment}
-                className="px-6 py-2.5 bg-emerald-700 text-white rounded-lg hover:bg-indigo-700 transition disabled:opacity-50"
                 disabled={!newComment.trim()}
+                className="px-6 py-2.5 bg-emerald-700 text-white rounded-lg hover:bg-indigo-700 transition disabled:opacity-50"
               >
                 Post comment
               </button>
             </div>
           </div>
 
-          {/* List of comments */}
+          {/* Comments List */}
           {Array.isArray(comments) && comments.length > 0 ? (
             <div className="space-y-8">
               {comments.map((c) => (
                 <div key={c.id} className="bg-white p-5 rounded-lg shadow-sm border">
                   <div className="flex gap-4">
                     <div className="flex-shrink-0">
-                      <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-medium">
-                        {c.user_name?.[0]?.toUpperCase() || "?"}
-                      </div>
+                      {c.user_img_url ? (
+                        <img
+                          src={c.user_img_url}
+                          alt={c.user_name}
+                          className="w-10 h-10 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-medium">
+                          {c.user_name?.[0]?.toUpperCase() || "?"}
+                        </div>
+                      )}
                     </div>
 
                     <div className="flex-1">
@@ -267,7 +285,7 @@ function Detail() {
                         {new Date(c.created_at).toLocaleString()}
                       </div>
 
-                      {/* Edit comment */}
+                      {/* Edit Comment Mode */}
                       {editingId === c.id ? (
                         <div className="mt-3">
                           <textarea
@@ -277,7 +295,7 @@ function Detail() {
                           />
                           <div className="mt-3 flex gap-3">
                             <button
-                              onClick={() => handleSaveEdit(c.id, false)}
+                              onClick={() => handleSaveEdit(c.id)}
                               className="px-4 py-1.5 bg-green-600 text-white rounded hover:bg-emerald-700"
                             >
                               Save
@@ -294,20 +312,20 @@ function Detail() {
                         <p className="mt-2 text-gray-800 whitespace-pre-wrap">{c.content}</p>
                       )}
 
-                      {/* Comment actions */}
+                      {/* Comment Actions */}
                       {user && c.user_id === user.id && editingId !== c.id && (
-                        <div className="mt-2 flex gap-4 text-sm">
+                        <div className="mt-2 flex gap-4 text-xs">
                           <button
                             onClick={() => handleStartEdit(c.id, c.content)}
-                            className="text-emerald-700 hover:underline inline-flex items-center gap-1"
+                            className="text-indigo-600 hover:underline flex items-center gap-1"
                           >
-                            <Edit size={16} /> Edit
+                            <Edit size={14} /> Edit
                           </button>
                           <button
                             onClick={() => handleDeleteComment(c.id)}
-                            className="text-red-600 hover:underline inline-flex items-center gap-1"
+                            className="text-red-600 hover:underline flex items-center gap-1"
                           >
-                            <Trash2 size={16} /> Delete
+                            <Trash2 size={14} /> Delete
                           </button>
                         </div>
                       )}
@@ -318,7 +336,10 @@ function Detail() {
                           {replies[c.id].map((r) => (
                             <div key={r.id}>
                               <div className="font-medium text-sm">{r.user_name}</div>
-                              <div className="text-xs text-gray-500">{new Date(r.created_at).toLocaleString()}</div>
+                              <div className="text-xs text-gray-500">
+                                {new Date(r.created_at).toLocaleString()}
+                              </div>
+
                               {editingReplyId === r.id ? (
                                 <div className="mt-1">
                                   <textarea
@@ -327,8 +348,18 @@ function Detail() {
                                     className="w-full p-2 border rounded-lg"
                                   />
                                   <div className="mt-1 flex gap-2">
-                                    <button onClick={() => handleSaveEdit(r.id, true, c.id)} className="px-2 py-1 bg-green-600 text-white rounded">Save</button>
-                                    <button onClick={handleCancelEdit} className="px-2 py-1 bg-gray-200 rounded">Cancel</button>
+                                    <button
+                                      onClick={() => handleSaveEdit(r.id, true, c.id)}
+                                      className="px-2 py-1 bg-green-600 text-white rounded"
+                                    >
+                                      Save
+                                    </button>
+                                    <button
+                                      onClick={handleCancelEdit}
+                                      className="px-2 py-1 bg-gray-200 rounded"
+                                    >
+                                      Cancel
+                                    </button>
                                   </div>
                                 </div>
                               ) : (
@@ -337,8 +368,18 @@ function Detail() {
 
                               {user && r.user_id === user.id && editingReplyId !== r.id && (
                                 <div className="mt-1 flex gap-4 text-xs">
-                                  <button onClick={() => handleStartEdit(r.id, r.content, true)} className="text-indigo-600 hover:underline">Edit</button>
-                                  <button onClick={() => handleDeleteReply(r.id, c.id)} className="text-red-600 hover:underline">Delete</button>
+                                  <button
+                                    onClick={() => handleStartEdit(r.id, r.content, true)}
+                                    className="text-indigo-600 hover:underline"
+                                  >
+                                    Edit
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteReply(r.id, c.id)}
+                                    className="text-red-600 hover:underline"
+                                  >
+                                    Delete
+                                  </button>
                                 </div>
                               )}
                             </div>
@@ -346,7 +387,7 @@ function Detail() {
                         </div>
                       )}
 
-                      {/* Reply input */}
+                      {/* Reply Input */}
                       <div className="mt-4">
                         <textarea
                           value={replyContent[c.id] || ""}
@@ -358,13 +399,12 @@ function Detail() {
                         />
                         <button
                           onClick={() => handlePostReply(c.id)}
-                          className="mt-2 px-5 py-1.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 text-sm disabled:opacity-50"
                           disabled={!replyContent[c.id]?.trim()}
+                          className="mt-2 px-5 py-1.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 text-sm disabled:opacity-50"
                         >
                           Reply
                         </button>
                       </div>
-
                     </div>
                   </div>
                 </div>
@@ -373,13 +413,29 @@ function Detail() {
           ) : (
             <p className="text-gray-500 text-center py-10">No comments yet. Be the first!</p>
           )}
+
+          {/* Load More Comments */}
+          {commentsNextUrl && (
+            <div className="mt-6 text-center">
+              <button
+                onClick={handleLoadMoreComments}
+                disabled={commentsLoading}
+                className="px-6 py-2.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 disabled:opacity-50"
+              >
+                {commentsLoading ? "Loading..." : "Load More"}
+              </button>
+            </div>
+          )}
         </section>
       </main>
 
-      {/* Login modal */}
+      {/* Login Modal */}
       <Modal
         isOpen={showLoginModal}
-        onClose={() => { setShowLoginModal(false); setPendingAction(null); }}
+        onClose={() => {
+          setShowLoginModal(false);
+          setPendingAction(null);
+        }}
       >
         <div className="p-6">
           <h3 className="text-xl font-bold mb-2">Sign in to continue</h3>
@@ -407,8 +463,18 @@ function Detail() {
               />
             </div>
             <div className="flex gap-4 pt-3">
-              <button type="button" onClick={() => setShowLoginModal(false)} className="flex-1 py-2.5 bg-gray-200 rounded-lg hover:bg-gray-300">Cancel</button>
-              <button type="submit" disabled={authLoading} className="flex-1 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-60">
+              <button
+                type="button"
+                onClick={() => setShowLoginModal(false)}
+                className="flex-1 py-2.5 bg-gray-200 rounded-lg hover:bg-gray-300"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={authLoading}
+                className="flex-1 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-60"
+              >
                 {authLoading ? "Signing in..." : "Sign in"}
               </button>
             </div>

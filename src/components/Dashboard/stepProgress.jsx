@@ -38,7 +38,7 @@ const StepProgress = ({
             let statusText = "Pending";
             let statusClass = "text-gray-500 bg-gray-50 border-gray-200";
             let icon = "⏳";
-  
+
             if (isCompleted) {
               statusText = "Completed";
               statusClass = "text-emerald-700 bg-emerald-50 border-emerald-200";
@@ -49,9 +49,18 @@ const StepProgress = ({
                 statusClass = "text-red-700 bg-red-50 border-red-300";
                 icon = "❌";
               } else {
-                statusText = registrationStatus === "pending" ? "Under Review" : "In Progress";
-                statusClass = registrationStatus === "pending" ? "text-amber-700 bg-amber-50 border-amber-300" : "text-emerald-700 bg-emerald-50 border-emerald-300";
-                icon = registrationStatus === "pending" ? "🔍" : "▶️";
+                // Special handling for visa status step
+                if (currentCode === "visa_status") {
+                  statusText = "Pending/Awaiting visa decision";
+                  statusClass = "text-amber-700 bg-amber-50 border-amber-300";
+                  icon = "🔍";
+                } else {
+                  statusText = registrationStatus === "pending" ? "Under Review" : "In Progress";
+                  statusClass = registrationStatus === "pending" ? "text-amber-700 bg-amber-50 border-amber-300" : "text-emerald-700 bg-emerald-50 border-emerald-300";
+                  icon = registrationStatus === "pending" ? "🔍" : "▶️";
+                }
+              }
+            }
               }
             }
   

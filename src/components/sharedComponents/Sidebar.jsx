@@ -86,9 +86,6 @@ function Sidebar({ onClose }) {
       {/* Header / Logo – now clickable to go to home */}
       <div className="p-6 border-b border-gray-700">
         <Link to="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
-          <div className="flex items-center justify-center w-10 h-10 font-bold rounded-lg bg-gradient-to-r from-green-500 to-emerald-600">
-            🕋
-          </div>
           <div>
               <h1 className="text-lg font-bold text-white">
               Assembly Travels

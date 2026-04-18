@@ -24,6 +24,11 @@ import TravelDashboard from "./components/Dashboard/TravelDashboard";
 import Sidebar from "./screens/AdminScreen/Sidebar";
 import PackageDetail from "./screens/packageDetail";
 import Attraction from "./screens/Attractions";
+import ForgotPasswordPage from "./screens/ForgotPasswordPage";
+import VerifyOTPPage from "./screens/VerifyOTPPage";
+import ResetPasswordPage from "./screens/ResetPasswordPage";
+import ProfilePage from "./screens/ProfilePage";
+import SupportPage from "./screens/SupportPage";
 
 const ProtectedRoute = ({ element, condition, redirectTo = "/login" }) => {
   if (condition === undefined || condition === null) {
@@ -53,6 +58,9 @@ function App() {
             <Route index element={<Homepage />} />
              <Route path="login" element={<LoginPage />} />
             <Route path="signup" element={<SignUp />} />
+            <Route path="forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="verify-otp" element={<VerifyOTPPage />} />
+            <Route path="reset-password" element={<ResetPasswordPage />} />
             <Route path="/about" element={<AboutUs />} />
             <Route path="/contact" element={<ContactForm />} />
             <Route path="/service" element={<Service />} />
@@ -60,6 +68,7 @@ function App() {
             <Route path="/packages/:id" element={<PackageDetail />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/all-attractions" element={<Attraction />} />
+            <Route path="/support" element={<SupportPage />} />
             <Route path="/event" element={<EventShowPage />} />
             <Route path="/event/detail/:id" element={<EventDetailPage />} />
             <Route path="/destination" element={<DestinationPage />} />
@@ -72,6 +81,7 @@ function App() {
 <Route element={<DashBoardLayout />}>
             {/* Dashboard Main */}
             <Route path="/dashboard" element={<TravelDashboard />} />
+            <Route path="/dashboard/profile" element={<ProfilePage />} />
             <Route path="/dashboard/progress" element={<TravelDashboard />} />
             <Route path="/dashboard/history" element={<TravelDashboard />} />
             
@@ -88,7 +98,7 @@ function App() {
             <Route path="/dashboard/guidance/tawaf" element={<TravelDashboard />} />
             <Route path="/dashboard/guidance/dua" element={<TravelDashboard />} />
             
-            {/* Support */}
+            {/* Support - keep for backward compatibility but now redirects to /support? Actually keep both */}
             <Route path="/dashboard/support" element={<TravelDashboard />} />
             <Route path="/dashboard/support/contact" element={<TravelDashboard />} />
             <Route path="/dashboard/support/emergency" element={<TravelDashboard />} />

@@ -45,7 +45,7 @@ function LogInPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Username */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-white">
                 Username
               </label>
               <div className="relative mt-1 rounded-md shadow-sm">
@@ -65,7 +65,7 @@ function LogInPage() {
 
             {/* Password */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-white">
                 Password
               </label>
               <div className="relative mt-1 rounded-md shadow-sm">
@@ -102,15 +102,24 @@ function LogInPage() {
             </button>
           </form>
 
-          <p className="mt-8 text-sm text-center text-gray-400">
-            Not a member?{" "}
-            <Link
-              to="/signup"
-              className="font-medium text-emerald-400 hover:text-emerald-300"
-            >
-              Sign up now <ArrowRight className="inline w-4 h-4" />
-            </Link>
-          </p>
+           <p className="mt-8 text-sm text-center text-white">
+             Not a member?{" "}
+             <Link
+               to="/signup"
+               className="font-medium text-emerald-400 hover:text-emerald-300"
+             >
+               Sign up now <ArrowRight className="inline w-4 h-4" />
+             </Link>
+           </p>
+
+           <p className="mt-4 text-sm text-center">
+             <Link
+               to="/forgot-password"
+               className="font-medium text-emerald-600 hover:text-emerald-500"
+             >
+               Forgot your password?
+             </Link>
+           </p>
         </div>
       </motion.div>
     </div>

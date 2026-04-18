@@ -2,25 +2,130 @@ import InputField from "../../common/inputField";
 import Modal from "../sharedComponents/Modal";
 import FileUploader from "../../common/fileUploader";
 import { motion } from "framer-motion";
-import { Phone, MessageCircle, Mail, AlertTriangle, CheckCircle2, Circle, Clock, Plane, MapPin } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Phone, MessageCircle, Mail, AlertTriangle, CheckCircle2, Circle, Clock, Plane, MapPin, User, LogOut, HelpCircle, ChevronDown } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import useAuthStore from "../../store/store";
 
-export const DashboardHeader = ({ user, currentYear }) => (
-  <header className="bg-white border-b px-6 py-4">
-    <div className="max-w-7xl mx-auto flex justify-between items-center">
-      <div>
-        <h1 className="text-xl font-bold text-emerald-800">Assembly Travel</h1>
-        <p className="text-xs text-gray-500">Travel Portal {currentYear}</p>
-      </div>
-      <div className="flex items-center gap-3">
-        <div className="text-right hidden sm:block">
-          <p className="text-sm font-medium text-gray-900">{user.username || "Traveler"}</p>
-          <p className="text-xs text-gray-500">{user.phone}</p>
+export const DashboardHeader = ({ user, currentYear }) => {
+  const navigate = useNavigate();
+  const { logout } = useAuthStore();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      const dropdown = document.getElementById("dashboard-profile-dropdown");
+      const button = document.getElementById("dashboard-profile-btn");
+      if (button && button.contains(e.target)) return;
+      if (dropdown && !dropdown.contains(e.target)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
+
+  const handleLogout = () => {
+    logout();
+    setDropdownOpen(false);
+    navigate("/login");
+  };
+
+  const closeDropdown = () => setDropdownOpen(false);
+
+  // Get display name
+  const displayName = user?.first_name || user?.username || "Traveler";
+
+  return (
+    <header className="bg-white border-b px-6 py-4">
+      <div className="max-w-7xl mx-auto flex justify-between items-center">
+        <div>
+          <h1 className="text-xl font-bold text-emerald-800">Assembly Travels</h1>
+          <p className="text-xs text-gray-500">Travel Portal {currentYear}</p>
         </div>
-        <img src={user.profile_picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username || "Traveler")}&background=10B981&color=fff&size=128`} alt="Profile" className="w-10 h-10 rounded-full object-cover" />
+        <div className="flex items-center gap-3">
+          <div className="text-right hidden sm:block">
+            <p className="text-sm font-medium text-gray-900">{displayName}</p>
+            <p className="text-xs text-gray-500">{user?.phone || "No phone"}</p>
+          </div>
+
+          {/* Profile Dropdown */}
+          <div className="relative">
+            <button
+              id="dashboard-profile-btn"
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="flex items-center gap-2 p-1 rounded-full hover:ring-2 hover:ring-emerald-200 transition"
+            >
+              {user.profile_picture ? (
+                <img
+                  src={user.profile_picture}
+                  alt="Profile"
+                  className="w-10 h-10 rounded-full object-cover border-2 border-emerald-500"
+                />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 flex items-center justify-center">
+                  <User size={20} className="text-white" />
+                </div>
+              )}
+              <ChevronDown
+                size={14}
+                className={`text-gray-500 transition-transform ${dropdownOpen ? "rotate-180" : ""}`}
+              />
+            </button>
+
+            {/* Dropdown Menu */}
+            {dropdownOpen && (
+              <div
+                id="dashboard-profile-dropdown"
+                className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl border border-gray-100 py-2 z-50"
+              >
+                {/* User Info Header */}
+                <div className="px-4 py-3 border-b border-gray-100">
+                  <p className="text-sm font-semibold text-gray-800">
+                    {displayName}
+                  </p>
+                  <p className="text-xs text-gray-500 truncate">{user?.email || ""}</p>
+                </div>
+
+                {/* Dropdown Options */}
+                <div className="py-1">
+                  <Link
+                    to="/dashboard/profile"
+                    onClick={closeDropdown}
+                    className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50 transition"
+                  >
+                    <User size={16} />
+                    My Profile
+                  </Link>
+                  <Link
+                    to="/support"
+                    onClick={closeDropdown}
+                    className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50 transition"
+                  >
+                    <HelpCircle size={16} />
+                    Support
+                  </Link>
+                </div>
+
+                {/* Divider */}
+                <div className="border-t border-gray-100 my-1" />
+
+                {/* Logout */}
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-3 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition"
+                >
+                  <LogOut size={16} />
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
-    </div>
-  </header>
-);
+    </header>
+  );
+};
 
 export const UnderReviewSection = ({ title, onCheckUpdates }) => (
   <div className="bg-white p-12 rounded-2xl shadow-sm border border-gray-100 text-center">
@@ -94,7 +199,7 @@ export const RegistrationForm = ({ formData, onChange, profilePicture, setProfil
             key={key}
             label={key.replace(/_/g, " ")}
             name={key}
-            type={key.includes("date") || key.includes("expiry") ? "date" : key === "phone_number" ? "tel" : "text"}
+            type={key.includes("date") || key.includes("expiry") ? "date" : (key === "phone_number" || key === "phone") ? "tel" : "text"}
             value={value}
             onChange={onChange}
             required

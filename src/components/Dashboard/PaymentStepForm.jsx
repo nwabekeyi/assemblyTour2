@@ -34,6 +34,7 @@ const PaymentStepForm = ({ onSubmit, loading }) => {
   );
 
   const packagePrice = registration?.package_price;
+  const hasBankAccounts = bankAccounts.length > 0;
 
   if (!isPaymentStep) return null;
 
@@ -66,53 +67,55 @@ const PaymentStepForm = ({ onSubmit, loading }) => {
               <Building className="w-5 h-5" />
               Bank Accounts for Payment
             </h4>
-            {bankAccounts.length > 0 ? (
-              <div className="grid gap-3">
-                {bankAccounts.map((account) => (
-                  <div key={account.id} className="p-4 bg-gray-50 rounded-lg border">
-                    <p className="font-semibold text-gray-800">{account.bank_name}</p>
-                    <p className="text-gray-600">{account.account_name}</p>
-                    <p className="text-gray-800 font-mono">{account.account_number}</p>
-                    {account.notes && (
-                      <p className="text-sm text-gray-500 mt-1">{account.notes}</p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-500">No bank accounts available. Please contact support.</p>
-            )}
+            <div className="grid gap-3">
+              {bankAccounts.map((account) => (
+                <div key={account.id} className="p-4 bg-gray-50 rounded-lg border">
+                  <p className="font-semibold text-gray-800">{account.bank_name}</p>
+                  <p className="text-gray-600">{account.account_name}</p>
+                  <p className="text-gray-800 font-mono">{account.account_number}</p>
+                  {account.notes && (
+                    <p className="text-sm text-gray-500 mt-1">{account.notes}</p>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <FileUploader
-              label="Upload Payment Proof (Bank Transfer Receipt) *"
-              selectedFile={selectedFile}
-              onFileSelect={setSelectedFile}
-              accept={{ "image/*": [], "application/pdf": [] }}
-            />
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Description (Optional)
-              </label>
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Add any notes about your payment..."
-                className="w-full p-3 border rounded-lg"
-                rows={3}
-              />
+          {!hasBankAccounts ? (
+            <div className="p-4 bg-amber-50 rounded-lg border border-amber-200">
+              <p className="text-amber-800">Bank details not configured yet. Please contact support or wait for admin to add bank details.</p>
             </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <FileUploader
+                label="Upload Payment Proof (Bank Transfer Receipt) *"
+                selectedFile={selectedFile}
+                onFileSelect={setSelectedFile}
+                accept={{ "image/*": [], "application/pdf": [] }}
+              />
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Description (Optional)
+                </label>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Add any notes about your payment..."
+                  className="w-full p-3 border rounded-lg"
+                  rows={3}
+                />
+              </div>
 
-            <button
-              type="submit"
-              disabled={!selectedFile || loading}
-              className="w-full py-4 bg-emerald-600 text-white font-bold rounded-xl shadow-lg hover:bg-emerald-700 disabled:opacity-50 transition"
-            >
-              {loading ? "Uploading..." : "Upload Payment Proof"}
-            </button>
-          </form>
+              <button
+                type="submit"
+                disabled={!selectedFile || loading}
+                className="w-full py-4 bg-emerald-600 text-white font-bold rounded-xl shadow-lg hover:bg-emerald-700 disabled:opacity-50 transition"
+              >
+                {loading ? "Uploading..." : "Upload Payment Proof"}
+              </button>
+            </form>
+          )}
         </>
       )}
     </motion.div>

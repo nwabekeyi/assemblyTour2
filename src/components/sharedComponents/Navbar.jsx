@@ -1,7 +1,6 @@
 import {
   Menu,
   X,
-  Home,
   Package,
   Building2,
   BookOpen,
@@ -9,6 +8,10 @@ import {
   User,
   ChevronDown,
   Info,
+  LogOut,
+  HelpCircle,
+  ChevronRight,
+  Home,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import useAuthStore from "../../store/store";
@@ -59,30 +62,48 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleMobileScroll);
   }, [prevScrollY]);
 
-  // Click outside to close dropdown
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      const dropdownContainer = document.getElementById("packages-dropdown");
-      const dropdownButton = document.getElementById("packages-dropdown-btn");
-      
-      // Don't close if clicking on the button that toggles dropdown
-      if (dropdownButton && dropdownButton.contains(e.target)) {
-        return;
-      }
-      
-      // Close if clicking outside the dropdown
-      if (dropdownContainer && !dropdownContainer.contains(e.target)) {
-        setActiveDropdown(null);
-      }
-    };
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
-  }, []);
+   // Click outside to close dropdown
+   useEffect(() => {
+     const handleClickOutside = (e) => {
+       const packagesDropdown = document.getElementById("packages-dropdown");
+       const packagesButton = document.getElementById("packages-dropdown-btn");
+       const profileDropdown = document.getElementById("profile-dropdown");
+       const profileButton = document.getElementById("profile-dropdown-btn");
+       const mobileProfileDropdown = document.getElementById("mobile-profile-dropdown");
+       const mobileProfileBtn = document.getElementById("mobile-profile-btn");
 
-  const handleLogout = () => {
-    logout();
-    setIsMenuOpen(false);
-  };
+       // Check packages dropdown
+       if (packagesButton && packagesButton.contains(e.target)) {
+         return;
+       }
+       if (packagesDropdown && !packagesDropdown.contains(e.target)) {
+         setActiveDropdown((prev) => (prev === "packages" ? null : prev));
+       }
+
+       // Check desktop profile dropdown
+       if (profileButton && profileButton.contains(e.target)) {
+         return;
+       }
+       if (profileDropdown && !profileDropdown.contains(e.target)) {
+         setActiveDropdown((prev) => (prev === "profile" ? null : prev));
+       }
+
+       // Check mobile profile dropdown
+       if (mobileProfileBtn && mobileProfileBtn.contains(e.target)) {
+         return;
+       }
+       if (mobileProfileDropdown && !mobileProfileDropdown.contains(e.target)) {
+         setActiveDropdown((prev) => (prev === "mobile-profile" ? null : prev));
+       }
+     };
+     document.addEventListener("click", handleClickOutside);
+     return () => document.removeEventListener("click", handleClickOutside);
+   }, []);
+
+   const handleLogout = () => {
+     logout();
+     closeAll();
+   };
 
   const closeAll = () => {
     setIsMenuOpen(false);
@@ -177,16 +198,82 @@ const Navbar = () => {
             <div className="flex items-center gap-4">
               {user ? (
                 <>
-                  <Link
-                    to="/dashboard"
-                    className="flex text-white items-center gap-2 px-5 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-xl font-medium hover:shadow-lg transition"
-                  >
-                    <User size={18} />
-                    {user.user?.name?.split(" ")[0] || "Profile"}
-                  </Link>
-                  <button onClick={handleLogout} className="text-white hover:text-red-400 font-medium">
-                    Logout
-                  </button>
+                  {/* Profile Dropdown */}
+                  <div className="relative">
+                    <button
+                      id="profile-dropdown-btn"
+                      onClick={() => toggleDropdown("profile")}
+                      className="flex items-center gap-3 px-4 py-2 rounded-xl hover:bg-white/10 transition"
+                    >
+                      {/* Profile Picture or Initial */}
+                      {user.profile_picture ? (
+                        <img
+                          src={user.profile_picture}
+                          alt="Profile"
+                          className="w-8 h-8 rounded-full object-cover border-2 border-emerald-400"
+                        />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 flex items-center justify-center">
+                          <User size={16} className="text-white" />
+                        </div>
+                      )}
+                      <span className="text-white font-medium hidden md:inline">
+                        {user.first_name || user.username || "Profile"}
+                      </span>
+                      <ChevronDown
+                        size={16}
+                        className={`text-white transition-transform ${activeDropdown === "profile" ? "rotate-180" : ""}`}
+                      />
+                    </button>
+
+                    {/* Profile Dropdown Menu */}
+                    {activeDropdown === "profile" && (
+                      <div
+                        id="profile-dropdown"
+                        className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl border border-gray-100 py-2 z-50"
+                      >
+                        {/* User Info Header */}
+                        <div className="px-4 py-3 border-b border-gray-100">
+                          <p className="text-sm font-semibold text-gray-800">
+                            {user.first_name || user.username || "User"}
+                          </p>
+                          <p className="text-xs text-gray-500 truncate">{user.email || ""}</p>
+                        </div>
+
+                        {/* Dropdown Options */}
+                        <div className="py-1">
+                          <Link
+                            to="/dashboard/profile"
+                            onClick={() => setActiveDropdown(null)}
+                            className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50 transition"
+                          >
+                            <User size={16} />
+                            My Profile
+                          </Link>
+                          <Link
+                            to="/support"
+                            onClick={() => setActiveDropdown(null)}
+                            className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50 transition"
+                          >
+                            <HelpCircle size={16} />
+                            Support
+                          </Link>
+                        </div>
+
+                        {/* Divider */}
+                        <div className="border-t border-gray-100 my-1" />
+
+                        {/* Logout */}
+                        <button
+                          onClick={handleLogout}
+                          className="flex items-center gap-3 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition"
+                        >
+                          <LogOut size={16} />
+                          Logout
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </>
               ) : (
                 <>
@@ -287,10 +374,10 @@ const Navbar = () => {
                 <span className="text-white font-bold text-lg">Assembly Travel</span>
               </Link>
 
-              {/* Mobile Menu Toggle */}
-              <button onClick={() => setIsMenuOpen(!isMenuOpen)}>
-                {isMenuOpen ? <X size={28} className="text-white" /> : <Menu size={28} className="text-white" />}
-              </button>
+               {/* Mobile Menu Toggle */}
+               <button type="button" onClick={(e) => { e.stopPropagation(); setIsMenuOpen(!isMenuOpen); }}>
+                 {isMenuOpen ? <X size={28} className="text-white" /> : <Menu size={28} className="text-white" />}
+               </button>
             </div>
           </div>
         </div>
@@ -377,28 +464,78 @@ const Navbar = () => {
             <div className="border-t border-gray-800 px-6 py-6 bg-black/90">
               {user ? (
                 <div className="flex flex-col gap-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      {user.user?.profile_picture ? (
-                        <img 
-                          src={user.user.profile_picture} 
-                          alt="Profile" 
-                          className="w-12 h-12 rounded-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 flex items-center justify-center">
-                          <User size={24} className="text-white" />
+                  {/* Mobile Profile Dropdown Toggle */}
+                  <div className="relative">
+                    <button
+                      id="mobile-profile-btn"
+                      onClick={() => toggleDropdown("mobile-profile")}
+                      className="flex items-center justify-between w-full p-3 rounded-xl bg-white/5 hover:bg-white/10 transition"
+                    >
+                      <div className="flex items-center gap-4">
+                        {user.profile_picture ? (
+                          <img
+                            src={user.profile_picture}
+                            alt="Profile"
+                            className="w-10 h-10 rounded-full object-cover border-2 border-emerald-400"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 flex items-center justify-center">
+                            <User size={20} className="text-white" />
+                          </div>
+                        )}
+                        <div className="text-left">
+                          <div className="font-semibold text-white">
+                            {user.first_name || user.username || "User"}
+                          </div>
+                          <div className="text-sm text-gray-400">{user.email}</div>
                         </div>
-                      )}
-                      <div>
-                        <div className="font-semibold text-white">{user.user?.name}</div>
-                        <div className="text-sm text-gray-400">Welcome back!</div>
                       </div>
-                    </div>
-                    <button onClick={handleLogout} className="text-red-400 font-medium">
-                      Logout
+                      <ChevronRight
+                        size={20}
+                        className={`text-white transition-transform ${activeDropdown === "mobile-profile" ? "rotate-90" : ""}`}
+                      />
                     </button>
+
+                    {/* Mobile Profile Dropdown Menu */}
+                  {activeDropdown === "mobile-profile" && (
+                    <div
+                      id="mobile-profile-dropdown"
+                      className="absolute left-0 right-0 -top-2 mt-2 bg-white rounded-xl shadow-2xl border border-gray-100 py-2 z-[60]"
+                    >
+                        <Link
+                          to="/dashboard/profile"
+                          onClick={closeAll}
+                          className="flex items-center justify-between px-4 py-3 text-sm text-gray-700 hover:bg-emerald-50 transition"
+                        >
+                          <div className="flex items-center gap-3">
+                            <User size={16} />
+                            My Profile
+                          </div>
+                          <ChevronRight size={14} />
+                        </Link>
+                        <Link
+                          to="/support"
+                          onClick={closeAll}
+                          className="flex items-center justify-between px-4 py-3 text-sm text-gray-700 hover:bg-emerald-50 transition"
+                        >
+                          <div className="flex items-center gap-3">
+                            <HelpCircle size={16} />
+                            Support
+                          </div>
+                          <ChevronRight size={14} />
+                        </Link>
+                        <div className="border-t border-gray-100 my-1" />
+                        <button
+                          onClick={handleLogout}
+                          className="flex items-center gap-3 w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition"
+                        >
+                          <LogOut size={16} />
+                          Logout
+                        </button>
+                      </div>
+                    )}
                   </div>
+
                   <Link
                     to="/dashboard"
                     className="w-full py-3 text-center font-semibold bg-emerald-600 rounded-xl text-white hover:bg-emerald-700 transition"

@@ -10,7 +10,7 @@ const StepDetails = ({ step, registration }) => {
   const infoFields = [
     { label: "First Name", value: userData.first_name, icon: User },
     { label: "Last Name", value: userData.last_name, icon: User },
-    { label: "Phone Number", value: userData.phone_number, icon: Phone },
+    { label: "Phone Number", value: userData.phone, icon: Phone },
     { label: "Date of Birth", value: userData.date_of_birth, icon: Calendar },
     { label: "Gender", value: userData.gender, icon: User },
     { label: "Nationality", value: userData.nationality, icon: MapPin },
@@ -142,70 +142,77 @@ const RegistrationProgress = () => {
         </div>
       </div>
 
-      <div className="space-y-3">
-        {all_steps.map((step, index) => {
-          const isCompleted = completed_step_ids.includes(step.id);
-          const isCurrent = step.code === current_step_code;
-          const stepPending = status === "pending" && isCurrent;
-          
-          return (
-            <div 
-              key={step.id}
-              className={`flex items-center gap-4 p-4 rounded-lg border ${
-                isCompleted 
-                  ? "bg-green-50 border-green-200" 
-                  : stepPending
-                  ? "bg-amber-50 border-amber-200"
-                  : isCurrent 
-                  ? "bg-blue-50 border-blue-200"
-                  : "bg-gray-50 border-gray-200"
-              }`}
-            >
-              <div className={`${
-                isCompleted 
-                  ? "text-green-600" 
-                  : stepPending
-                  ? "text-amber-600"
-                  : isCurrent 
-                  ? "text-blue-600"
-                  : "text-gray-400"
-              }`}>
-                {isCompleted ? (
-                  <CheckCircle className="w-6 h-6" />
-                ) : stepPending ? (
-                  <AlertCircle className="w-6 h-6" />
-                ) : isCurrent ? (
-                  <Clock className="w-6 h-6" />
-                ) : (
-                  <Circle className="w-6 h-6" />
-                )}
-              </div>
-              <div className="flex-1">
-                <p className={`font-medium ${
+       <div className="space-y-3">
+          {all_steps.map((step, index) => {
+            const isCompleted = completed_step_ids.includes(step.id);
+            const isCurrent = step.code === current_step_code;
+            const stepPending = status === "pending" && isCurrent;
+            
+            return (
+              <div 
+                key={step.id}
+                className={`flex items-center gap-4 p-4 rounded-lg border ${
                   isCompleted 
-                    ? "text-green-800" 
+                    ? "bg-green-50 border-green-200" 
                     : stepPending
-                    ? "text-amber-800"
+                    ? "bg-amber-50 border-amber-200"
                     : isCurrent 
-                    ? "text-blue-800"
-                    : "text-gray-600"
+                    ? "bg-blue-50 border-blue-200"
+                    : "bg-gray-50 border-gray-200"
+                }`}
+              >
+                <div className={`${
+                  isCompleted 
+                    ? "text-green-600" 
+                    : stepPending
+                    ? "text-amber-600"
+                    : isCurrent 
+                    ? "text-blue-600"
+                    : "text-gray-400"
                 }`}>
-                  {step.title}
-                </p>
-                {stepPending && (
-                  <p className="text-xs text-amber-600">{current_step !== "Arrival Status" ?  'Awaiting admin approval' : 'Registration Completed. Awating Arrival from destination'}</p>
-                )}
-                {isCurrent && !stepPending && (
-                  <p className="text-xs text-blue-600">Current Step</p>
-                )}
+                  {isCompleted ? (
+                    <CheckCircle className="w-6 h-6" />
+                  ) : stepPending ? (
+                    <AlertCircle className="w-6 h-6" />
+                  ) : isCurrent ? (
+                    <Clock className="w-6 h-6" />
+                  ) : (
+                    <Circle className="w-6 h-6" />
+                  )}
+                </div>
+                <div className="flex-1">
+                  <p className={`font-medium ${
+                    isCompleted 
+                      ? "text-green-800" 
+                      : stepPending
+                      ? "text-amber-800"
+                      : isCurrent 
+                      ? "text-blue-800"
+                      : "text-gray-600"
+                  }`}>
+                    {step.title}
+                  </p>
+                  {stepPending && (
+                    <p className="text-xs text-amber-600">
+                      {current_step === "Visa Status"
+                        ? "Pending/Awaiting visa decision"
+                        : current_step !== "Arrival Status"
+                        ? "Awaiting admin approval"
+                        : "Registration Completed. Awating Arrival from destination"
+                      }
+                    </p>
+                  )}
+                  {isCurrent && !stepPending && (
+                    <p className="text-xs text-blue-600">Current Step</p>
+                  )}
+                </div>
+                <div className="text-sm text-gray-500">
+                  Step {index + 1}
+                </div>
               </div>
-              <div className="text-sm text-gray-500">
-                Step {index + 1}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
 
       {status === "pending" && (
         <StepDetails step={all_steps.find(s => s.code === current_step_code)} registration={registration} />

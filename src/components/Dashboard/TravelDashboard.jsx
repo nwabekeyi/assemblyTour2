@@ -54,7 +54,7 @@ const TravelDashboard = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const [formDataStep2, setFormDataStep2] = useState({
-    phone_number: "",
+    phone: "",
     first_name: "",
     last_name: "",
     date_of_birth: "",
@@ -177,7 +177,7 @@ const getJourneyViewFromPath = (pathname) => {
 
   const handleStartOver = useCallback(() => {
     setFormDataStep2({
-      phone_number: "",
+      phone: "",
       first_name: "",
       last_name: "",
       date_of_birth: "",
@@ -221,22 +221,24 @@ const getJourneyViewFromPath = (pathname) => {
     await refreshRegistration();
   };
 
-  const handleStep1Submit = async (e) => {
-    e.preventDefault();
-    if (newPassword !== confirmPassword) return toast.error("Passwords do not match");
+   const handleStep1Submit = async (e) => {
+     e.preventDefault();
+     if (newPassword !== confirmPassword) return toast.error("Passwords do not match");
 
-    const payload = { password: newPassword, password_confirm: confirmPassword };
-    if (newUsername.trim()) payload.username = newUsername.trim();
+     const payload = { password: newPassword, password_confirm: confirmPassword };
+     if (newUsername.trim()) payload.username = newUsername.trim();
 
-    const success = await submitAccountSetup(payload);
-    if (success) {
-      setShowChangeCredentialsModal(false);
-      setNewUsername("");
-      setNewPassword("");
-      setConfirmPassword("");
-      await refreshRegistration();
-    }
-  };
+     const success = await submitAccountSetup(payload);
+     if (success) {
+       setShowChangeCredentialsModal(false);
+       setNewUsername("");
+       setNewPassword("");
+       setConfirmPassword("");
+       await refreshRegistration();
+       // Immediately fetch updated user profile to reflect username changes
+       await checkAuth();
+     }
+   };
 
   const handleStep2Change = (e) => {
     const { name, value } = e.target;
@@ -272,6 +274,7 @@ const getJourneyViewFromPath = (pathname) => {
     if (success) {
       setProfilePicture(null);
       await refreshRegistration();
+      await useAuthStore.getState().checkAuth();
     }
   };
 
@@ -339,61 +342,66 @@ const getJourneyViewFromPath = (pathname) => {
     </div>
   );
 
-  const renderStepForms = () => (
-    <>
-      {/* Show form when stepStatus is "pending" or "rejected", hide when "awaiting_approval" or "approved" */}
-      {showForm && currentStepCode === "account_setup" && !registration?.completed_step_codes?.includes("account_setup") && (
-        <AccountSetupForm
-          onSubmit={handleStep1Submit}
-          newUsername={newUsername}
-          setNewUsername={setNewUsername}
-          newPassword={newPassword}
-          setNewPassword={setNewPassword}
-          confirmPassword={confirmPassword}
-          setConfirmPassword={setConfirmPassword}
-          loading={storeLoading}
-        />
-      )}
+   const renderStepForms = () => (
+     <>
+       {/* Show form when stepStatus is "pending" or "rejected", hide when "awaiting_approval" or "approved" */}
+       {showForm && currentStepCode === "account_setup" && !registration?.completed_step_codes?.includes("account_setup") && (
+         <AccountSetupForm
+           onSubmit={handleStep1Submit}
+           newUsername={newUsername}
+           setNewUsername={setNewUsername}
+           newPassword={newPassword}
+           setNewPassword={setNewPassword}
+           confirmPassword={confirmPassword}
+           setConfirmPassword={setConfirmPassword}
+           loading={storeLoading}
+         />
+       )}
 
-      {showForm && currentStepCode === "payment_details" && !registration?.completed_step_codes?.includes("payment_details") && (
-        <PaymentStepForm
-          onSubmit={uploadPaymentProof}
-          loading={storeLoading}
-        />
-      )}
+       {showForm && currentStepCode === "payment_details" && !registration?.completed_step_codes?.includes("payment_details") && (
+         <PaymentStepForm
+           onSubmit={uploadPaymentProof}
+           loading={storeLoading}
+         />
+       )}
 
-      {showForm && currentStepCode === "registration_form" && !registration?.completed_step_codes?.includes("registration_form") && (
-        <RegistrationForm
-          formData={formDataStep2}
-          onChange={handleStep2Change}
-          profilePicture={profilePicture}
-          setProfilePicture={setProfilePicture}
-          onSubmit={handleStep2Submit}
-          loading={storeLoading}
-        />
-      )}
+       {showForm && currentStepCode === "registration_form" && !registration?.completed_step_codes?.includes("registration_form") && (
+         <RegistrationForm
+           formData={formDataStep2}
+           onChange={handleStep2Change}
+           profilePicture={profilePicture}
+           setProfilePicture={setProfilePicture}
+           onSubmit={handleStep2Submit}
+           loading={storeLoading}
+         />
+       )}
 
-      {showForm && currentStepCode === "document_upload" && !registration?.completed_step_codes?.includes("document_upload") && (
-        <DocumentUploadForm
-          passportFile={passportFile}
-          setPassportFile={setPassportFile}
-          yellowCardFile={yellowCardFile}
-          setYellowCardFile={setYellowCardFile}
-          onSubmit={handleStep3Submit}
-          loading={storeLoading}
-        />
-      )}
+       {showForm && currentStepCode === "document_upload" && !registration?.completed_step_codes?.includes("document_upload") && (
+         <DocumentUploadForm
+           passportFile={passportFile}
+           setPassportFile={setPassportFile}
+           yellowCardFile={yellowCardFile}
+           setYellowCardFile={setYellowCardFile}
+           onSubmit={handleStep3Submit}
+           loading={storeLoading}
+         />
+       )}
 
-      {/* Show "awaiting approval" message when status is awaiting_approval */}
-      {hideForm && stepStatus === "awaiting_approval" && (
-        <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-6 text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto mb-3"></div>
-          <h3 className="text-lg font-semibold text-gray-800 mb-1">Form Submitted</h3>
-          <p className="text-gray-600 text-sm">Awaiting admin approval. You will be notified once reviewed.</p>
-        </div>
-      )}
-    </>
-  );
+       {/* Show "awaiting approval" message when status is awaiting_approval */}
+       {hideForm && stepStatus === "awaiting_approval" && (
+         <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-6 text-center">
+           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto mb-3"></div>
+           <h3 className="text-lg font-semibold text-gray-800 mb-1">Form Submitted</h3>
+           <p className="text-gray-600 text-sm">
+             {currentStepCode === "visa_status"
+               ? "Pending/Awaiting visa decision. You will be notified once reviewed."
+               : "Awaiting admin approval. You will be notified once reviewed."
+             }
+           </p>
+         </div>
+       )}
+     </>
+   );
   
   // Main component return
   return (

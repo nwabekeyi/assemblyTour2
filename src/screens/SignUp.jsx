@@ -67,6 +67,8 @@ function SignUp() {
       );
     }
 
+    const textColor = "text-gray-700";
+
     return (
       <div className="flex flex-col gap-4">
         <h2 className="text-2xl font-bold text-gray-900 text-center">
@@ -79,16 +81,16 @@ function SignUp() {
           className="w-full h-48 object-cover rounded-lg"
         />
 
-        <p className="text-gray-700">
+        <p className={textColor}>
           <span className="font-semibold">Package:</span> {packageDetail.name}
         </p>
-        <p className="text-gray-700">
+        <p className={textColor}>
           <span className="font-semibold">Location:</span> {packageDetail.location}
         </p>
-        <p className="text-gray-700">
+        <p className={textColor}>
           <span className="font-semibold">Number of Individuals:</span> {packageDetail.group_size_min}-{packageDetail.group_size_max}
         </p>
-        <p className="text-gray-700">
+        <p className={textColor}>
           <span className="font-semibold">Price:</span>{" "}
           <span className="text-emerald-700">
             ₦{parseFloat(packageDetail.price_current).toLocaleString("en-NG")}
@@ -173,7 +175,7 @@ function SignUp() {
         <div className="bg-gray-800 py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-300">
+              <label className="block text-sm font-medium text-white">
                 Email Address
               </label>
 
@@ -189,7 +191,7 @@ function SignUp() {
                 />
               </div>
 
-              <p className="mt-1 text-xs text-gray-400">
+              <p className="mt-1 text-xs text-white">
                 Your login credentials will be sent to this email
               </p>
             </div>
@@ -219,7 +221,7 @@ function SignUp() {
             </button>
           </form>
 
-          <p className="mt-8 text-center text-sm text-gray-400">
+          <p className="mt-8 text-center text-sm text-white">
             Already have an account?{" "}
             <Link
               to="/login"

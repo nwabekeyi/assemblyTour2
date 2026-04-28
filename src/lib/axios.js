@@ -100,9 +100,13 @@ axiosInstance.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${newAccess}`;
 
         return axiosInstance(originalRequest);
-      } catch (refreshError) {
-        return Promise.reject(formatError(refreshError));
-      }
+       } catch (refreshError) {
+         // Refresh token failed → clear all auth data and redirect to login
+         localStorage.removeItem("access_token");
+         localStorage.removeItem("refresh_token");
+         window.location.href = "/login";
+         return Promise.reject(formatError(refreshError));
+       }
     }
 
     // Catch EVERYTHING else

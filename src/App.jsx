@@ -24,6 +24,7 @@ import TravelDashboard from "./components/Dashboard/TravelDashboard";
 import Sidebar from "./screens/AdminScreen/Sidebar";
 import PackageDetail from "./screens/packageDetail";
 import Attraction from "./screens/Attractions";
+import Gallery from "./screens/Gallery";
 import ForgotPasswordPage from "./screens/ForgotPasswordPage";
 import VerifyOTPPage from "./screens/VerifyOTPPage";
 import ResetPasswordPage from "./screens/ResetPasswordPage";
@@ -68,6 +69,7 @@ function App() {
             <Route path="/packages/:id" element={<PackageDetail />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/all-attractions" element={<Attraction />} />
+             <Route path="/gallery" element={<Gallery />} />
             <Route path="/support" element={<SupportPage />} />
             <Route path="/event" element={<EventShowPage />} />
             <Route path="/event/detail/:id" element={<EventDetailPage />} />

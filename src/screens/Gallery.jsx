@@ -122,10 +122,32 @@ const Gallery = () => {
                         <Video size={48} className="text-white" />
                       </div>
                     </div>
+                  ) : item.media_type === "video" ? (
+                    <div className="relative">
+                      <img
+                        src={item.media_url || item.url}
+                        alt={item.description || item.title}
+                        className="w-full h-48 object-cover"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Video size={48} className="text-white" />
+                      </div>
+                    </div>
+                  ) : isYoutube && item.thumbnail_url ? (
+                    <div className="relative">
+                      <img
+                        src={item.thumbnail_url}
+                        alt={item.description || item.title}
+                        className="w-full h-48 object-cover"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Video size={48} className="text-white" />
+                      </div>
+                    </div>
                   ) : isYoutube ? (
                     <div className="relative">
                       <img
-                        src={`https://img.youtube.com/vi/${item.url.match(/(?:v=|\/)([^&\?/]+)/)?.[1]}/hqdefault.jpg`}
+                        src={`https://img.youtube.com/vi/${item.url.match(/(?:v=|\/)([^&/?]+)/)?.[1]}/hqdefault.jpg`}
                         alt={item.description || item.title}
                         className="w-full h-48 object-cover"
                       />
@@ -193,7 +215,7 @@ const Gallery = () => {
                   controls
                   autoPlay
                   className="max-w-full max-h-full"
-                  poster={selectedItem.thumbnail_url}
+                  poster={selectedItem.thumbnail_url || selectedItem.media_url || selectedItem.url}
                 />
               )
             ) : selectedItem.media_type === "image" && selectedItem.media_url ? (

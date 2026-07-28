@@ -133,6 +133,12 @@ const Gallery = () => {
                         <Video size={48} className="text-white" />
                       </div>
                     </div>
+                  ) : item.media_type === "image" && item.media_url ? (
+                    <img
+                      src={item.media_url}
+                      alt={item.description || item.title}
+                      className="w-full h-48 object-cover"
+                    />
                   ) : (
                     <img
                       src={item.url}
@@ -190,6 +196,12 @@ const Gallery = () => {
                   poster={selectedItem.thumbnail_url}
                 />
               )
+            ) : selectedItem.media_type === "image" && selectedItem.media_url ? (
+              <img
+                src={selectedItem.media_url}
+                alt={selectedItem.description || selectedItem.title}
+                className="max-w-full max-h-full"
+              />
             ) : (
               <img
                 src={selectedItem.url}

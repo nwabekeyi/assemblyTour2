@@ -147,7 +147,7 @@ const Gallery = () => {
                   ) : isYoutube ? (
                     <div className="relative">
                       <img
-                        src={`https://img.youtube.com/vi/${item.url.match(/(?:v=|\/)([^&/?]+)/)?.[1]}/hqdefault.jpg`}
+                        src={`https://img.youtube.com/vi/${item.url.match(/(?:v=|youtu\.be\/)([^&?/]+)/)?.[1]}/hqdefault.jpg`}
                         alt={item.description || item.title}
                         className="w-full h-48 object-cover"
                       />
